@@ -1,59 +1,84 @@
 {
   "active_goal": "完整Accelerator Endpoint/Controller与Switch数字RTL IP；未完成",
   "previous_goal_turn": "progress",
-  "latest_stage": "partition_mapped_equivalence_closed",
+  "latest_stage": "shared_prefix_cost_adopted",
   "rtl": "rtl/tl/tl_control_partition.v",
-  "review": "docs/tl_partition_mapping_review.md",
-  "evidence": "build/verification/tl_partition_mapping",
+  "review": "docs/tl_prefix_cost_review.md",
+  "evidence": "build/verification/tl_prefix_cost",
   "full_goal_complete": false,
   "next_actions": [
-    "继续优化Control分组重复解码及前缀容量计算，当前source_control到Auth标签最差主模式setup仍为−1.250022ns；评估共享解码及经握手证明的流水结构",
+    "共享前缀费用已采用并通过九宽度RTL/两宽度网表等价；继续优化source_control到Control/Auth选择路径，主模式最差setup仍为−1.159129ns；流水结构须先证明握手及信用语义",
     "工艺网表二值等价已在WIDTH8/16闭合；后续优化保留完整状态/时钟、复位、输出与下一状态证明及真实故障门，继续实际顶层映射和STA",
     "完整UPLI事务格式转换及每VC独立选择；本阶段仅完成完整字段组的容量分组",
     "单笔超容量事务的规范可行路径：不得把字段分组或源端Single-Beat选择冒充任意Write/Atomic拆分",
     "Data Poison及其余TL消息；完整联合参考与在线容量归纳",
     "新顶层工艺STA及完整Endpoint/Switch数字IP所有剩余项"
   ],
-  "remote_main": "51e1392599d3d974d9c6ab5d5cce2d63d76518c1",
+  "remote_main": "1bc57c143d3d87ac8f638e0990ee19024b474005",
   "new_work_published": false,
   "live_jobs": [],
   "last_authorized_push": {
     "target": "origin/main",
-    "commit": "51e1392599d3d974d9c6ab5d5cce2d63d76518c1",
-    "scope": "User-authorized push of committed process baseline and static credit reduction on 2026-09-11"
+    "commit": "1bc57c143d3d87ac8f638e0990ee19024b474005",
+    "scope": "User explicitly authorized push then continuing Goal on 2026-09-11; mapped reset and complete mapped equivalence published."
   },
   "stage_evidence": {
-    "audit_passed": true,
-    "mapped_equivalence_closed": true,
-    "widths": [
+    "complete": true,
+    "rtl_equivalence_widths": [
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16
+    ],
+    "mapped_equivalence_widths": [
       8,
       16
     ],
-    "scope": "tl_control_partition and its three dependencies; binary behavior after one reset edge",
-    "original_output_ports": 10,
     "original_output_bits": 529,
     "next_state_bits": 4,
-    "reset_base_proved": true,
-    "all_state_and_clock_correspondence_checked": true,
-    "protocol_input_assumptions": [],
-    "retiming_or_state_encoding_assumptions": [],
-    "cec_timings": [
+    "unit_vectors": 4856,
+    "actual_peer_configs": 32,
+    "identical_trace_files": 96,
+    "unit_faults": 16,
+    "peer_faults": 56,
+    "equivalent_guard_removal_widths": [
+      8,
+      16
+    ],
+    "mapped_mutant_netlists": 6,
+    "mapped_sat_counterexamples": 6,
+    "mapped_clock_rejections": 2,
+    "actual_reset_proofs": 2,
+    "physical": [
       {
         "width": 8,
-        "seconds": 26.768650523968972
+        "cells": 14830,
+        "area_um2": 8615.502,
+        "worst_setup_ns": -1.159129,
+        "worst_reference_setup_ns": 4.600871
       },
       {
         "width": 16,
-        "seconds": 26.51805497892201
+        "cells": 14933,
+        "area_um2": 9021.726,
+        "worst_setup_ns": -1.116678,
+        "worst_reference_setup_ns": 4.643322
       }
     ],
-    "actual_transition_faults": 2,
-    "actual_tag_faults": 2,
-    "actual_reset_faults": 2,
-    "actual_clock_faults": 2,
-    "x_propagation_proof": false,
-    "main_clock_timing_closed": false,
+    "reference_sta_passed": 10,
+    "main_sta_passed": 0,
+    "reproduced_identical_netlists": 2,
+    "reproduced_sta_runs": 20,
+    "artifact_errors": 0,
+    "artifact_advisories": 17,
+    "compatibility_exit": 0,
     "full_top_sta": false,
+    "main_frequency_closed": false,
     "full_goal_complete": false
   }
 }

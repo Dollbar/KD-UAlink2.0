@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-10",
+  "updated": "2026-09-11",
   "full_goal_complete": false,
   "release_status": "research_not_signoff",
   "historical_artifacts_retained": false,
@@ -619,5 +619,66 @@
     "full_top_sta": false,
     "full_goal_complete": false,
     "review": "docs/tl_partition_mapping_review.md"
+  },
+  "tl_prefix_cost": {
+    "complete": true,
+    "rtl_equivalence_widths": [
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16
+    ],
+    "mapped_equivalence_widths": [
+      8,
+      16
+    ],
+    "original_output_bits": 529,
+    "next_state_bits": 4,
+    "unit_vectors": 4856,
+    "actual_peer_configs": 32,
+    "identical_trace_files": 96,
+    "unit_faults": 16,
+    "peer_faults": 56,
+    "equivalent_guard_removal_widths": [
+      8,
+      16
+    ],
+    "mapped_mutant_netlists": 6,
+    "mapped_sat_counterexamples": 6,
+    "mapped_clock_rejections": 2,
+    "actual_reset_proofs": 2,
+    "physical": [
+      {
+        "width": 8,
+        "cells": 14830,
+        "area_um2": 8615.502,
+        "worst_setup_ns": -1.159129,
+        "worst_reference_setup_ns": 4.600871
+      },
+      {
+        "width": 16,
+        "cells": 14933,
+        "area_um2": 9021.726,
+        "worst_setup_ns": -1.116678,
+        "worst_reference_setup_ns": 4.643322
+      }
+    ],
+    "reference_sta_passed": 10,
+    "main_sta_passed": 0,
+    "reproduced_identical_netlists": 2,
+    "reproduced_sta_runs": 20,
+    "artifact_errors": 0,
+    "artifact_advisories": 17,
+    "compatibility_exit": 0,
+    "full_top_sta": false,
+    "main_frequency_closed": false,
+    "full_goal_complete": false,
+    "review": "docs/tl_prefix_cost_review.md",
+    "rtl_sha256": "800f8d7ad56612951534150a649103ae2a3fed76a36f139079257fcfe44076b0"
   }
 }
