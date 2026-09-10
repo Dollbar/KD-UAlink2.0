@@ -1,4 +1,4 @@
-module tl_full_flit( // 完整512位Flit分类、预算及内容原子接收
+module tl_full_flit( // tl_full_flit模块：完整512位Flit分类、预算及内容原子接收
  input wire i_clk,i_rstn,i_commit,i_auth, // commit为实际接收事件，auth复位间稳定
  input wire [511:0] i_flit, // lower低256位，upper高256位
  input wire [1:0] i_msg, // 实际M0和M1侧带
@@ -39,4 +39,4 @@ always @(posedge i_clk)begin // 同步复位及接收错误锁存
  if(!i_rstn)r_fatal<=1'b0; // 复位清除fatal
  else if(i_commit&&!o_allowed)r_fatal<=1'b1; // 包括分类、预算及内容错误
 end // 状态更新结束
-endmodule // 完整Flit本地接收结束
+endmodule // 结束tl_full_flit模块， 完整Flit本地接收结束

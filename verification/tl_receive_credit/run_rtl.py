@@ -8,7 +8,7 @@ import argparse,hashlib,itertools,json,subprocess,sys,shutil
 R=Path(__file__).resolve().parents[2];sys.path.insert(0,str(R/'model/tl'))
 from credit_context import Context
 from receive_context import ReceiveContext
-p=argparse.ArgumentParser(description=__doc__);p.add_argument('--kd28-root',type=Path,required=True);p.add_argument('--label',default='matrix');p.add_argument('--data-credits',type=int,choices=(1,4),default=4);p.add_argument('--single',action='store_true');p.add_argument('--replace',type=Path);a=p.parse_args()
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('--kd28-root',type=Path,required=True);p.add_argument('--label',default='matrix');p.add_argument('--data-credits',type=int,choices=(1,4),default=4);p.add_argument('--single',action='store_true');p.add_argument('--replace',type=Path);p.add_argument('--traffic-pressure',action='store_true');p.add_argument('--admission',action='store_true');a=p.parse_args()
 S=R/'build/verification/tl_receive_credit'/a.label;S.mkdir(parents=True,exist_ok=False)
 external=[a.kd28_root/'Library/models/kd28/sram/rtl'/n for n in ('kd28_sram_sp_model.v','kd28_sram_sdp_model.v','kd28_sram_tdp_model.v','kd28_sram_cells.v')]+[a.kd28_root/'Library/models/kd28/fifo/rtl/kd28_fifo_sdp_storage_map.v']
 sources=sorted((R/'rtl/tl').glob('*.v'))+[R/'rtl/upli/upli_receive_fifo.v',R/'rtl/upli/upli_receive_storage.v']
@@ -19,6 +19,7 @@ def stream(auth,side):
     ctx=Context(auth=bool(auth));rx=ReceiveContext(auth=bool(auth));out=[];expected=[]
     for j in range(30):
         kind=(j+side)%5+1;lane=(j//5)%5;vc=max(lane-1,0);pool=int(lane==0);n=j%4
+        if a.traffic_pressure:kind=1 if (j//2)%2==0 else 2;vc=0;pool=0;n=2
         if kind==1:word=(1<<124)|(0x23<<118)|(vc<<116)|(pool<<102)|n
         elif kind==2:word=(2<<60)|(vc<<58)|(pool<<46)|(n<<44)|(1<<37)
         elif kind==3:word=(3<<60)|(3<<57)|(vc<<55)|(pool<<41)|(n<<39)
@@ -39,12 +40,19 @@ configs=list(itertools.product((8,16),(0,1),(0,1),(1,3)))
 if a.single:configs=configs[:1]
 rows=[]
 for width,auth,shared,latency in configs:
-    B=S/f'w{width}_a{auth}_s{shared}_l{latency}';B.mkdir();caps=[1]*10+[a.data_credits]*10;depth=2*sum(caps);cw=depth.bit_length();capword=pack(caps,width);ledger=caps[:]
+    B=S/f'w{width}_a{auth}_s{shared}_l{latency}';B.mkdir();cmdcredits=2 if a.traffic_pressure else 1;caps=[cmdcredits]*10+[a.data_credits]*10;depth=2*sum(caps);cw=depth.bit_length();capword=pack(caps,width);ledger=caps[:]
     if shared:ledger[10]+=ledger[15];ledger[15]=0
     expectedcap=pack(ledger,width+1);streams=[stream(auth,i) for i in (0,1)];sizes=[len(x[0]) for x in streams];N=max(sizes)
     for side,(flits,expected) in enumerate(streams):
         (B/f'app{side}.hex').write_text('\n'.join(f'{x:0128x}' for x in flits)+'\n');(B/f'expected{side}.hex').write_text('\n'.join(f'{x:0150x}' for x in expected)+'\n')
     bits=20*(width+1)
+    admission_ports=',.o_admission_wait(admission_wait[side]),.o_capacity_shortfall(shortfall[side]),.o_requirements(requirements[side])' if a.admission else ''
+    admission_trace=f'''integer admission_trace;initial admission_trace=$fopen("{B}/admission_trace.txt","w");
+always @(posedge clk)if(rstn)for(integer ae=0;ae<2;ae=ae+1)begin
+ $fdisplay(admission_trace,"%0d %0d %0d %0d %0d %0d %0d %0d %0h %0h %0h",cycle,ae,send[ae],taken[ae],txpending[ae],admission_wait[ae],shortfall[ae],select_fc[ae],requirements[ae],available[ae],capacity[ae]);
+ if((admission_wait[ae]||shortfall[ae])&&taken[ae])$fatal(1,"unfunded header sent");
+end
+''' if a.admission else ''
     tb=f'''`timescale 1ns/1ps // 实际双端信用闭环测试
 module tb; // 两套真实端口与600位SRAM，信用仅由实际退休返回
 reg clk=0;always #5 clk=~clk;reg rstn=0,start=0,bad_config=0;integer cycle=0,e,j,h,g,lane,amount,field,pos,nbits; // 单输入时钟及独立观察计数
@@ -55,6 +63,7 @@ wire [511:0] rx[0:1],tx[0:1],fc[0:1],read_flit[0:1];wire [1:0] rm[0:1],tm[0:1],f
 wire rxv[0:1],taken[0:1],port_rxtaken[0:1],portfatal[0:1],peer_done[0:1]; // 实际信用端口
 wire allowed[0:1],rxtaken[0:1],fatal[0:1],read_valid[0:1],retired[0:1],release_taken[0:1],read_ready[0:1]; // 实际SRAM消费
 wire fv[0:1],ft[0:1],complete[0:1],active[0:1],done[0:1],sr[0:1],st[0:1],ce[0:1]; // 发布与配置握手
+wire admission_wait[0:1],shortfall[0:1];wire [119:0] requirements[0:1]; // 整段准入本地观察
 wire [79:0] releases[0:1];wire [5:0] read_classes[0:1];wire [{cw-1}:0] count[0:1];wire [{width+5}:0] required[0:1]; // 完整消费元数据与预算
 wire [{bits-1}:0] pending[0:1],capacity[0:1],available[0:1];wire [6:0] txpending[0:1];wire select_fc[0:1],app_valid[0:1],send[0:1]; // 实际信用与发送候选
 reg [511:0] app_word[0:1]; // 仅保持尚未实际发出的应用字
@@ -70,8 +79,9 @@ genvar side;generate for(side=0;side<2;side=side+1)begin:ends // 两端同一真
  assign send[side]=(select_fc[side]||app_valid[side])&&(cycle%7!=side+1); // 明确发送停顿
  assign read_ready[side]=(cycle>80)&&(cycle%5!=side+1); // 消费者停顿，不能触发提前归还
  tl_receive_credit #(.WIDTH({width}),.DEPTH({depth})) storage(.i_clk(clk),.i_rstn(rstn),.i_start(start),.i_shared(1'b{shared}),.i_auth(1'b{auth}),.i_capacities(bad_config?{{{20*width}{{1'b1}}}}:{20*width}'h{capword:x}),.o_start_ready(sr[side]),.o_start_taken(st[side]),.o_config_error(ce[side]),.o_required_words(required[side]),.i_valid(rxv[side]),.i_flit(rx[side]),.i_msg(rm[side]),.o_allowed(allowed[side]),.o_taken(rxtaken[side]),.o_rejected(),.o_fatal(fatal[side]),.i_read_ready(read_ready[side]),.o_read_valid(read_valid[side]),.o_read_flit(read_flit[side]),.o_read_msg(read_msg[side]),.o_read_classes(read_classes[side]),.o_read_releases(releases[side]),.o_retired(retired[side]),.i_fc_send(select_fc[side]&&taken[side]),.o_fc_valid(fv[side]),.o_fc_taken(ft[side]),.o_fc_complete(complete[side]),.o_fc_flit(fc[side]),.o_fc_msg(fm[side]),.o_active(active[side]),.o_done(done[side]),.o_pending(pending[side]),.o_count(count[side]),.o_release_taken(release_taken[side])); // 真实存储产生信用
- tl_credit_port #(.WIDTH({width})) port(.i_clk(clk),.i_rstn(rstn),.i_receive(rxv[side]),.i_send(send[side]),.i_auth(1'b{auth}),.i_rx_flit(rx[side]),.i_rx_msg(rm[side]),.i_tx_flit(tx[side]),.i_tx_msg(tm[side]),.o_rx_taken(port_rxtaken[side]),.o_tx_taken(taken[side]),.o_fatal(portfatal[side]),.o_done(peer_done[side]),.o_capacity(capacity[side]),.o_available(available[side]),.o_tx_pending(txpending[side])); // 实际字段扣费与对端FC更新
+ {'tl_credit_admitted_port' if a.admission else 'tl_credit_port'} #(.WIDTH({width})) port(.i_clk(clk),.i_rstn(rstn),.i_receive(rxv[side]),.i_send(send[side]),.i_auth(1'b{auth}),.i_rx_flit(rx[side]),.i_rx_msg(rm[side]),.i_tx_flit(tx[side]),.i_tx_msg(tm[side]),.o_rx_taken(port_rxtaken[side]),.o_tx_taken(taken[side]),.o_fatal(portfatal[side]),.o_done(peer_done[side]),.o_capacity(capacity[side]),.o_available(available[side]),.o_tx_pending(txpending[side]){admission_ports}); // 实际字段扣费与对端FC更新
 end endgenerate // 两端真实实例结束
+{admission_trace}
 integer trace;initial trace=$fopen("{B}/trace.txt","w"); // 每拍保留实际链路与所有权观察
 always @(posedge clk)begin // 更新只由实际握手和真实保存字驱动
  if(!rstn)begin
@@ -92,14 +102,14 @@ always @(posedge clk)begin // 更新只由实际握手和真实保存字驱动
    end
    if(ft[e])begin
     if(complete[e])begin
-     for(j=0;j<20;j=j+1)if(published[e][j]!=(j<10?1:{a.data_credits}))$fatal(1,"initial credit capacity differs");
+     for(j=0;j<20;j=j+1)if(published[e][j]!=(j<10?{cmdcredits}:{a.data_credits}))$fatal(1,"initial credit capacity differs");
      init_count[e]=init_count[e]+1;
     end else begin
      fc_count[e]=fc_count[e]+1;
      for(g=0;g<4;g=g+1)begin
       pos=g==0?22:g==1?16:g==2?8:0;nbits=g<2?3:5;field=(fc[e]>>pos)&((1<<(nbits+3))-1);amount=field&((1<<nbits)-1);lane=(field&(1<<(nbits+2)))?1+((field>>nbits)&3):0;
       published[e][g*5+lane]=published[e][g*5+lane]+amount;
-      if(published[e][g*5+lane]>(g<2?1:{a.data_credits})+returned[e][g*5+lane])$fatal(1,"credit published before actual retirement");
+      if(published[e][g*5+lane]>(g<2?{cmdcredits}:{a.data_credits})+returned[e][g*5+lane])$fatal(1,"credit published before actual retirement");
      end
     end
    end
@@ -120,7 +130,7 @@ initial begin // 错误配置、正常初始化、持续双端负载与完全排
  if(cycle>=6000)begin $display("STALLED tx=%0d/%0d rx=%0d/%0d pending=%0d/%0d FIFO=%0d/%0d",txidx[0],txidx[1],rxidx[0],rxidx[1],txpending[0],txpending[1],count[0],count[1]);$fatal(1,"dual actual storage/FC liveness timeout");end
  for(e=0;e<2;e=e+1)begin
   if(count[e]!=0||init_count[e]!=1||fc_count[e]<6||stalls[e]==0)$fatal(1,"terminal coverage");
-  for(j=0;j<20;j=j+1)if(published[e][j]!=(j<10?1:{a.data_credits})+returned[e][j])$fatal(1,"terminal credit conservation");
+  for(j=0;j<20;j=j+1)if(published[e][j]!=(j<10?{cmdcredits}:{a.data_credits})+returned[e][j])$fatal(1,"terminal credit conservation");
  end
  $display("PASS actual dual SRAM FC width={width} auth={auth} shared={shared} latency={latency} cycles=%0d stored=%0d fc=%0d",cycle,rxidx[0]+rxidx[1],fc_count[0]+fc_count[1]);$finish;
 end // 完整排空后完成

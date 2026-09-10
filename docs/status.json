@@ -427,5 +427,15 @@
     "process_sta": false,
     "full_goal_complete": false
   },
-  "current_evidence": "build/verification/tl_receive_credit/evidence.json"
+  "current_evidence": "build/verification/tl_receive_credit/evidence.json",
+  "current_credit_admission": {
+    "evidence": "build/verification/tl_credit_admission/evidence.json",
+    "review": "docs/tl_credit_admission_review.md",
+    "dual_configs": 32,
+    "guard_vectors": 16742,
+    "negative_runs": 28,
+    "oversized_transaction_liveness": false,
+    "process_sta": false,
+    "full_goal_complete": false
+  }
 }

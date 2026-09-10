@@ -66,10 +66,12 @@ connection-check:
 help:
 	@echo "test | rtl-smoke | sram-smoke KD28_ROOT=/authorized/path | clean-dry-run | clean"
 test: model
+	mkdir -p "$(ROOT_DIR)/build"
 	cd "$(ROOT_DIR)" && $(PYTHON) -m unittest discover -s verification/tools -p 'test_*.py' -q
 	$(PYTHON) "$(ROOT_DIR)/verification/tl_publish/test_model.py"
 	$(PYTHON) "$(ROOT_DIR)/verification/tl_receive/test_model.py"
 	$(PYTHON) "$(ROOT_DIR)/verification/tl_receive_credit/test_model.py"
+	$(PYTHON) "$(ROOT_DIR)/verification/tl_credit_admission/test_model.py"
 rtl-smoke:
 	$(PYTHON) "$(ROOT_DIR)/verification/tl_publish/run_rtl.py"
 	$(PYTHON) "$(ROOT_DIR)/verification/tl_publish/run_receiver.py"

@@ -1,14 +1,14 @@
 {
   "active_goal": "完整Accelerator Endpoint/Controller与Switch数字RTL IP；未完成",
   "previous_goal_turn": "progress",
-  "latest_stage": "actual_receive_fifo_credit_publication",
-  "rtl": "rtl/tl/tl_receive_credit.v",
-  "review": "docs/tl_receive_credit_review.md",
-  "evidence": "build/verification/tl_receive_credit/evidence.json",
+  "latest_stage": "whole_tenure_transmit_admission",
+  "rtl": "rtl/tl/tl_credit_admitted_port.v",
+  "review": "docs/tl_credit_admission_review.md",
+  "evidence": "build/verification/tl_credit_admission/evidence.json",
   "full_goal_complete": false,
   "next_actions": [
-    "修复实际双端小Data信用的中途停顿；不得靠加大默认信用或删除多Beat场景掩盖",
-    "补齐事务准入/信用预约/发送调度，核对容量不足与UPLI拆分语义",
+    "完成容量感知的实际packer/UPLI处理：单笔需求超过总容量仍不能前进，禁止只扩大默认信用或删除多Beat场景",
+    "处理剩余一半Data与新头/FC的选择，保持Request/Response独立性并证明完整发送调度持续前进",
     "在线接收容量与完整独立参考归纳",
     "新顶层工艺映射/STA，继续UPLI/DL/PL/INC/安全/管理和双IP交付"
   ],
