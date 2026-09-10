@@ -1428,5 +1428,21 @@
     "full_goal_complete": false,
     "compatibility_exit": 0,
     "normal_and_optimized_audits": true
+  },
+  "production_transmit_ownership": {
+    "review": "docs/tl_tx_prepared_formal_review.md",
+    "evidence": "build/verification/tl_tx_prepared/ownership_evidence.json",
+    "complete": true,
+    "configurations": 27,
+    "properties_per_configuration": 35,
+    "actual_fault_detections": 6,
+    "reachability_cases": 2,
+    "impossible_capture_queries": 1,
+    "auditor_tests": 15,
+    "normal_and_optimized_audits": true,
+    "rtl_unchanged": true,
+    "full_payload_formal": false,
+    "full_top_sta": false,
+    "full_goal_complete": false
   }
 }
