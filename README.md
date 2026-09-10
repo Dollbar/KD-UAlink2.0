@@ -47,3 +47,5 @@ make clean
 规范正文、PDK/Liberty、SRAM 模型、SerDes/VIP 和本地主机配置不随本仓库分发。`KD28_ROOT` 指向有权使用的外部仓库，其文件清单及校验值见 [依赖登记](third_party/kd28_dependency.json)。`specs/private/`、`third_party/private/` 与 `config/local.json` 被忽略。源码许可证尚未指定。
 
 当前新增整段发送准入及实际双端 SRAM 回归见 [准入阶段审查](docs/tl_credit_admission_review.md)。总容量足够的连续多 Beat 压力反例已修复；超容量事务处理、完整调度证明和工艺 STA 仍开放。
+
+实际半Flit打包与双端验证见 [打包阶段审查](docs/tl_tx_packer_review.md)：已接入旧尾部／新头部／FC选择和独立输入确认，完整事务调度及超容量处理仍在推进。

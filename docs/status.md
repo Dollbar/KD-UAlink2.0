@@ -53,3 +53,9 @@
 `tl_credit_admitted_port` 在真实发送头部前检查该 Control 所需的全部 CMD/Data 信用，继续由原端口逐实际 Data 对扣费。两类负载共 32 配置、6,912 个实际 SRAM 字完成消费，3,944 次 FC 转移；16,742 个准入组合向量通过，28 次真实故障全部检出。
 
 原压力反例每类四个 Data 信用、两条连续三 Beat 事务，旧端口卡在剩余 5/5 半 Flit 且 FIFO 为空；新端口相同负载完成排空。每类一个 Data 信用的原多 Beat 场景仍不能完整前进，新端口在头部发送之前报告容量不足。不能将此诊断当作超容量事务处理完成。详见 `docs/tl_credit_admission_review.md`。此阶段仍没有新产品顶层或工艺 STA。
+
+## 实际半Flit发送打包
+
+新增 `tl_tx_packer`，将准备好的Control、Data/BE、AuthTags和FC分开握手，再构造真实端口发送候选。实际双端16配置通过：1,792个Control队首、7,840个Data/BE半Flit、5,680个SRAM字消费、3,738次FC/完成消息转移。观察到70次新头部携带旧尾部、522次FC携带旧尾部、182次旧尾独立排空和186次catch预算NOP。3,170个周期向量通过，48次真实故障全部检出。
+
+新模块解决旧尾部被未获信用新头阻塞及合法Control位置的FC仲裁；它仍只有一条准备好的Control输入，尚非独立Request/Response事务队列仲裁器。单信用多Beat场景仍真实超时且报告容量不足，未丢弃输入；工艺STA、真实Tx数据缓存、Poison/其余消息和完整联合归纳仍开放。详见 `docs/tl_tx_packer_review.md`。

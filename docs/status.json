@@ -437,5 +437,16 @@
     "oversized_transaction_liveness": false,
     "process_sta": false,
     "full_goal_complete": false
+  },
+  "current_tx_packer": {
+    "review": "docs/tl_tx_packer_review.md",
+    "evidence": "build/verification/tl_tx_packer/evidence.json",
+    "dual_configs": 16,
+    "unit_vectors": 3170,
+    "negative_runs": 48,
+    "oversized_transactions": false,
+    "request_response_arbitration": false,
+    "process_sta": false,
+    "full_goal_complete": false
   }
 }
