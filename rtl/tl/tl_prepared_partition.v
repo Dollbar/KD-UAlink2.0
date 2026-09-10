@@ -14,18 +14,19 @@ reg [7:1] r_starts;reg [7:0] r_application;reg [31:0] r_counts;reg [39:0] r_slot
 wire decoded;wire [2:0] requests;wire [3:0] responses,total_fields; // 输入预解码的字段数量及类别
 wire [7:0] starts,request_starts,response_starts,application_starts,bad_fc; // 原始完整字段边界和非零FC检查
 wire [1:0] tenure_status;wire [31:0] source_counts;wire [7:0] unused_be;wire [39:0] source_slots; // 预解码Data量与逻辑账户
-wire format_error;wire [7:0] fit;wire [255:0] prefix[0:7];wire [3:0] prefix_fields[0:7];wire [959:0] prefix_cost; // 八个合法边界候选及其二十槽费用
-reg [3:0] selected_end,selected_fields,before_fields;reg [255:0] selected_control;integer pick; // 最长完整前缀与认证标签位置
+wire [7:0] selected_sectors;wire [3:0] selected_tags; // 最长合格边界的扇区和标签资格并行归约
+wire format_error;wire [7:0] fit;wire [3:0] prefix_fields[0:7];wire [959:0] prefix_cost; // 八个合法边界候选及其二十槽费用
+reg [3:0] selected_end,selected_fields,before_fields;wire [255:0] selected_control;integer pick; // 最长完整前缀与认证标签位置
  tl_control_decode Decode_Inst(i_source_control,decoded,requests,responses,starts,request_starts,response_starts); // 捕获端只解析一次真实自然对齐字段树
  tl_control_tenure Tenure_Inst(i_source_control,tenure_status,total_fields,source_counts,unused_be); // 捕获前验证全部事务tenure
 assign application_starts=request_starts|response_starts; // 事务起点不包含NOP或FC
 assign format_error=!decoded||(tenure_status!=2'd0)||(total_fields==4'd0)||(i_response?(requests!=3'd0):(responses!=4'd0))||(|bad_fc); // 保存全组格式拒绝条件
 assign o_error=i_rstn&&r_owned&&r_error; // 已接纳错误组保持所有权直至复位
-assign o_valid=i_rstn&&r_owned&&!r_error&&(selected_end!=4'd0); // 输出不再依赖已捕获之后的实时源或done
+assign o_valid=i_rstn&&r_owned&&!r_error&&(|fit); // 输出不再依赖已捕获之后的实时源或done
 assign o_taken=o_valid&&i_ready;assign o_group_done=o_taken&&(selected_end==4'd8); // 只在最后完整分组被接纳时退休整组
 assign o_source_ready=i_rstn&&i_done&&(!r_owned||o_group_done); // 空槽或最后分组同拍退休允许接纳下一个源
 assign o_captured=o_source_ready&&i_source_valid; // 输入接纳不是整组成功发射确认
-assign o_shortfall=i_rstn&&r_owned&&!r_error&&(selected_end==4'd0); // 捕获容量无法容纳最早字段时保持等待直到复位
+assign o_shortfall=i_rstn&&r_owned&&!r_error&&!(|fit); // 捕获容量无法容纳最早字段时保持等待直到复位
 assign o_control=o_valid?selected_control:256'd0;assign o_fields=o_valid?selected_fields:4'd0;assign o_end=o_valid?selected_end:4'd0; // 无效时明确清零可见负载
 assign o_cursor=i_rstn?r_cursor:4'd0; // 同步复位取消旧游标并屏蔽复位周期输出
 wire [7:0] unused_count_lsb; // Data信用使用完整64B的计数，最低Flit位不消费
@@ -94,9 +95,15 @@ genvar account,field;generate for(account=0;account<20;account=account+1)begin:g
   if(account<10)begin:gen_cmd // 每实际CMD字段计一个信用
    assign contribution[field]=((r_application[field]&&(r_cursor<=FIELD_POSITION))&&(r_slots[field*5+:5]==COMMAND_DATA_SLOT))?6'd1:6'd0; // 保持原CMD账户编号
   end else begin:gen_data // 完整Data Beat信用在物理账户累加
-  wire [4:0] physical_data_slot; // 两个Data Pool在初始化共享模式下归一化
-  assign physical_data_slot=(r_shared&&(r_slots[field*5+:5]==5'd15))?5'd10:r_slots[field*5+:5]; // CMD及专用VC不合并
-   assign contribution[field]=((r_application[field]&&(r_cursor<=FIELD_POSITION))&&(physical_data_slot==ACCOUNT))?{3'd0,r_counts[field*4+1+:3]}:6'd0; // BE不增加Data信用
+  wire physical_match; // 静态账户直接判断共享映射，避免先选择五位编号再比较
+  if(account==10)begin:gen_pool_destination // 请求Data Pool接收共享响应Pool
+   assign physical_match=(r_slots[field*5+:5]==5'd10)||(r_shared&&(r_slots[field*5+:5]==5'd15)); // 两个原始Pool直接归约到共享目标
+  end else if(account==15)begin:gen_pool_source // 独立响应Data Pool只在非共享模式使用
+   assign physical_match=!r_shared&&(r_slots[field*5+:5]==5'd15); // 共享模式不重复计入被合并账户
+  end else begin:gen_dedicated_data // 专用VC账户不依赖共享Pool选择
+   assign physical_match=(r_slots[field*5+:5]==ACCOUNT); // 固定账户与原始编号直接比较
+  end // 结束静态物理Data账户匹配
+   assign contribution[field]=((r_application[field]&&(r_cursor<=FIELD_POSITION))&&physical_match)?{3'd0,r_counts[field*4+1+:3]}:6'd0; // BE不增加Data信用
   end // 结束CMD与Data静态选择
  end // 结束八字段费用
  assign pair[0]=contribution[0]+contribution[1];assign pair[1]=contribution[2]+contribution[3]; // 低半字的二字段并行归约
@@ -113,6 +120,11 @@ assign tags_offset_one=before_fields[0]?{64'd0,r_tags[511:64]}:r_tags; // 第一
 assign tags_offset_two=before_fields[1]?{128'd0,tags_offset_one[511:128]}:tags_offset_one; // 第二层选择零或两个标签偏移
 assign tags_shifted=before_fields[3]?256'd0:(before_fields[2]?tags_offset_two[511:256]:tags_offset_two[255:0]); // 第三层选择低四或高四标签，源外偏移全部清零
 genvar boundary,sector,tag,slot;generate // 固定八个边界和四个输出认证槽
+for(sector=0;sector<8;sector=sector+1)begin:gen_selected_sector // 任意更高合格边界都包含当前自然扇区
+ localparam [3:0] POSITION=sector[3:0]; // 游标比较保留全部四位意义
+ assign selected_sectors[sector]=(r_cursor<=POSITION)&&(|fit[7:sector]); // 直接归约合格边界，避免宽载荷优先选择链
+ assign selected_control[sector*32+:32]=selected_sectors[sector]?r_control[sector*32+:32]:32'd0; // 每扇区只有一次有效数据掩码
+end // 结束最长合格前缀的直接扇区选择
 for(sector=0;sector<8;sector=sector+1)begin:gen_fc_check // 捕获前的非事务单扇区只允许全零NOP
  assign bad_fc[sector]=starts[sector]&&!application_starts[sector]&&(i_source_control[sector*32+:32]!=32'd0); // FC事件由独立发布器处理
 end // 结束源NOP检查
@@ -126,7 +138,6 @@ for(boundary=0;boundary<8;boundary=boundary+1)begin:gen_prefix // 每个候选�
  end // 结束字段边界选择
  for(sector=0;sector<8;sector=sector+1)begin:gen_sector // 保留自然对齐位置，省略字段用NOP清零
   localparam [3:0] POSITION=sector[3:0]; // 将生成索引限制到本地游标比较宽度
-  assign prefix[boundary][sector*32+:32]=((r_cursor<=POSITION)&&(sector<=boundary))?r_control[sector*32+:32]:32'd0; // 所有原字段位完整保留或整体由边界排除
   assign selected_starts[sector]=r_application[sector]&&(r_cursor<=POSITION)&&(sector<=boundary); // 只计入仍属当前前缀的事务字段
  end // 结束候选扇区掩码
  assign prefix_fields[boundary]={3'd0,selected_starts[0]}+{3'd0,selected_starts[1]}+{3'd0,selected_starts[2]}+{3'd0,selected_starts[3]}+{3'd0,selected_starts[4]}+{3'd0,selected_starts[5]}+{3'd0,selected_starts[6]}+{3'd0,selected_starts[7]}; // 四位完整表示零至八个字段
@@ -140,13 +151,18 @@ for(boundary=0;boundary<8;boundary=boundary+1)begin:gen_prefix // 每个候选�
 end // 结束八种完整前缀候选
 for(tag=0;tag<4;tag=tag+1)begin:gen_tag // 标签跟随未修改的事务字段顺序重新从低槽开始
  localparam [3:0] TAG_POSITION=tag[3:0]; // 输出槽编号与字段数量匹配
- assign o_tags[tag*64+:64]=(o_valid&&r_auth&&(TAG_POSITION<selected_fields))?tags_shifted[tag*64+:64]:64'd0; // 所有未使用槽必须清零
+ wire [7:0] tag_eligible; // 每个合格前缀是否包含本输出标签槽
+ for(boundary=0;boundary<8;boundary=boundary+1)begin:gen_eligible // 字段数随边界单调增加，不需要再次选择最长字段数
+  assign tag_eligible[boundary]=fit[boundary]&&(TAG_POSITION<prefix_fields[boundary]); // 合格前缀含此标签即可证明最长合格前缀也包含
+ end // 结束八个边界的标签资格
+ assign selected_tags[tag]=|tag_eligible; // 并行资格归约代替字段计数的优先选择后再比较
+ assign o_tags[tag*64+:64]=(i_rstn&&r_owned&&!r_error&&r_auth&&selected_tags[tag])?tags_shifted[tag*64+:64]:64'd0; // 所有未使用槽必须清零
 end // 结束认证标签槽映射
 endgenerate // 结束完整字段、容量与标签生成结构
 always @* begin // 选择最长合格完整前缀，并数出已入队标签
- selected_end=4'd0;selected_fields=4'd0;selected_control=256'd0;before_fields=4'd0; // 完整组合默认值
+ selected_end=4'd0;selected_fields=4'd0;before_fields=4'd0; // 完整组合默认值
  for(pick=0;pick<8;pick=pick+1)begin // 顺序覆盖实现最高完整边界优先
-  if(fit[pick])begin selected_end=pick[3:0]+4'd1;selected_fields=prefix_fields[pick];selected_control=prefix[pick];end // 合格边界永不切割原始字段
+  if(fit[pick])begin selected_end=pick[3:0]+4'd1;selected_fields=prefix_fields[pick];end // 合格边界永不切割原始字段
   if(r_application[pick]&&(pick[3:0]<r_cursor))before_fields=before_fields+4'd1; // NOP不占认证槽
  end // 结束最长前缀与标签前缀计数
 end // 结束组合分组提议

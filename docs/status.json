@@ -1172,5 +1172,79 @@
     "checker_tests": 20,
     "compatibility_exit": 0,
     "normal_and_optimized_audits": true
+  },
+  "registered_control_selection_reduction": {
+    "review": "docs/tl_selection_reduction_review.md",
+    "evidence": "build/verification/tl_selection_reduction/evidence.json",
+    "complete": true,
+    "adopted": true,
+    "rtl_sha256": "0e58dd764016974129329bd1c9c6cc7d854c19ff8cb4bb1e7529b52ef1190dc0",
+    "reference": "8bf4afcd54eaec3bc4ac35811fd6266b4ba86e61",
+    "scope": "binary post-reset module equivalence; complete outputs and actual next-state; unchanged capture latency and ownership",
+    "rtl_widths": [
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16
+    ],
+    "rtl_full_state_cec": 9,
+    "rtl_reset_capture_queries": 18,
+    "selection_combinations": 1048576,
+    "unit_vectors": 69462,
+    "actual_rtl_fault_detections": 28,
+    "actual_peer_configs": 32,
+    "peer_partitioning": {
+      "selection_direct_peers": {
+        "source_groups": 768,
+        "partitions": 2624,
+        "fields": 3456,
+        "split_groups": 576,
+        "stalled_edges": 31176,
+        "completed_single_beat_read_replies": 1152
+      },
+      "selection_direct_minimum": {
+        "source_groups": 768,
+        "partitions": 2624,
+        "fields": 3456,
+        "split_groups": 576,
+        "stalled_edges": 41196,
+        "completed_single_beat_read_replies": 1152
+      }
+    },
+    "mapped_full_state_cec": 2,
+    "mapped_reset_capture_queries": 4,
+    "mapped_equivalence": true,
+    "current_candidate_gate_simulation_rerun": false,
+    "physical": [
+      {
+        "width": 8,
+        "cells": 16542,
+        "area_um2": 10614.744,
+        "worst_main_setup_ns": -0.735223,
+        "worst_reference_setup_ns": 5.024776
+      },
+      {
+        "width": 16,
+        "cells": 17564,
+        "area_um2": 11748.618,
+        "worst_main_setup_ns": -0.723638,
+        "worst_reference_setup_ns": 5.036361
+      }
+    ],
+    "main_sta_passed": 0,
+    "reference_sta_passed": 10,
+    "artifact_errors": 0,
+    "artifact_advisories": 19,
+    "main_frequency_closed": false,
+    "full_top_sta": false,
+    "full_goal_complete": false,
+    "compatibility_exit": 0,
+    "normal_and_optimized_audits": true,
+    "checker_tests": 20
   }
 }

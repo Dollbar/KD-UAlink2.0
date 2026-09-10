@@ -1,16 +1,16 @@
 {
   "active_goal": "完整Accelerator Endpoint/Controller与Switch数字RTL IP；未完成",
   "previous_goal_turn": "progress",
-  "latest_stage": "registered_control_complete_mapped_equivalence",
+  "latest_stage": "registered_control_parallel_selection_direct_accounts",
   "rtl": "rtl/tl/tl_prepared_partition.v",
-  "review": "docs/tl_prepared_mapping_review.md",
-  "evidence": "build/verification/tl_prepared_mapping",
+  "review": "docs/tl_selection_reduction_review.md",
+  "evidence": "build/verification/tl_selection_reduction",
   "full_goal_complete": false,
   "next_actions": [
-    "注册化Control的WIDTH8–16 RTL参考等价及WIDTH8/16真实工艺网表等价均已完成；继续面向640ps主周期的微架构优化，不降低完整双IP目标。",
-    "实际SSG低温最差路径为WIDTH8的r_cursor[0]、WIDTH16的r_cursor[3]至AuthTags输出；结合已证明游标范围评估显式消除恒零高位，并分级费用/完整字段边界/标签选择。",
-    "流水线调整必须明确握手、数据所有权、复位、反压及吞吐代价，建立相应独立参考、实际双端回归和新RTL/工艺网表等价，不能沿用失效的源码成绩。",
-    "当前最差640ps setup仍为−0.819915ns；完整实际端口与Endpoint/Switch顶层、工艺STA、完整UPLI事务转换及每VC独立选择仍待完成。",
+    "已采用并行扇区/标签掩码和直接物理账户匹配；九位宽RTL全状态CEC、独立复位/捕获和两位宽实际工艺网表等价通过。",
+    "在保持640ps目标、源组所有权、一拍捕获延迟和同拍退休替换能力的前提下，处理账户费用至字段选择路径；评估预注册物理账户元数据或更深分级。",
+    "当前SSG低温最差路径WIDTH8从r_slots[2]、WIDTH16从r_cursor[0]至o_fields[0]；最差主setup仍为−0.735223ns，完整顶层尚未STA。",
+    "跨真实端口、UPLI事务转换、每VC独立选择及完整Endpoint/Switch顶层继续实现并验证，双端退休适配器仍有组间气泡。",
     "单笔超容量Write/Atomic规范路径、Data Poison及其余TL/数字PHY/INC/安全/管理接口和完整双IP目标继续开放。"
   ],
   "remote_main": "c34f40f2dc00c2e12283897ea0f3de085abfbc7f",
@@ -142,6 +142,78 @@
     ]
   },
   "stage_evidence": {
+    "complete": true,
+    "adopted": true,
+    "rtl_sha256": "0e58dd764016974129329bd1c9c6cc7d854c19ff8cb4bb1e7529b52ef1190dc0",
+    "reference": "8bf4afcd54eaec3bc4ac35811fd6266b4ba86e61",
+    "scope": "binary post-reset module equivalence; complete outputs and actual next-state; unchanged capture latency and ownership",
+    "rtl_widths": [
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16
+    ],
+    "rtl_full_state_cec": 9,
+    "rtl_reset_capture_queries": 18,
+    "selection_combinations": 1048576,
+    "unit_vectors": 69462,
+    "actual_rtl_fault_detections": 28,
+    "actual_peer_configs": 32,
+    "peer_partitioning": {
+      "selection_direct_peers": {
+        "source_groups": 768,
+        "partitions": 2624,
+        "fields": 3456,
+        "split_groups": 576,
+        "stalled_edges": 31176,
+        "completed_single_beat_read_replies": 1152
+      },
+      "selection_direct_minimum": {
+        "source_groups": 768,
+        "partitions": 2624,
+        "fields": 3456,
+        "split_groups": 576,
+        "stalled_edges": 41196,
+        "completed_single_beat_read_replies": 1152
+      }
+    },
+    "mapped_full_state_cec": 2,
+    "mapped_reset_capture_queries": 4,
+    "mapped_equivalence": true,
+    "current_candidate_gate_simulation_rerun": false,
+    "physical": [
+      {
+        "width": 8,
+        "cells": 16542,
+        "area_um2": 10614.744,
+        "worst_main_setup_ns": -0.735223,
+        "worst_reference_setup_ns": 5.024776
+      },
+      {
+        "width": 16,
+        "cells": 17564,
+        "area_um2": 11748.618,
+        "worst_main_setup_ns": -0.723638,
+        "worst_reference_setup_ns": 5.036361
+      }
+    ],
+    "main_sta_passed": 0,
+    "reference_sta_passed": 10,
+    "artifact_errors": 0,
+    "artifact_advisories": 19,
+    "main_frequency_closed": false,
+    "full_top_sta": false,
+    "full_goal_complete": false,
+    "compatibility_exit": 0,
+    "normal_and_optimized_audits": true,
+    "checker_tests": 20
+  },
+  "previous_stage_evidence": {
     "complete": true,
     "scope": "binary post-reset sequential RTL versus actual TSMC28 mapped module equivalence; independent payload initial states handled by reset/empty relation",
     "rtl_sha256": "def8d202e6394d755485a191fb7f42ba93ec8ef3af28ca061f3f37e4bace7f78",

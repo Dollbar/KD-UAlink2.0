@@ -80,11 +80,13 @@ def main():
     parser.add_argument('--label',default='mapped');parser.add_argument('--widths',type=int,nargs='+',choices=(8,16),default=[8,16])
     parser.add_argument('--timing-root',type=Path,default=ROOT/'build/verification/tl_prepared_partition/timing')
     parser.add_argument('--seconds',type=int,default=180)
+    parser.add_argument('--candidate',type=Path,default=ROOT/'rtl/tl/tl_prepared_partition.v',help='exact candidate used by the selected timing run')
+    parser.add_argument('--cases',nargs='+',choices=('reset','empty','owned'),default=['reset','empty','owned'],help='explicit local obligations; complete CEC can supply the owned-state step')
     parser.add_argument('--fault',choices=('clock','reset','capture','output'),help='mutate one actual mapped cell; no healthy equivalence claim')
     parser.add_argument('--prepare-only',action='store_true',help='retain exact observations/cuts for separate complete CEC and reset checks')
     args=parser.parse_args();need(args.label.replace('_','').replace('-','').isalnum() and args.seconds>0 and len(set(args.widths))==len(args.widths),'invalid run matrix')
     timing=args.timing_root.resolve();mapping=json.loads((timing/'results.json').read_text())
-    candidate=ROOT/'rtl/tl/tl_prepared_partition.v'
+    candidate=args.candidate.resolve()
     need(mapping['complete'] and mapping['sources_unchanged'] and sha(candidate)==mapping['candidate_sha256'],'current mapped candidate identity')
     for name,digest in mapping['sources'].items():need(sha(ROOT/name)==digest,'mapped source identity '+name)
     library=Path(mapping['libraries']['ssg0p81v125c']['path']);need(sha(library)==mapping['libraries']['ssg0p81v125c']['sha256'],'actual Liberty identity')
@@ -92,7 +94,7 @@ def main():
     sources=[candidate,ROOT/'rtl/tl/tl_control_decode.v',ROOT/'rtl/tl/tl_control_tenure.v']
     for source in sources:(stage/source.name).write_bytes(source.read_bytes())
     for name in ('run_mapped.py','mapped_state.py'):(stage/name).write_bytes(Path(__file__).with_name(name).read_bytes())
-    result=dict(complete=False,scope='conditional full output/actual next-state relation; reset and constant-state composition required',sources={str(p):sha(p) for p in sources},timing_report_sha256=sha(timing/'results.json'),library=dict(path=str(library),sha256=sha(library)),public_output_bits=531,requested_widths=args.widths,fault=args.fault,prepare_only=args.prepare_only,results=[])
+    result=dict(complete=False,scope='conditional full output/actual next-state relation; reset and constant-state composition required',sources={str(p):sha(p) for p in sources},timing_report_sha256=sha(timing/'results.json'),library=dict(path=str(library),sha256=sha(library)),public_output_bits=531,requested_widths=args.widths,cases_requested=args.cases,fault=args.fault,prepare_only=args.prepare_only,results=[])
     for width in args.widths:
         folder=stage/f'w{width}';folder.mkdir();mapped=timing/f'width{width}/mapped.v'
         record=next(r for r in mapping['widths'] if r['width']==width)
@@ -122,14 +124,14 @@ def main():
         if 'inventory_error' in row:continue
         row['state_bits']={s:l['state_bits'] for s,l in layouts.items()};row['prepared']=True;dump(stage/'results.json',result)
         if args.prepare_only:continue
-        for case in ('reset','empty','owned'):
+        for case in args.cases:
             proof_dir=folder/case;proof_dir.mkdir();(proof_dir/'step.v').write_text(step_text(width,layouts,case))
             script=f'read_json "{folder}/gold_cut.json" "{folder}/gate_cut.json"\nread_verilog "{proof_dir}/step.v"\nprep -top step -flatten\nopt -full\ncheck -assert\nwrite_json "{proof_dir}/step.json"\nsat -prove o_bad 0 -verify -dump_json "{proof_dir}/witness.json"\n'
             (proof_dir/'proof.ys').write_text(script)
             proof=execute(['yosys','-Q','-T','-s',str(proof_dir/'proof.ys')],proof_dir/'proof.log',args.seconds)
             passed=proof['exit']==0 and 'SAT proof finished - no model found: SUCCESS!' in (proof_dir/'proof.log').read_text()
             row['cases'].append(dict(case=case,proof=proof,passed=passed));dump(stage/'results.json',result);print(width,case,passed,proof,flush=True)
-        row['passed']=len(row['cases'])==3 and all(r['passed'] for r in row['cases']);dump(stage/'results.json',result)
+        row['passed']=len(row['cases'])==len(args.cases) and all(r['passed'] for r in row['cases']);dump(stage/'results.json',result)
     result['complete']=len(result['results'])==len(args.widths) and all(r['passed'] for r in result['results']);dump(stage/'results.json',result)
     return 0 if result['complete'] or (args.prepare_only and all(r.get('prepared') for r in result['results'])) else 1
 

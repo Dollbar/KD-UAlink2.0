@@ -1,5 +1,5 @@
 """Run python3 verification/tl_prepared_partition/run_faults.py --unit-label unit
-[--label faults]. Compiles real mutated RTL against completed independent vectors.
+[--label faults] [--candidate FILE]. Compiles real mutated RTL against completed independent vectors.
 Outputs compile/run logs, actual mismatches and candidate hashes. Compile failure
 or timeout is not a detection. Next audit the positive and negative evidence.
 """
@@ -34,13 +34,14 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--unit-label', default='unit')
     parser.add_argument('--label', default='faults')
+    parser.add_argument('--candidate',type=Path,default=ROOT/'rtl/tl/tl_prepared_partition.v')
     args = parser.parse_args()
     for name in (args.unit_label, args.label): need(name.replace('_', '').replace('-', '').isalnum(), 'invalid label')
     base = ROOT / 'build/verification/tl_prepared_partition'
     unit = base / args.unit_label; healthy = json.loads((unit / 'results.json').read_text())
     need(healthy['complete'], 'healthy unit run required')
     for name, digest in healthy['sources'].items(): need(sha(Path(name)) == digest, 'healthy source identity')
-    source_path = ROOT / 'rtl/tl/tl_prepared_partition.v'; source = source_path.read_text()
+    source_path = args.candidate.resolve(); source = source_path.read_text()
     stage = base / args.label; stage.mkdir(parents=True, exist_ok=False)
     (stage / 'runner.py').write_bytes(Path(__file__).read_bytes())
     result = dict(complete=False, source_sha256=sha(source_path), healthy_sha256=sha(unit / 'results.json'), results=[])

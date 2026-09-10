@@ -31,10 +31,12 @@ def declarations(raw,directive):
 
 def main():
     p=argparse.ArgumentParser(description=__doc__);p.add_argument('--parent',required=True);p.add_argument('--label',required=True)
-    p.add_argument('--widths',type=int,nargs='+',choices=(8,16),default=[8,16]);a=p.parse_args()
+    p.add_argument('--widths',type=int,nargs='+',choices=range(8,17),default=[8,16])
+    p.add_argument('--base',type=Path,default=ROOT/'build/verification/tl_prepared_mapping',help='alternate prepared RTL-pair artifact root')
+    a=p.parse_args()
     for label in (a.parent,a.label):need(label.replace('_','').replace('-','').isalnum(),'invalid label')
     need(len(set(a.widths))==len(a.widths),'duplicate width')
-    base=ROOT/'build/verification/tl_prepared_mapping';parent=base/a.parent;stage=base/a.label;stage.mkdir(exist_ok=False)
+    base=a.base.resolve();parent=base/a.parent;stage=base/a.label;stage.mkdir(exist_ok=False)
     (stage/'runner.py').write_bytes(Path(__file__).read_bytes())
     report=json.loads((parent/'results.json').read_text())
     result=dict(complete=False,parent=a.parent,source_identity=report['sources'],library=report['library'],public_output_bits=531,scope='all binary state values: all original outputs and all actual FF next-state bits; reset/empty composition required',results=[])
