@@ -472,5 +472,19 @@
     "oversized_transactions_completed": false,
     "process_sta": false,
     "full_goal_complete": false
+  },
+  "current_control_partition": {
+    "review": "docs/tl_control_partition_review.md",
+    "evidence": "build/verification/tl_control_partition/evidence.json",
+    "actual_configs": 32,
+    "unit_vectors": 4856,
+    "negative_runs": 72,
+    "source_groups": 1536,
+    "unchanged_fields": 6912,
+    "complete_read_replies": 2304,
+    "individual_oversized_transactions_completed": false,
+    "full_upli_formatter": false,
+    "process_sta": false,
+    "full_goal_complete": false
   }
 }

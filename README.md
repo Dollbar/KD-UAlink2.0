@@ -53,3 +53,5 @@ make clean
 独立 Request/Response 候选选择见 [类别选择阶段审查](docs/tl_tx_channels_review.md)。已验证一类缺信用时另一类持续完成，实际Tx队列缓存和超容量事务完成仍待接入。
 
 实际独立Tx SRAM队列见 [发送缓存阶段审查](docs/tl_tx_buffered_review.md)。上游必须按 `o_data_accepted` 的实际半Flit数量推进；最小容量支持部分入队，完整UPLI事务处理和工艺STA仍在推进。
+
+字段组的容量处理见 [Control分组阶段审查](docs/tl_control_partition_review.md)：已接入实际发送SRAM双端链路，保持单字段位和数据序列不变；单笔超容量事务与完整UPLI处理仍待完成。

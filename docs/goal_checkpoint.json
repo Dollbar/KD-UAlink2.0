@@ -1,13 +1,14 @@
 {
   "active_goal": "完整Accelerator Endpoint/Controller与Switch数字RTL IP；未完成",
   "previous_goal_turn": "progress",
-  "latest_stage": "actual_transmit_sram_buffering",
-  "rtl": "rtl/tl/tl_tx_buffered.v",
-  "review": "docs/tl_tx_buffered_review.md",
-  "evidence": "build/verification/tl_tx_buffered/evidence.json",
+  "latest_stage": "capacity_aware_control_field_partitioning",
+  "rtl": "rtl/tl/tl_control_partition.v",
+  "review": "docs/tl_control_partition_review.md",
+  "evidence": "build/verification/tl_control_partition/evidence.json",
   "full_goal_complete": false,
   "next_actions": [
-    "容量感知UPLI事务处理、每VC独立选择和超容量事务完成",
+    "完整UPLI事务格式转换及每VC独立选择；本阶段仅完成完整字段组的容量分组",
+    "单笔超容量事务的规范可行路径：不得把字段分组或源端Single-Beat选择冒充任意Write/Atomic拆分",
     "Data Poison及其余TL消息；完整联合参考与在线容量归纳",
     "新顶层工艺STA及完整Endpoint/Switch数字IP所有剩余项"
   ],

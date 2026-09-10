@@ -69,3 +69,7 @@
 ## 实际发送SRAM缓存
 
 新增两类独立的头部/标签FIFO与双bank Data/BE FIFO。实际最小容量原子写等待反例已用明确的部分入队确认修复，未扩大容量或丢弃输入。80组双端配置、6种FIFO深度和76次最终实际负例通过；审计关联实际入队、线上消费、SRAM退休及信用守恒。默认结构有64个SRAM宏实例，仍未完成工艺STA。完整容量感知UPLI、每VC与超容量事务处理及联合证明继续开放。详见 `docs/tl_tx_buffered_review.md`。
+
+## 按容量分组完整Control字段
+
+新增 `tl_control_partition`，把独立完整字段分到实际初始化容量可容纳的Control中，保留字段位、顺序、Data/BE及对应AuthTags。32组实际双端配置完成1,536个源组、6,912个字段和2,304个完整Single-Beat模式读回复；4,856个单位RTL向量和72次实际负例通过。模块仍不拆分单个多Beat事务，也不替代完整UPLI转换或每VC调度。工艺STA保持开放。详见 `docs/tl_control_partition_review.md`。
