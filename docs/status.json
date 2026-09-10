@@ -460,5 +460,17 @@
     "oversized_transactions_completed": false,
     "process_sta": false,
     "full_goal_complete": false
+  },
+  "current_tx_buffered": {
+    "review": "docs/tl_tx_buffered_review.md",
+    "evidence": "build/verification/tl_tx_buffered/evidence.json",
+    "actual_configs": 80,
+    "fifo_depth_configs": 6,
+    "negative_runs": 76,
+    "actual_tx_fifo_queues": true,
+    "minimum_capacity_partial_admission": true,
+    "oversized_transactions_completed": false,
+    "process_sta": false,
+    "full_goal_complete": false
   }
 }

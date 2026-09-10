@@ -1,16 +1,15 @@
 {
   "active_goal": "完整Accelerator Endpoint/Controller与Switch数字RTL IP；未完成",
   "previous_goal_turn": "progress",
-  "latest_stage": "independent_prepared_request_response_selection",
-  "rtl": "rtl/tl/tl_tx_channels.v",
-  "review": "docs/tl_tx_channels_review.md",
-  "evidence": "build/verification/tl_tx_channels/evidence.json",
+  "latest_stage": "actual_transmit_sram_buffering",
+  "rtl": "rtl/tl/tl_tx_buffered.v",
+  "review": "docs/tl_tx_buffered_review.md",
+  "evidence": "build/verification/tl_tx_buffered/evidence.json",
   "full_goal_complete": false,
   "next_actions": [
-    "接入实际独立Tx队列与SRAM数据缓存，验证有界容量和供给停顿；当前两类来源仍由外部持有",
-    "完成容量感知UPLI事务处理与每VC选择，超容量队首仍未完成且不得靠提高默认信用或丢弃掩盖",
-    "Data Poison与其余TL消息、实际联合RTL在线容量及完整独立参考归纳",
-    "新顶层工艺映射/STA，继续UPLI/DL/PL/INC/安全/管理和双IP交付"
+    "容量感知UPLI事务处理、每VC独立选择和超容量事务完成",
+    "Data Poison及其余TL消息；完整联合参考与在线容量归纳",
+    "新顶层工艺STA及完整Endpoint/Switch数字IP所有剩余项"
   ],
   "remote_main": "b0148a1a9d5a4087f14bb5d1eff8afd59acf00a3",
   "new_work_published": false,

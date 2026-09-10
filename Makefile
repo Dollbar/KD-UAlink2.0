@@ -74,6 +74,7 @@ test: model
 	$(PYTHON) "$(ROOT_DIR)/verification/tl_credit_admission/test_model.py"
 	$(PYTHON) "$(ROOT_DIR)/verification/tl_tx_packer/test_model.py"
 	$(PYTHON) "$(ROOT_DIR)/verification/tl_tx_channels/test_model.py"
+	$(PYTHON) "$(ROOT_DIR)/verification/tl_tx_buffered/test_model.py"
 rtl-smoke:
 	$(PYTHON) "$(ROOT_DIR)/verification/tl_publish/run_rtl.py"
 	$(PYTHON) "$(ROOT_DIR)/verification/tl_publish/run_receiver.py"
@@ -93,3 +94,10 @@ clean:
 	$(PYTHON) "$(ROOT_DIR)/scripts/clean.py"
 clean-dry-run:
 	$(PYTHON) "$(ROOT_DIR)/scripts/clean.py" --dry-run
+
+# Actual transmit SRAM queues; external library must be explicitly supplied.
+.PHONY: tx-sram-smoke
+tx-sram-smoke:
+	@test -n "$(KD28_ROOT)" || { echo "Set KD28_ROOT to the authorized external SRAM repository"; exit 1; }
+	$(PYTHON) "$(ROOT_DIR)/verification/tl_tx_buffered/run_fifo.py" --kd28-root "$(KD28_ROOT)"
+	$(PYTHON) "$(ROOT_DIR)/verification/tl_tx_buffered/run_peers.py" --kd28-root "$(KD28_ROOT)" --single --label smoke

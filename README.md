@@ -51,3 +51,5 @@ make clean
 实际半Flit打包与双端验证见 [打包阶段审查](docs/tl_tx_packer_review.md)：已接入旧尾部／新头部／FC选择和独立输入确认，完整事务调度及超容量处理仍在推进。
 
 独立 Request/Response 候选选择见 [类别选择阶段审查](docs/tl_tx_channels_review.md)。已验证一类缺信用时另一类持续完成，实际Tx队列缓存和超容量事务完成仍待接入。
+
+实际独立Tx SRAM队列见 [发送缓存阶段审查](docs/tl_tx_buffered_review.md)。上游必须按 `o_data_accepted` 的实际半Flit数量推进；最小容量支持部分入队，完整UPLI事务处理和工艺STA仍在推进。
