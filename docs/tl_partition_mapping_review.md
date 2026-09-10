@@ -1,4 +1,62 @@
-# 工艺网表复位与状态前置条件审查
+# 工艺网表等价审查
+
+`tl_control_partition` 及其解码、tenure、信用准入三个依赖，在 WIDTH8/16
+两种参数下，已完成当前 RTL 与 `static_reduction` 实际 TSMC28 工艺网表
+的一沿复位后二值顺序等价证明。没有改动 RTL、真实网表或时序约束。
+这项结论只覆盖该模块及两个实际映射参数，不代表完整 IP、协议一致性、
+四态 X 传播或物理签核完成。
+
+## 闭合方法与实际证据
+
+`run_cec.py` 将原 RTL 用 `prep/techmap/opt` 降低为布尔门，并展开实际
+Liberty 和映射网表；黄金侧没有复用映射过程的 `synth` 路径。两侧同步
+复位/使能由 `dffunmap` 表示为真实 D 输入前的组合逻辑，四个寄存器均
+保留。每侧核对原始输入、十个输出共529位、完整四位真实状态、实际 D/Q
+连线及原始正沿 `i_clk`，并拒绝未知单元、X/Z逻辑连接、多驱动及悬空
+有效逻辑输入。
+
+BLIF只对四个真实 Q 网络作一一对应的名称替换。为消除后端输出的无用
+别名，沿全部输出、每个寄存器 D 和时钟反向追溯，仅删除不在这些逻辑
+中的 `.names` 定义。保留原始端口和全部四个 `.latch`；移除的四个
+`r_cursor` 端口只是额外观察端口，不是原始设计端口。没有新增自由输入，
+没有删除寄存器或切断其驱动。三个自动检查专门覆盖下一状态和时钟不能
+因缺少输出扇出而被删除、有效状态输入悬空必须拒绝、多驱动必须拒绝。
+
+ABC CEC默认按名称对应原输入、原输出及寄存器 Q，将共同 Q 作为任意
+相等的当前状态，检查全部529位原输出和4位下一状态函数。WIDTH8/16
+的直接检查分别约26.77/26.52秒通过，无悬空网络警告、错误或未决比较。
+这是所有二值状态和输入下的关系保持证明，不依赖额外协议合法性约束。
+上一阶段已证明任意初始状态经一个有效复位沿，两侧全部真实状态均为零；
+结合该基例与本次当前状态相等时的输出/下一状态等价，即得到复位之后
+任意长度输入序列的二值等价。没有依靠 `equiv_induct` 的弱历史关系或
+仿真置信度补足基例。
+
+新增两种实际网表故障各检查两种位宽：改变游标最低位真实 FF 的 D，
+以及将真实工艺门驱动的 `o_tags[0]` 替为零。四次均被 CEC 判为不等价。
+随后用未切断状态的完整双设计时序 miter，分别在复位不生效的转移沿及
+输出周期作 SAT 查询，四次均产生实际反例。结合此前两次复位旁路、两次
+时钟接线故障，共八次真实工艺网表负向检查有明确检测证据。
+
+`check_cec_evidence.py` 重新核对实际库/源码/网表身份、BLIF转换、状态
+匹配、所有比较对象、正常 CEC 日志、四个新增 SAT 反例和原复位前置
+证明；普通 Python 与 `-O` 审计均通过。汇总为本地 `cec_evidence.json`。
+完整流程仍保留失败记录：首次 CEC 已报等价，但因无用别名警告被包装器
+判为未通过；清理过程补上逻辑追溯检查后，完整矩阵重新运行。
+
+```sh
+python3 verification/tl_partition_mapping/run_cec.py --label cec_closed
+python3 verification/tl_partition_mapping/run_cec.py --fault transition --label cec_transition_checked
+python3 verification/tl_partition_mapping/run_cec.py --fault tags --label cec_tags_checked
+python3 -m unittest discover -s verification/tl_partition_mapping -p 'test_*.py'
+python3 verification/tl_partition_mapping/check_cec_evidence.py
+python3 -O verification/tl_partition_mapping/check_cec_evidence.py
+```
+
+正常运行退出0，两个故障运行应退出1；汇总审计检查其确实为不等价而非
+工具失败。所有标签目录须不存在，原始映射与复位证据须预先生成。新证据
+保存在 `build/verification/tl_partition_mapping/`；工艺库不复制入库。
+
+## 保留的复位阶段与证明探索记录
 
 本阶段使用 `static_reduction` 的实际 TSMC28 映射网表、实际 Liberty
 布尔与寄存器模型，以及同一份当前 RTL。未改动 RTL、映射网表基线或
@@ -35,7 +93,7 @@ SAT 反例，两份记录分别保留。另一个显式初态别名实验被 Yos
 逻辑做 ABC 归约的试验在 240 秒外部时限终止。失败日志、脚本和退出
 状态保留，未将工具未完成解释为 RTL 错误或证明通过。
 
-下一步仍需证明复位后状态关系保持，以及关系下全部原始输出相等。
+上述 SAT 探索未完成的复位后关系与输出义务，现由前述直接 CEC 方法补齐。
 参考周期五角十组 STA 通过、主周期最差 setup 为 −1.250022 ns 的结论
 沿用原有块级实测，本阶段没有新的时序收敛或完整顶层 STA 结论。
 完整 Endpoint/Controller 与 Switch 数字 IP 的 Goal 继续进行。

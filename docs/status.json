@@ -566,7 +566,7 @@
     "full_goal_complete": false,
     "review": "docs/tl_credit_reduction_review.md"
   },
-  "tl_partition_mapping": {
+  "tl_partition_mapping_reset": {
     "audit_passed": true,
     "scope": "actual mapped reset and clock prerequisite only",
     "reset_proved_widths": [
@@ -581,6 +581,41 @@
     "post_reset_induction_proved": false,
     "all_original_outputs_proved": false,
     "mapped_equivalence_closed": false,
+    "full_top_sta": false,
+    "full_goal_complete": false,
+    "review": "docs/tl_partition_mapping_review.md"
+  },
+  "tl_partition_mapping": {
+    "audit_passed": true,
+    "mapped_equivalence_closed": true,
+    "widths": [
+      8,
+      16
+    ],
+    "scope": "tl_control_partition and its three dependencies; binary behavior after one reset edge",
+    "original_output_ports": 10,
+    "original_output_bits": 529,
+    "next_state_bits": 4,
+    "reset_base_proved": true,
+    "all_state_and_clock_correspondence_checked": true,
+    "protocol_input_assumptions": [],
+    "retiming_or_state_encoding_assumptions": [],
+    "cec_timings": [
+      {
+        "width": 8,
+        "seconds": 26.768650523968972
+      },
+      {
+        "width": 16,
+        "seconds": 26.51805497892201
+      }
+    ],
+    "actual_transition_faults": 2,
+    "actual_tag_faults": 2,
+    "actual_reset_faults": 2,
+    "actual_clock_faults": 2,
+    "x_propagation_proof": false,
+    "main_clock_timing_closed": false,
     "full_top_sta": false,
     "full_goal_complete": false,
     "review": "docs/tl_partition_mapping_review.md"

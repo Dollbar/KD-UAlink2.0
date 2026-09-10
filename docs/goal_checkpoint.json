@@ -1,14 +1,14 @@
 {
   "active_goal": "完整Accelerator Endpoint/Controller与Switch数字RTL IP；未完成",
   "previous_goal_turn": "progress",
-  "latest_stage": "partition_mapped_equivalence",
-  "rtl": "rtl/tl/tl_credit_admission.v",
+  "latest_stage": "partition_mapped_equivalence_closed",
+  "rtl": "rtl/tl/tl_control_partition.v",
   "review": "docs/tl_partition_mapping_review.md",
   "evidence": "build/verification/tl_partition_mapping",
   "full_goal_complete": false,
   "next_actions": [
     "继续优化Control分组重复解码及前缀容量计算，当前source_control到Auth标签最差主模式setup仍为−1.250022ns；评估共享解码及经握手证明的流水结构",
-    "补齐实际工艺网表的复位后归纳与全部输出等价；WIDTH8/16一沿零状态复位及四次实际映射故障检查已完成，归纳仍超时",
+    "工艺网表二值等价已在WIDTH8/16闭合；后续优化保留完整状态/时钟、复位、输出与下一状态证明及真实故障门，继续实际顶层映射和STA",
     "完整UPLI事务格式转换及每VC独立选择；本阶段仅完成完整字段组的容量分组",
     "单笔超容量事务的规范可行路径：不得把字段分组或源端Single-Beat选择冒充任意Write/Atomic拆分",
     "Data Poison及其余TL消息；完整联合参考与在线容量归纳",
@@ -24,19 +24,35 @@
   },
   "stage_evidence": {
     "audit_passed": true,
-    "scope": "actual mapped reset and clock prerequisite only",
-    "reset_proved_widths": [
+    "mapped_equivalence_closed": true,
+    "widths": [
       8,
       16
     ],
-    "actual_reset_faults_detected": 2,
-    "actual_clock_faults_rejected": 2,
-    "state_bits_per_design": 4,
-    "original_output_ports_observed": 10,
-    "original_output_bits_observed": 529,
-    "post_reset_induction_proved": false,
-    "all_original_outputs_proved": false,
-    "mapped_equivalence_closed": false,
+    "scope": "tl_control_partition and its three dependencies; binary behavior after one reset edge",
+    "original_output_ports": 10,
+    "original_output_bits": 529,
+    "next_state_bits": 4,
+    "reset_base_proved": true,
+    "all_state_and_clock_correspondence_checked": true,
+    "protocol_input_assumptions": [],
+    "retiming_or_state_encoding_assumptions": [],
+    "cec_timings": [
+      {
+        "width": 8,
+        "seconds": 26.768650523968972
+      },
+      {
+        "width": 16,
+        "seconds": 26.51805497892201
+      }
+    ],
+    "actual_transition_faults": 2,
+    "actual_tag_faults": 2,
+    "actual_reset_faults": 2,
+    "actual_clock_faults": 2,
+    "x_propagation_proof": false,
+    "main_clock_timing_closed": false,
     "full_top_sta": false,
     "full_goal_complete": false
   }
