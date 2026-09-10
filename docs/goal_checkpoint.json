@@ -1,25 +1,43 @@
 {
   "active_goal": "完整Accelerator Endpoint/Controller与Switch数字RTL IP；未完成",
   "previous_goal_turn": "progress",
-  "latest_stage": "static_slot_credit_reduction",
+  "latest_stage": "partition_mapped_equivalence",
   "rtl": "rtl/tl/tl_credit_admission.v",
-  "review": "docs/tl_credit_reduction_review.md",
-  "evidence": "build/verification/tl_credit_reduction/evidence.json",
+  "review": "docs/tl_partition_mapping_review.md",
+  "evidence": "build/verification/tl_partition_mapping",
   "full_goal_complete": false,
   "next_actions": [
     "继续优化Control分组重复解码及前缀容量计算，当前source_control到Auth标签最差主模式setup仍为−1.250022ns；评估共享解码及经握手证明的流水结构",
-    "补齐实际工艺网表的复位收敛与归纳等价；原版/重构RTL九宽度207个SAT查询已通过，但映射等价仍超时",
+    "补齐实际工艺网表的复位后归纳与全部输出等价；WIDTH8/16一沿零状态复位及四次实际映射故障检查已完成，归纳仍超时",
     "完整UPLI事务格式转换及每VC独立选择；本阶段仅完成完整字段组的容量分组",
     "单笔超容量事务的规范可行路径：不得把字段分组或源端Single-Beat选择冒充任意Write/Atomic拆分",
     "Data Poison及其余TL消息；完整联合参考与在线容量归纳",
     "新顶层工艺STA及完整Endpoint/Switch数字IP所有剩余项"
   ],
-  "remote_main": "e9ccd3a80435d4f1005a4b89a446195f8eec635d",
+  "remote_main": "51e1392599d3d974d9c6ab5d5cce2d63d76518c1",
   "new_work_published": false,
   "live_jobs": [],
   "last_authorized_push": {
     "target": "origin/main",
-    "commit": "e9ccd3a80435d4f1005a4b89a446195f8eec635d",
-    "scope": "All committed source through Control field partition; subsequent timing work remains local"
+    "commit": "51e1392599d3d974d9c6ab5d5cce2d63d76518c1",
+    "scope": "User-authorized push of committed process baseline and static credit reduction on 2026-09-11"
+  },
+  "stage_evidence": {
+    "audit_passed": true,
+    "scope": "actual mapped reset and clock prerequisite only",
+    "reset_proved_widths": [
+      8,
+      16
+    ],
+    "actual_reset_faults_detected": 2,
+    "actual_clock_faults_rejected": 2,
+    "state_bits_per_design": 4,
+    "original_output_ports_observed": 10,
+    "original_output_bits_observed": 529,
+    "post_reset_induction_proved": false,
+    "all_original_outputs_proved": false,
+    "mapped_equivalence_closed": false,
+    "full_top_sta": false,
+    "full_goal_complete": false
   }
 }

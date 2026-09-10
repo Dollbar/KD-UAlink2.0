@@ -565,5 +565,24 @@
     "full_top_sta": false,
     "full_goal_complete": false,
     "review": "docs/tl_credit_reduction_review.md"
+  },
+  "tl_partition_mapping": {
+    "audit_passed": true,
+    "scope": "actual mapped reset and clock prerequisite only",
+    "reset_proved_widths": [
+      8,
+      16
+    ],
+    "actual_reset_faults_detected": 2,
+    "actual_clock_faults_rejected": 2,
+    "state_bits_per_design": 4,
+    "original_output_ports_observed": 10,
+    "original_output_bits_observed": 529,
+    "post_reset_induction_proved": false,
+    "all_original_outputs_proved": false,
+    "mapped_equivalence_closed": false,
+    "full_top_sta": false,
+    "full_goal_complete": false,
+    "review": "docs/tl_partition_mapping_review.md"
   }
 }
