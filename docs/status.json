@@ -1444,5 +1444,45 @@
     "full_payload_formal": false,
     "full_top_sta": false,
     "full_goal_complete": false
+  },
+  "production_transmit_physical_baseline": {
+    "measurement_complete": false,
+    "mapped_widths": [
+      8,
+      16
+    ],
+    "fully_measured_widths": [
+      8
+    ],
+    "mapped": [
+      {
+        "width": 8,
+        "cells": 73677,
+        "ff_cells": 6254,
+        "macro_cells": 64,
+        "standard_cell_area_um2": 47213.082
+      },
+      {
+        "width": 16,
+        "cells": 75364,
+        "ff_cells": 6574,
+        "macro_cells": 64,
+        "standard_cell_area_um2": 48461.994
+      }
+    ],
+    "width8_measurements": 30,
+    "width8_main_closed": 0,
+    "width8_reference_closed": 13,
+    "width8_worst_setup_ns": -3.217651,
+    "width8_worst_hold_ns": -0.008036,
+    "report_parser_tests": 12,
+    "mapped_inventory_tests": 6,
+    "full_matrix_audit_complete": false,
+    "mapped_equivalence": false,
+    "macro_signoff": false,
+    "full_goal_complete": false,
+    "review": "docs/tl_tx_prepared_timing_review.md",
+    "evidence": "build/verification/tl_tx_prepared/physical_baseline",
+    "running": true
   }
 }

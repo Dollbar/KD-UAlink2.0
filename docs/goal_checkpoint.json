@@ -1,20 +1,29 @@
 {
   "active_goal": "完整Accelerator Endpoint/Controller与Switch数字RTL IP；未完成",
   "previous_goal_turn": "progress",
-  "latest_stage": "production_transmit_ownership",
+  "latest_stage": "production_transmit_physical_measurement_running",
   "rtl": "rtl/tl/tl_tx_prepared.v",
-  "review": "docs/tl_tx_prepared_formal_review.md",
-  "evidence": "build/verification/tl_tx_prepared/ownership_evidence.json",
+  "review": "docs/tl_tx_prepared_timing_review.md",
+  "evidence": "build/verification/tl_tx_prepared/physical_baseline",
   "full_goal_complete": false,
   "next_actions": [
-    "在生产tl_tx_prepared完整组合上开始实际标准单元映射和五角STA；当前64个SRAM仍须分别报告明确抽象的时序与真实工艺宏签核。",
-    "扩展完整组合的载荷、Data bank守恒和时序参考证明，并验证实际映射网表的状态/输出等价；当前27配置只完成源组与头部FIFO守恒。",
-    "将生产发送组合接入最终UPLI事务转换、真实信用/DL/TL端口及Endpoint/Switch顶层；每VC独立选择、超容量Write/Atomic规范路径及Data Poison继续开放。",
-    "继续数字PHY、INC、安全、管理和完整双IP目标；现有模块/控制归纳、仿真及历史子模块STA均不能代替完整目标验收。"
+    "首先轮询已有exec session 4476；WIDTH 8的30组STA已完成，WIDTH 16的剩余STA仍在原任务内继续。不要因观察超时重启矩阵。",
+    "原任务终止后，运行check_physical.py --label physical_baseline及-O模式，核对60组完整矩阵、实际库/网表/路径/时钟；记录最差setup/hold及真实RTL端点，清除live_jobs。",
+    "完成组合顶层实际映射网表的时序/状态等价。针对缓存计数经发送消费判断返回FIFO预取计数的长反馈路径，规划保存或预计算队首解码/信用元数据的实现，并独立验证吞吐与所有权契约；SRAM输入hold单独处理。",
+    "继续完整载荷/Data bank形式对应、UPLI事务转换、最终Endpoint/Switch、每VC独立选择、超容量Write/Atomic、Data Poison、数字PHY、INC、安全和管理。真实宏签核与synthetic STA分别报告。"
   ],
   "remote_main": "c34f40f2dc00c2e12283897ea0f3de085abfbc7f",
   "new_work_published": false,
-  "live_jobs": [],
+  "live_jobs": [
+    {
+      "unified_exec_session_id": 4476,
+      "status_at_checkpoint": "running",
+      "last_verified_utc": "2026-09-10T23:36:46.273445+00:00",
+      "command": "python3 verification/tl_tx_prepared/run_physical.py --lib-root CONFIGURED_LIB_ROOT --kd28-root AUTHORIZED_KD28_ROOT --sta CONFIGURED_OPENSTA --label physical_baseline",
+      "evidence": "build/verification/tl_tx_prepared/physical_baseline",
+      "next_action": "Poll existing session 4476 first; do not restart the matrix because of an observation timeout. WIDTH 16 STA remains in progress."
+    }
+  ],
   "last_authorized_push": {
     "target": "origin/main",
     "commit": "c34f40f2dc00c2e12283897ea0f3de085abfbc7f",
@@ -141,23 +150,41 @@
     ]
   },
   "stage_evidence": {
-    "sources_unchanged": true,
-    "configurations": 27,
-    "properties_per_configuration": 35,
-    "actual_fault_detections": 6,
-    "reachability_cases": 2,
-    "impossible_capture_queries": 1,
-    "auditor_tests": 15,
-    "normal_and_optimized_audits": true,
-    "assumptions": [
-      "initial synchronous reset"
+    "measurement_complete": false,
+    "mapped_widths": [
+      8,
+      16
     ],
-    "internal_control_cuts": 0,
-    "full_payload_formal": false,
-    "full_top_sta": false,
-    "full_goal_complete": false,
-    "complete": true,
-    "scope": "unbounded source-group and actual header-FIFO conservation; arbitrary SRAM read values"
+    "fully_measured_widths": [
+      8
+    ],
+    "mapped": [
+      {
+        "width": 8,
+        "cells": 73677,
+        "ff_cells": 6254,
+        "macro_cells": 64,
+        "standard_cell_area_um2": 47213.082
+      },
+      {
+        "width": 16,
+        "cells": 75364,
+        "ff_cells": 6574,
+        "macro_cells": 64,
+        "standard_cell_area_um2": 48461.994
+      }
+    ],
+    "width8_measurements": 30,
+    "width8_main_closed": 0,
+    "width8_reference_closed": 13,
+    "width8_worst_setup_ns": -3.217651,
+    "width8_worst_hold_ns": -0.008036,
+    "report_parser_tests": 12,
+    "mapped_inventory_tests": 6,
+    "full_matrix_audit_complete": false,
+    "mapped_equivalence": false,
+    "macro_signoff": false,
+    "full_goal_complete": false
   },
   "previous_stage_evidence": {
     "complete": true,
@@ -505,5 +532,24 @@
     "full_goal_complete": false,
     "compatibility_exit": 0,
     "normal_and_optimized_audits": true
+  },
+  "prior_production_ownership_stage_evidence": {
+    "sources_unchanged": true,
+    "configurations": 27,
+    "properties_per_configuration": 35,
+    "actual_fault_detections": 6,
+    "reachability_cases": 2,
+    "impossible_capture_queries": 1,
+    "auditor_tests": 15,
+    "normal_and_optimized_audits": true,
+    "assumptions": [
+      "initial synchronous reset"
+    ],
+    "internal_control_cuts": 0,
+    "full_payload_formal": false,
+    "full_top_sta": false,
+    "full_goal_complete": false,
+    "complete": true,
+    "scope": "unbounded source-group and actual header-FIFO conservation; arbitrary SRAM read values"
   }
 }
