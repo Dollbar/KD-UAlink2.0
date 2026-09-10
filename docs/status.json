@@ -369,5 +369,63 @@
     "payloads": 71600,
     "best_setup_640ps_ns": -0.641033828,
     "timing_closed": false
-  }
+  },
+  "current_receive_credit": {
+    "functional_matrix_passed": true,
+    "actual_receive_fifo_to_fc": true,
+    "configs": 16,
+    "cycles": 5412,
+    "stored_words": 3072,
+    "fc_transfers": 1712,
+    "completed_initializations": 32,
+    "retired_cmd": 960,
+    "retired_data": 2016,
+    "rtl_fault_types": 7,
+    "negative_runs": 112,
+    "handoff_healthy": 2,
+    "handoff_fault_types": 2,
+    "handoff_negative_runs": 4,
+    "strict_lint": 2,
+    "synthesis": [
+      {
+        "width": 8,
+        "cells": 68063,
+        "ff": 2210,
+        "sram": 19
+      },
+      {
+        "width": 16,
+        "cells": 96345,
+        "ff": 2370,
+        "sram": 19
+      }
+    ],
+    "graph_damages": 8,
+    "parameter_checks": 9,
+    "invalid_parameters": 6,
+    "skill_errors": 0,
+    "skill_advisories": 14,
+    "small_credit_liveness": false,
+    "small_credit_counterexample": {
+      "data_credits_per_slot": 1,
+      "tx_indices": [
+        3,
+        3
+      ],
+      "pending_halves": [
+        3,
+        4
+      ],
+      "fifo_counts": [
+        0,
+        0
+      ],
+      "observation_limit_cycles": 6000
+    },
+    "online_capacity_induction": false,
+    "complete_reference_induction": false,
+    "process_sta": false,
+    "full_goal_complete": false
+  },
+  "current_evidence": "build/verification/tl_receive_credit/evidence.json"
 }

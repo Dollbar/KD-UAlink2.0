@@ -69,6 +69,7 @@ test: model
 	cd "$(ROOT_DIR)" && $(PYTHON) -m unittest discover -s verification/tools -p 'test_*.py' -q
 	$(PYTHON) "$(ROOT_DIR)/verification/tl_publish/test_model.py"
 	$(PYTHON) "$(ROOT_DIR)/verification/tl_receive/test_model.py"
+	$(PYTHON) "$(ROOT_DIR)/verification/tl_receive_credit/test_model.py"
 rtl-smoke:
 	$(PYTHON) "$(ROOT_DIR)/verification/tl_publish/run_rtl.py"
 	$(PYTHON) "$(ROOT_DIR)/verification/tl_publish/run_receiver.py"
@@ -80,6 +81,8 @@ sram-smoke:
 	$(PYTHON) "$(ROOT_DIR)/verification/tl_receive/run_rtl.py" --kd28-root "$(KD28_ROOT)"
 	$(PYTHON) "$(ROOT_DIR)/verification/dl_replay/run_peers.py" --depth 3 --width 32 --group-size 2 --delay 3 --count 1100 --seed 17 --inject --dependency-root "$(KD28_ROOT)" --record smoke.json
 	$(PYTHON) "$(ROOT_DIR)/verification/dl_replay/check_trace.py" --record smoke.json
+	$(PYTHON) "$(ROOT_DIR)/verification/tl_receive_credit/run_rtl.py" --kd28-root "$(KD28_ROOT)"
+	$(PYTHON) "$(ROOT_DIR)/verification/tl_receive_credit/run_handoff.py" --kd28-root "$(KD28_ROOT)"
 clean:
 	$(PYTHON) "$(ROOT_DIR)/scripts/clean.py"
 clean-dry-run:
