@@ -49,3 +49,5 @@ make clean
 当前新增整段发送准入及实际双端 SRAM 回归见 [准入阶段审查](docs/tl_credit_admission_review.md)。总容量足够的连续多 Beat 压力反例已修复；超容量事务处理、完整调度证明和工艺 STA 仍开放。
 
 实际半Flit打包与双端验证见 [打包阶段审查](docs/tl_tx_packer_review.md)：已接入旧尾部／新头部／FC选择和独立输入确认，完整事务调度及超容量处理仍在推进。
+
+独立 Request/Response 候选选择见 [类别选择阶段审查](docs/tl_tx_channels_review.md)。已验证一类缺信用时另一类持续完成，实际Tx队列缓存和超容量事务完成仍待接入。

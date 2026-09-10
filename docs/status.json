@@ -448,5 +448,17 @@
     "request_response_arbitration": false,
     "process_sta": false,
     "full_goal_complete": false
+  },
+  "current_tx_channels": {
+    "review": "docs/tl_tx_channels_review.md",
+    "evidence": "build/verification/tl_tx_channels/evidence.json",
+    "actual_configs": 48,
+    "unit_vectors": 1258,
+    "negative_runs": 80,
+    "prepared_class_independence": true,
+    "actual_tx_fifo_queues": false,
+    "oversized_transactions_completed": false,
+    "process_sta": false,
+    "full_goal_complete": false
   }
 }

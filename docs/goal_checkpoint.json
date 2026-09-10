@@ -1,18 +1,23 @@
 {
   "active_goal": "完整Accelerator Endpoint/Controller与Switch数字RTL IP；未完成",
   "previous_goal_turn": "progress",
-  "latest_stage": "actual_half_flit_packing",
-  "rtl": "rtl/tl/tl_tx_packer.v",
-  "review": "docs/tl_tx_packer_review.md",
-  "evidence": "build/verification/tl_tx_packer/evidence.json",
+  "latest_stage": "independent_prepared_request_response_selection",
+  "rtl": "rtl/tl/tl_tx_channels.v",
+  "review": "docs/tl_tx_channels_review.md",
+  "evidence": "build/verification/tl_tx_channels/evidence.json",
   "full_goal_complete": false,
   "next_actions": [
-    "完成独立Request/Response队列选择及容量感知UPLI事务处理；单笔超过总容量仍不得只提高默认信用或丢弃",
-    "接入真实Tx Data缓存、Data Poison与其余TL消息，验证数据供给停顿和跨层持续前进",
-    "实际联合RTL在线容量及完整独立参考归纳",
+    "接入实际独立Tx队列与SRAM数据缓存，验证有界容量和供给停顿；当前两类来源仍由外部持有",
+    "完成容量感知UPLI事务处理与每VC选择，超容量队首仍未完成且不得靠提高默认信用或丢弃掩盖",
+    "Data Poison与其余TL消息、实际联合RTL在线容量及完整独立参考归纳",
     "新顶层工艺映射/STA，继续UPLI/DL/PL/INC/安全/管理和双IP交付"
   ],
-  "remote_main": "aaa0cc7473a0be04be8ed9b5afeee647a6ae4967",
+  "remote_main": "b0148a1a9d5a4087f14bb5d1eff8afd59acf00a3",
   "new_work_published": false,
-  "live_jobs": []
+  "live_jobs": [],
+  "last_authorized_push": {
+    "target": "origin/main",
+    "commit": "b0148a1a9d5a4087f14bb5d1eff8afd59acf00a3",
+    "scope": "Committed receive-credit, admission and packer stages; current channels stage remains local"
+  }
 }

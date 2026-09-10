@@ -59,3 +59,9 @@
 新增 `tl_tx_packer`，将准备好的Control、Data/BE、AuthTags和FC分开握手，再构造真实端口发送候选。实际双端16配置通过：1,792个Control队首、7,840个Data/BE半Flit、5,680个SRAM字消费、3,738次FC/完成消息转移。观察到70次新头部携带旧尾部、522次FC携带旧尾部、182次旧尾独立排空和186次catch预算NOP。3,170个周期向量通过，48次真实故障全部检出。
 
 新模块解决旧尾部被未获信用新头阻塞及合法Control位置的FC仲裁；它仍只有一条准备好的Control输入，尚非独立Request/Response事务队列仲裁器。单信用多Beat场景仍真实超时且报告容量不足，未丢弃输入；工艺STA、真实Tx数据缓存、Poison/其余消息和完整联合归纳仍开放。详见 `docs/tl_tx_packer_review.md`。
+
+## 独立Request/Response候选选择
+
+新增 `tl_tx_channels`，独立检查两类准备好头部的信用、catch预算和本拍负载，并区分新头部类与旧Data所有者。正常、Request永久超容量、Response永久超容量三模式各16配置通过；正常模式有38次跨类头尾合并。被阻塞类保持所有输入，另一类完成发送、真实SRAM消费和信用排空。1,258个单位时序向量及80次实际故障完成。
+
+这里完成的是外部两类队列的候选选择和独立消费接口，模块尚未实例化Tx FIFO/SRAM；每VC独立性、超容量事务完成和完整调度归纳仍开放。详见 `docs/tl_tx_channels_review.md`。新顶层仍未完成工艺STA。

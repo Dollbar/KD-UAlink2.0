@@ -73,6 +73,7 @@ test: model
 	$(PYTHON) "$(ROOT_DIR)/verification/tl_receive_credit/test_model.py"
 	$(PYTHON) "$(ROOT_DIR)/verification/tl_credit_admission/test_model.py"
 	$(PYTHON) "$(ROOT_DIR)/verification/tl_tx_packer/test_model.py"
+	$(PYTHON) "$(ROOT_DIR)/verification/tl_tx_channels/test_model.py"
 rtl-smoke:
 	$(PYTHON) "$(ROOT_DIR)/verification/tl_publish/run_rtl.py"
 	$(PYTHON) "$(ROOT_DIR)/verification/tl_publish/run_receiver.py"
@@ -80,6 +81,7 @@ rtl-smoke:
 	$(PYTHON) "$(ROOT_DIR)/verification/tl_peers/run_rtl.py"
 	$(PYTHON) "$(ROOT_DIR)/verification/rs/run_case.py" --serial 200 --lanes 1 --blocks 8 --label smoke
 	$(PYTHON) "$(ROOT_DIR)/verification/tl_tx_packer/run_rtl.py"
+	$(PYTHON) "$(ROOT_DIR)/verification/tl_tx_channels/run_rtl.py"
 sram-smoke:
 	@test -n "$(KD28_ROOT)" || { echo "Set KD28_ROOT to the authorized external SRAM repository"; exit 1; }
 	$(PYTHON) "$(ROOT_DIR)/verification/tl_receive/run_rtl.py" --kd28-root "$(KD28_ROOT)"
