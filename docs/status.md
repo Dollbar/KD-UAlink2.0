@@ -73,3 +73,7 @@
 ## 按容量分组完整Control字段
 
 新增 `tl_control_partition`，把独立完整字段分到实际初始化容量可容纳的Control中，保留字段位、顺序、Data/BE及对应AuthTags。32组实际双端配置完成1,536个源组、6,912个字段和2,304个完整Single-Beat模式读回复；4,856个单位RTL向量和72次实际负例通过。模块仍不拆分单个多Beat事务，也不替代完整UPLI转换或每VC调度。工艺STA保持开放。详见 `docs/tl_control_partition_review.md`。
+
+## Control分组模块工艺时序基线
+
+WIDTH8/16两种参数已完成真实TSMC28标准单元映射和五角、两周期共20组STA。6组通过，主周期全部失败、慢角参考周期也失败；最差setup为−8.615259ns，参考周期最差−2.855259ns。两个宽度的映射等价检查在复位收敛SAT阶段超时，尚未得到通过结论。原始RTL未修改，接下来优先优化信用需求动态累计和重复分组计算。该结果仅覆盖单个模块，不关闭完整集成顶层STA或Goal。详见 `docs/tl_control_partition_timing_review.md`。

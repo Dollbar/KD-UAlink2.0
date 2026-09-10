@@ -34,24 +34,18 @@ make clean
 - `sram-smoke`：实际 TL 接收 SRAM 六配置和含错误注入的 DL 双端重放，随后逐周期独立核对；需要显式提供外部依赖。
 - `clean`：删除本工程 `build/`、`reports/`、`artifacts/` 和 Python 缓存，不删除规范私有目录或外部依赖。
 
-每个 RTL 脚本也可单独运行，使用 `--help` 查看参数。重复运行同名回归前执行 `make clean`；脚本拒绝覆盖已有的部分运行目录。已有 UPLI 单模块入口保留，例如 `make sim-connection`，其工艺分析需显式提供 `LIB_ROOT`。
+每个 RTL 脚本也可单独运行，使用 `--help` 查看参数。保留验证证据时，请使用新的 `--label` 或干净导出副本；部分脚本拒绝覆盖已有目录。`make clean` 会删除本地验证结果。已有 UPLI 单模块入口保留，例如 `make sim-connection`，其工艺分析需显式提供 `LIB_ROOT`。
 
 ## 当前状态
 
-信用发布器已通过 8 配置、147,457 个真实时钟沿；实际接收 SRAM 已通过 6 配置、6,750 沿。新增实际接收 FIFO 到 FC 的双端组合已通过 16 配置、5,412 周期；小 Data 信用下已复现中途停顿，持续前进性仍待修复。当前顶层没有工艺 STA 通过结论。
+实际TL链路已接入接收SRAM退休到FC发布、整段信用准入、半Flit打包、独立Request/Response选择、发送SRAM队列，以及完整Control字段的容量分组。最新分组阶段32组双端配置完成6,912个字段、2,304个完整Single-Beat读回复；4,856个单位RTL向量通过，72次实际故障注入全部检出。
 
-详细范围、历史成绩的适用边界和下一步见 [工程状态](docs/status.md)。旧运行日志、波形、生成网表及证明缓存按工作区整理要求清理；保留的历史数字是状态摘要，不能替代已删除的原始证明档案。
+工艺测量已推进到Control分组模块：WIDTH8/16 × 五角 × 两周期共20组STA中6组通过，主周期和慢角参考周期存在setup违例；该模块不能宣称目标频率达标。完整UPLI转换、每VC调度、单笔超容量事务、其余TL消息、完整协议证明和集成顶层STA仍在推进。
+
+详细范围见[工程状态](docs/status.md)。模块结果及复跑入口分别见[信用准入](docs/tl_credit_admission_review.md)、[半Flit打包](docs/tl_tx_packer_review.md)、[类别选择](docs/tl_tx_channels_review.md)、[发送SRAM](docs/tl_tx_buffered_review.md)、[字段分组](docs/tl_control_partition_review.md)和[工艺时序基线](docs/tl_control_partition_timing_review.md)。发送数据源必须按 `o_data_accepted` 的实际接纳数量推进，最小容量支持部分入队。
+
+波形和终止任务的编译产物按工作区要求清理；保留的阶段日志、输入快照及校验清单位于本地忽略目录。早期已删除证据的历史数字仅作状态摘要。
 
 ## 外部输入
 
 规范正文、PDK/Liberty、SRAM 模型、SerDes/VIP 和本地主机配置不随本仓库分发。`KD28_ROOT` 指向有权使用的外部仓库，其文件清单及校验值见 [依赖登记](third_party/kd28_dependency.json)。`specs/private/`、`third_party/private/` 与 `config/local.json` 被忽略。源码许可证尚未指定。
-
-当前新增整段发送准入及实际双端 SRAM 回归见 [准入阶段审查](docs/tl_credit_admission_review.md)。总容量足够的连续多 Beat 压力反例已修复；超容量事务处理、完整调度证明和工艺 STA 仍开放。
-
-实际半Flit打包与双端验证见 [打包阶段审查](docs/tl_tx_packer_review.md)：已接入旧尾部／新头部／FC选择和独立输入确认，完整事务调度及超容量处理仍在推进。
-
-独立 Request/Response 候选选择见 [类别选择阶段审查](docs/tl_tx_channels_review.md)。已验证一类缺信用时另一类持续完成，实际Tx队列缓存和超容量事务完成仍待接入。
-
-实际独立Tx SRAM队列见 [发送缓存阶段审查](docs/tl_tx_buffered_review.md)。上游必须按 `o_data_accepted` 的实际半Flit数量推进；最小容量支持部分入队，完整UPLI事务处理和工艺STA仍在推进。
-
-字段组的容量处理见 [Control分组阶段审查](docs/tl_control_partition_review.md)：已接入实际发送SRAM双端链路，保持单字段位和数据序列不变；单笔超容量事务与完整UPLI处理仍待完成。

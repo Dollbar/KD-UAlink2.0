@@ -16,6 +16,18 @@ PASS credit setup/hold at period_ns=0.640; prelayout budget only
 
 
 class StaReportTests(unittest.TestCase):
+    def test_control_partition_requires_complete_matching_profile(self):
+        text = GOOD.replace("PASS credit ", "PASS control_partition ")
+        try:
+            result = check_report(text, design="control_partition")
+        except ValueError as error:
+            self.fail(f"control partition STA profile is missing: {error}")
+        self.assertEqual(result["setup_slack_ns"], 0.01)
+        for bad in (GOOD, text.replace("0.010000", "-0.010000"),
+                    "\n".join(text.splitlines()[:3])):
+            with self.subTest(bad=bad), self.assertRaises(ValueError):
+                check_report(bad, design="control_partition")
+
     def setUp(self):
         self.assertIsNotNone(check_report, "STA diagnostic gate is missing")
 

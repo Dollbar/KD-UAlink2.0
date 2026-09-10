@@ -1,23 +1,25 @@
 {
   "active_goal": "完整Accelerator Endpoint/Controller与Switch数字RTL IP；未完成",
   "previous_goal_turn": "progress",
-  "latest_stage": "capacity_aware_control_field_partitioning",
+  "latest_stage": "control_partition_process_timing_baseline",
   "rtl": "rtl/tl/tl_control_partition.v",
-  "review": "docs/tl_control_partition_review.md",
-  "evidence": "build/verification/tl_control_partition/evidence.json",
+  "review": "docs/tl_control_partition_timing_review.md",
+  "evidence": "build/verification/tl_control_partition_timing/mapped_baseline/evidence.json",
   "full_goal_complete": false,
   "next_actions": [
+    "优化tl_credit_admission动态部分选择累计为固定槽并行贡献归约，保持原语义；重新证明并检查Control分组模块原时序约束",
+    "补齐映射等价：两个整体复位收敛SAT查询均超时，后续归纳未执行",
     "完整UPLI事务格式转换及每VC独立选择；本阶段仅完成完整字段组的容量分组",
     "单笔超容量事务的规范可行路径：不得把字段分组或源端Single-Beat选择冒充任意Write/Atomic拆分",
     "Data Poison及其余TL消息；完整联合参考与在线容量归纳",
     "新顶层工艺STA及完整Endpoint/Switch数字IP所有剩余项"
   ],
-  "remote_main": "b0148a1a9d5a4087f14bb5d1eff8afd59acf00a3",
+  "remote_main": "e9ccd3a80435d4f1005a4b89a446195f8eec635d",
   "new_work_published": false,
   "live_jobs": [],
   "last_authorized_push": {
     "target": "origin/main",
-    "commit": "b0148a1a9d5a4087f14bb5d1eff8afd59acf00a3",
-    "scope": "Committed receive-credit, admission and packer stages; current channels stage remains local"
+    "commit": "e9ccd3a80435d4f1005a4b89a446195f8eec635d",
+    "scope": "All committed source through Control field partition; subsequent timing work remains local"
   }
 }
