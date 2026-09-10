@@ -1,6 +1,7 @@
 """Run: python3 verification/tl_prefix_cost/run_equivalence.py --candidate FILE --label NAME.
 Optional --widths 8 ... 16, or --mapped-root DIR --liberty FILE for actual mapped
-equivalence (WIDTH8/16). Outputs paired RTL/BLIF and proof logs under
+equivalence (WIDTH8/16). --reference accepts a full Git commit; --dependency-root
+selects gate dependencies while gold uses the reference snapshot. Outputs under
 build/verification/tl_prefix_cost. Next audit reset, faults, integration and timing.
 """
 from pathlib import Path
@@ -25,31 +26,39 @@ def main():
     parser.add_argument("--widths", type=int, nargs="+", default=list(range(8, 17)))
     parser.add_argument("--mapped-root", type=Path)
     parser.add_argument("--liberty", type=Path)
+    parser.add_argument("--reference", default=REFERENCE, help="immutable full reference commit")
+    parser.add_argument("--dependency-root", type=Path, help="candidate dependency directory; gold always uses reference Git sources")
     args = parser.parse_args()
     need(args.candidate.is_file() and re.fullmatch(r"[a-zA-Z0-9_-]+", args.label), "invalid candidate or label")
     need(len(set(args.widths)) == len(args.widths) and all(8 <= w <= 16 for w in args.widths), "invalid width matrix")
+    need(re.fullmatch(r"[0-9a-f]{40}", args.reference), "reference must be a full immutable commit")
     need(bool(args.mapped_root) == bool(args.liberty), "mapped proof needs both actual netlists and Liberty")
     if args.mapped_root:
         need(all(w in (8, 16) for w in args.widths) and args.liberty.is_file(), "invalid mapped proof inputs")
     stage = ROOT / "build/verification/tl_prefix_cost" / args.label
     stage.mkdir(parents=True, exist_ok=False)
     (stage / "candidate.v").write_bytes(args.candidate.read_bytes())
-    original = subprocess.check_output(["git", "show", REFERENCE + ":rtl/tl/tl_control_partition.v"], cwd=ROOT)
+    original = subprocess.check_output(["git", "show", args.reference + ":rtl/tl/tl_control_partition.v"], cwd=ROOT)
     (stage / "original.v").write_bytes(original)
-    dependencies = []
+    dependencies, original_dependencies = [], []
+    (stage / "reference_dependencies").mkdir()
     for name in DEPENDENCIES:
-        source = ROOT / "rtl/tl" / name
-        need(source.read_bytes() == subprocess.check_output(["git", "show", REFERENCE + ":rtl/tl/" + name], cwd=ROOT),
-             "shared decoder/admission changed since reference")
+        source = (args.dependency_root or ROOT / "rtl/tl") / name
+        reference_source = subprocess.check_output(["git", "show", args.reference + ":rtl/tl/" + name], cwd=ROOT)
+        if not args.dependency_root:
+            need(source.read_bytes() == reference_source, "shared decoder/admission changed since reference")
+        (stage / "reference_dependencies" / name).write_bytes(reference_source)
+        original_dependencies.append(stage / "reference_dependencies" / name)
         (stage / name).write_bytes(source.read_bytes())
         dependencies.append(stage / name)
     (stage / "runner.py").write_bytes(Path(__file__).read_bytes())
     support = ROOT / "verification/tl_partition_mapping/run_cec.py"
     (stage / "cec_support.py").write_bytes(support.read_bytes())
     result = {"complete": False, "all_passed": False, "widths": args.widths,
-              "mode": "mapped" if args.mapped_root else "rtl", "reference": REFERENCE,
+              "mode": "mapped" if args.mapped_root else "rtl", "reference": args.reference,
               "candidate_sha256": sha(stage / "candidate.v"), "original_sha256": sha(stage / "original.v"),
               "dependencies": {p.name: sha(p) for p in dependencies}, "results": [],
+              "reference_dependencies": {p.name: sha(p) for p in original_dependencies},
               "runner_sha256": sha(Path(__file__)), "support_sha256": sha(support),
               "original_output_bits": 529, "next_state_bits": 4, "protocol_assumptions": []}
     if args.liberty:
@@ -68,7 +77,8 @@ def main():
                 script += f"yosys read_liberty -ignore_miss_func {{{args.liberty.resolve()}}}\nyosys read_verilog {{{folder}/mapped.v}}\n"
             else:
                 primary = stage / ("original.v" if side == "gold" and not args.mapped_root else "candidate.v")
-                for source in (primary, *dependencies):
+                side_dependencies = original_dependencies if side == "gold" and not args.mapped_root else dependencies
+                for source in (primary, *side_dependencies):
                     script += f"yosys read_verilog {{{source}}}\n"
                 script += f"yosys chparam -set WIDTH {width} tl_control_partition\n"
             script += f"""yosys prep -top tl_control_partition -flatten

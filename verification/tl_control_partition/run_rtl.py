@@ -1,12 +1,12 @@
-"""Run python3 verification/tl_control_partition/run_rtl.py [--label unit] [--replace FILE].
+"""Run python3 verification/tl_control_partition/run_rtl.py [--label unit] [--replace FILE] [--dependency-root DIR].
 Outputs actual two-width partition/cursor/tag vectors. Next real buffered dual peers.
 """
 from pathlib import Path
 import argparse,hashlib,itertools,json,random,subprocess,sys
 R=Path(__file__).resolve().parents[2];sys.path.insert(0,str(R/'model/tl'))
 from control_partition import Partitioner
-p=argparse.ArgumentParser(description=__doc__);p.add_argument('--label',default='unit');p.add_argument('--replace',type=Path);a=p.parse_args();S=R/'build/verification/tl_control_partition'/a.label;S.mkdir(parents=True,exist_ok=False)
-src=[R/'rtl/tl'/n for n in ('tl_control_partition.v','tl_credit_admission.v','tl_control_decode.v','tl_control_tenure.v')]
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('--label',default='unit');p.add_argument('--replace',type=Path);p.add_argument('--dependency-root',type=Path);a=p.parse_args();S=R/'build/verification/tl_control_partition'/a.label;S.mkdir(parents=True,exist_ok=False)
+src=[R/'rtl/tl/tl_control_partition.v']+[(a.dependency_root or R/'rtl/tl')/n for n in ('tl_credit_admission.v','tl_control_decode.v','tl_control_tenure.v')]
 if a.replace:src=[a.replace if x.name==a.replace.name else x for x in src]
 def pack(v,b):return sum(int(x)<<(j*b) for j,x in enumerate(v))
 rows=[]

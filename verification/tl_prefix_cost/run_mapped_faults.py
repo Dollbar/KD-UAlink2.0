@@ -1,9 +1,12 @@
 """Run: python3 verification/tl_prefix_cost/run_mapped_faults.py.
+Optional --proof-label NAME and --label NAME preserve separate stages.
 Writes actual mapped reset proofs and clock/transition/tag fault evidence under
 build/verification/tl_prefix_cost/mapped_faults. Next audit all RTL and STA gates.
 """
 from pathlib import Path
+import argparse
 import json
+import re
 import sys
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -34,10 +37,15 @@ sat -verify -timeout 60 {options} -dump_json {folder}/{name}_counterexample.json
 
 
 def main():
-    healthy = BASE / "mapped_equivalence"
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--proof-label", default="mapped_equivalence")
+    parser.add_argument("--label", default="mapped_faults")
+    args = parser.parse_args()
+    need(all(re.fullmatch(r"[a-zA-Z0-9_-]+", s) for s in (args.proof_label, args.label)), "invalid proof or output label")
+    healthy = BASE / args.proof_label
     metadata = json.loads((healthy / "results.json").read_text())
     need(metadata["complete"] and metadata["all_passed"] and metadata["widths"] == [8, 16], "requires both healthy mapped proofs")
-    stage = BASE / "mapped_faults"
+    stage = BASE / args.label
     stage.mkdir(exist_ok=False)
     (stage / "runner.py").write_bytes(Path(__file__).read_bytes())
     result = {"complete": False, "all_passed": False, "candidate_sha256": metadata["candidate_sha256"],
@@ -55,7 +63,6 @@ def main():
             if fault in ("transition", "tags"):
                 altered = mutate(original, fault)
             elif fault == "clock":
-                import re
                 pattern = r"DFQD2BWP40P140\s+\S+\s*\(\s*\.CP\(i_clk\),\s*\.D\([^()]+\),\s*\.Q\(r_cursor\[0\]\)\s*\);"
                 cells = re.findall(pattern, original)
                 need(len(cells) == 1, "clock target is not one actual mapped FF")

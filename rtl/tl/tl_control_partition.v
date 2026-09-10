@@ -32,7 +32,7 @@ wire [31:0] masked_counts;wire [39:0] w_slots;wire [959:0] prefix_cost; // 每�
 wire [7:0] unused_masked_count_lsb; // Data信用只消费完整Beat计数
 assign unused_masked_count_lsb={masked_counts[28],masked_counts[24],masked_counts[20],masked_counts[16],masked_counts[12],masked_counts[8],masked_counts[4],masked_counts[0]}; // 显式标明未消费的半Flit奇偶位
  tl_control_decode Masked_Decode_Inst(masked_source,masked_valid,unused_masked_request_count,unused_masked_response_count,unused_masked_starts,masked_requests,masked_responses); // 一份掩码字段树服务全部候选
- tl_control_tenure Masked_Tenure_Inst(masked_source,masked_status,unused_masked_fields,masked_counts,unused_masked_be); // 一份真实tenure逻辑提供每字段Data量
+ tl_control_tenure #(.ZERO_ON_ERROR(1'b0)) Masked_Tenure_Inst(masked_source,masked_status,unused_masked_fields,masked_counts,unused_masked_be); // 内部Data量与错误并行派生，masked_status仍单独阻止非法分组
 wire [1:0] w_vc0; // sector0字段VC
 assign w_vc0=(masked_source[127:124]==4'd1)?masked_source[117:116]:((masked_source[63:60]==4'd2)?masked_source[59:58]:(masked_source[63:60]==4'd3)?masked_source[56:55]:masked_source[27:26]); // sector0字段VC
 wire w_pool0; // sector0字段Pool

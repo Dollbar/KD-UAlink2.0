@@ -680,5 +680,90 @@
     "full_goal_complete": false,
     "review": "docs/tl_prefix_cost_review.md",
     "rtl_sha256": "800f8d7ad56612951534150a649103ae2a3fed76a36f139079257fcfe44076b0"
+  },
+  "tl_partition_select": {
+    "complete": true,
+    "rtl_equivalence_widths": [
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16
+    ],
+    "mapped_equivalence_widths": [
+      8,
+      16
+    ],
+    "unit_vectors": 4856,
+    "actual_peer_configs": 32,
+    "identical_trace_files": 96,
+    "unit_faults": 16,
+    "peer_faults": 56,
+    "tenure_contract_proofs": 2,
+    "tenure_fault_counterexamples": 2,
+    "mapped_reset_proofs": 2,
+    "mapped_fault_counterexamples": 6,
+    "mapped_clock_rejections": 2,
+    "physical": [
+      {
+        "experiment": "select_parallel_timing",
+        "width": 8,
+        "cells": 13161,
+        "area_um2": 7263.396,
+        "worst_setup_ns": -1.247491,
+        "worst_reference_setup_ns": 4.512509
+      },
+      {
+        "experiment": "select_parallel_timing",
+        "width": 16,
+        "cells": 13426,
+        "area_um2": 7276.248,
+        "worst_setup_ns": -1.294584,
+        "worst_reference_setup_ns": 4.465416
+      },
+      {
+        "experiment": "select_sector_only_timing",
+        "width": 8,
+        "cells": 13542,
+        "area_um2": 7669.62,
+        "worst_setup_ns": -1.177818,
+        "worst_reference_setup_ns": 4.582181
+      },
+      {
+        "experiment": "select_sector_only_timing",
+        "width": 16,
+        "cells": 13583,
+        "area_um2": 8058.456,
+        "worst_setup_ns": -1.127425,
+        "worst_reference_setup_ns": 4.632576
+      },
+      {
+        "experiment": "select_tenure_clean_timing",
+        "width": 8,
+        "cells": 15416,
+        "area_um2": 9224.208,
+        "worst_setup_ns": -1.057862,
+        "worst_reference_setup_ns": 4.702137
+      },
+      {
+        "experiment": "select_tenure_clean_timing",
+        "width": 16,
+        "cells": 15236,
+        "area_um2": 8906.31,
+        "worst_setup_ns": -1.054325,
+        "worst_reference_setup_ns": 4.705675
+      }
+    ],
+    "artifact_errors": 0,
+    "artifact_advisories": 28,
+    "compatibility_exit": 0,
+    "main_frequency_closed": false,
+    "full_top_sta": false,
+    "full_goal_complete": false,
+    "review": "docs/tl_partition_select_review.md"
   }
 }

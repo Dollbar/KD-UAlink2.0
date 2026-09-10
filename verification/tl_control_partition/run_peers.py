@@ -1,5 +1,5 @@
 """Run: python3 verification/tl_control_partition/run_peers.py --kd28-root PATH
-[--blocked none|request|response] [--label NAME] [--single] [--replace FILE].
+[--blocked none|request|response] [--label NAME] [--single] [--replace FILE] [--dependency-root DIR].
 Outputs real dual class-source/port/SRAM/FC traces. Next independent check_evidence.py.
 """
 from pathlib import Path
@@ -7,7 +7,7 @@ import argparse,hashlib,itertools,json,subprocess,sys
 R=Path(__file__).resolve().parents[2];sys.path.insert(0,str(R/'model/tl'))
 from credit_context import decode_context
 from control_partition import choose
-p=argparse.ArgumentParser(description=__doc__);p.add_argument('--kd28-root',type=Path,required=True);p.add_argument('--label');p.add_argument('--single',action='store_true');p.add_argument('--replace',type=Path);p.add_argument('--bank-depth',type=int,default=3);p.add_argument('--header-depth',type=int,default=2);a=p.parse_args();S=R/'build/verification/tl_control_partition'/(a.label or 'peers');S.mkdir(parents=True,exist_ok=False)
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('--kd28-root',type=Path,required=True);p.add_argument('--label');p.add_argument('--single',action='store_true');p.add_argument('--replace',type=Path);p.add_argument('--dependency-root',type=Path);p.add_argument('--bank-depth',type=int,default=3);p.add_argument('--header-depth',type=int,default=2);a=p.parse_args();S=R/'build/verification/tl_control_partition'/(a.label or 'peers');S.mkdir(parents=True,exist_ok=False)
 blocked=-1
 def pack(v,b):return sum(int(x)<<(j*b) for j,x in enumerate(v))
 def fixtures(auth,side,role):
@@ -25,6 +25,7 @@ def fixtures(auth,side,role):
         heads.append(pack(fields,bits));tags.append(pack(auth_tags,64))
     return heads,tags,data
 src=sorted((R/'rtl/tl').glob('*.v'))+[R/'rtl/upli/upli_receive_fifo.v',R/'rtl/upli/upli_receive_storage.v']
+if a.dependency_root:src=[a.dependency_root/x.name if (a.dependency_root/x.name).is_file() else x for x in src]
 if a.replace:src=[a.replace if x.name==a.replace.name else x for x in src]
 external=[a.kd28_root/'Library/models/kd28/sram/rtl'/n for n in ('kd28_sram_sp_model.v','kd28_sram_sdp_model.v','kd28_sram_tdp_model.v','kd28_sram_cells.v')]+[a.kd28_root/'Library/models/kd28/fifo/rtl/kd28_fifo_sdp_storage_map.v']
 configs=list(itertools.product((8,16),(0,1),(0,1),(1,3)));configs=configs[:1] if a.single else configs;rows=[]
