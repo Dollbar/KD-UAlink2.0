@@ -16,7 +16,7 @@ import sys
 
 
 def check_report(text, design="credit"):
-    if design not in ("credit", "initialization", "return", "receive", "burst_control", "control_partition"):
+    if design not in ("credit", "initialization", "return", "receive", "burst_control", "control_partition", "prepared_partition"):
         raise ValueError("unknown STA design profile")
     if re.search(r"\(VIOLATED\)|^\s*(?:Warning:|Error:|FAIL\b)|\bunconstrained\b", text, re.MULTILINE | re.IGNORECASE):
         raise ValueError("STA contains a violation, tool diagnostic or unconstrained path")
@@ -38,7 +38,7 @@ def check_report(text, design="credit"):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("report", type=Path)
-    parser.add_argument("--design", choices=("credit", "initialization", "return", "receive", "burst_control", "control_partition"), default="credit")
+    parser.add_argument("--design", choices=("credit", "initialization", "return", "receive", "burst_control", "control_partition", "prepared_partition"), default="credit")
     args = parser.parse_args()
     try:
         result = check_report(args.report.read_text(), design=args.design)

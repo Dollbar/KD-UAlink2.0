@@ -16,6 +16,18 @@ PASS credit setup/hold at period_ns=0.640; prelayout budget only
 
 
 class StaReportTests(unittest.TestCase):
+    def test_prepared_partition_rejects_old_top_or_negative_report(self):
+        text = GOOD.replace("PASS credit ", "PASS prepared_partition ")
+        try:
+            result = check_report(text, design="prepared_partition")
+        except ValueError as error:
+            self.fail(f"prepared metadata top profile missing: {error}")
+        self.assertEqual(result["setup_slack_ns"], 0.01)
+        for bad in (GOOD.replace("PASS credit ", "PASS control_partition "),
+                    text.replace("0.020000", "-0.000001")):
+            with self.assertRaises(ValueError):
+                check_report(bad, design="prepared_partition")
+
     def test_control_partition_requires_complete_matching_profile(self):
         text = GOOD.replace("PASS credit ", "PASS control_partition ")
         try:

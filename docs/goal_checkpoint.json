@@ -1,18 +1,17 @@
 {
   "active_goal": "完整Accelerator Endpoint/Controller与Switch数字RTL IP；未完成",
   "previous_goal_turn": "progress",
-  "latest_stage": "shared_auth_selection_adopted",
-  "rtl": "rtl/tl/tl_control_partition.v",
-  "review": "docs/tl_auth_selection_review.md",
-  "evidence": "build/verification/tl_auth_selection",
+  "latest_stage": "registered_control_metadata_functionally_verified",
+  "rtl": "rtl/tl/tl_prepared_partition.v",
+  "review": "docs/tl_prepared_partition_review.md",
+  "evidence": "build/verification/tl_prepared_partition",
   "full_goal_complete": false,
   "next_actions": [
-    "AuthTags共享移位已采用，最差主setup为−1.044889ns；组合小改仅改善约10ps。优先落实长路径分级计算的输入所有权、队列反压和吞吐合约，形成可验证的注册化metadata路径；保留640ps预算及完整IP目标。",
-    "当前模块九位宽RTL等价及两位宽实际网表/复位/故障已闭合。下一步结合完整实际端口做顶层集成与映射/STA，不把单模块等价或参考周期通过替代主频和完整顶层闭合。",
-    "完整UPLI事务格式转换及每VC独立选择；本阶段仅完成完整字段组的容量分组",
-    "单笔超容量事务的规范可行路径：不得把字段分组或源端Single-Beat选择冒充任意Write/Atomic拆分",
-    "Data Poison及其余TL消息；完整联合参考与在线容量归纳",
-    "新顶层工艺STA及完整Endpoint/Switch数字IP所有剩余项"
+    "注册化Control元数据已完成功能、实际双端及两位宽所有权归纳；建立完整独立时序参考关系，补齐WIDTH8等参数的完整字段边界归纳。",
+    "新增状态尚未完成实际工艺网表等价；保留真实时钟/所有状态及全部531位公开输出，不能复用旧四位游标CEC结论。",
+    "640ps主周期最差setup仍为−0.819915ns；继续分级费用/边界选择和AuthTags输出，明确新增寄存级的反压、所有权和吞吐代价。",
+    "完整实际端口与Endpoint/Switch顶层集成、工艺STA、完整UPLI事务转换及每VC独立选择仍待完成。",
+    "单笔超容量Write/Atomic的规范路径、Data Poison及其余TL/数字PHY/INC/安全/管理接口和完整双IP目标继续开放。"
   ],
   "remote_main": "1bc57c143d3d87ac8f638e0990ee19024b474005",
   "new_work_published": false,
@@ -23,8 +22,8 @@
     "scope": "User explicitly authorized push then continuing Goal on 2026-09-11; mapped reset and complete mapped equivalence published."
   },
   "stage_evidence": {
-    "complete": true,
-    "rtl_equivalence_widths": [
+    "functional_stage_complete": true,
+    "unit_widths": [
       8,
       9,
       10,
@@ -35,32 +34,90 @@
       15,
       16
     ],
-    "mapped_equivalence_widths": [
+    "unit_vectors": 69462,
+    "actual_peer_configs": 32,
+    "actual_unit_faults": 28,
+    "ownership_induction_widths": [
       8,
       16
     ],
-    "unit_vectors": 4856,
-    "actual_peer_configs": 32,
-    "identical_trace_files": 96,
-    "unit_faults": 16,
-    "peer_faults": 56,
-    "mapped_reset_proofs": 2,
-    "mapped_sat_counterexamples": 6,
-    "mapped_clock_rejections": 2,
-    "physical": [
+    "compositional_output_holding": [
       {
         "width": 8,
-        "cells": 15125,
-        "area_um2": 8864.604,
-        "worst_setup_ns": -1.044205,
-        "worst_reference_setup_ns": 4.715795
+        "state_bits": 1043,
+        "held_output_input_roots": {
+          "o_valid": [
+            "i_rstn"
+          ],
+          "o_error": [
+            "i_rstn"
+          ],
+          "o_shortfall": [
+            "i_rstn"
+          ],
+          "o_control": [
+            "i_rstn"
+          ],
+          "o_tags": [
+            "i_rstn"
+          ],
+          "o_fields": [
+            "i_rstn"
+          ],
+          "o_end": [
+            "i_rstn"
+          ],
+          "o_cursor": [
+            "i_rstn"
+          ]
+        }
       },
       {
         "width": 16,
-        "cells": 14957,
-        "area_um2": 8989.848,
-        "worst_setup_ns": -1.044889,
-        "worst_reference_setup_ns": 4.715111
+        "state_bits": 1203,
+        "held_output_input_roots": {
+          "o_valid": [
+            "i_rstn"
+          ],
+          "o_error": [
+            "i_rstn"
+          ],
+          "o_shortfall": [
+            "i_rstn"
+          ],
+          "o_control": [
+            "i_rstn"
+          ],
+          "o_tags": [
+            "i_rstn"
+          ],
+          "o_fields": [
+            "i_rstn"
+          ],
+          "o_end": [
+            "i_rstn"
+          ],
+          "o_cursor": [
+            "i_rstn"
+          ]
+        }
+      }
+    ],
+    "formal_fault_witnesses": 4,
+    "physical": [
+      {
+        "width": 8,
+        "cells": 18797,
+        "area_um2": 12195.288,
+        "worst_main_setup_ns": -0.819915,
+        "worst_reference_setup_ns": 4.940085
+      },
+      {
+        "width": 16,
+        "cells": 19510,
+        "area_um2": 13660.416,
+        "worst_main_setup_ns": -0.808205,
+        "worst_reference_setup_ns": 4.951795
       }
     ],
     "reference_sta_passed": 10,
@@ -68,8 +125,20 @@
     "artifact_errors": 0,
     "artifact_advisories": 17,
     "compatibility_exit": 0,
+    "full_functional_formal": false,
+    "mapped_equivalence": false,
     "main_frequency_closed": false,
     "full_top_sta": false,
-    "full_goal_complete": false
+    "full_goal_complete": false,
+    "broad_boundary_induction_widths": [
+      16
+    ],
+    "broad_boundary_timeout_widths": [
+      8
+    ],
+    "definedness_diagnostic_timeout_widths": [
+      8,
+      16
+    ]
   }
 }

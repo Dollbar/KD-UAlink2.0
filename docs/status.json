@@ -816,5 +816,117 @@
     "full_top_sta": false,
     "full_goal_complete": false,
     "review": "docs/tl_auth_selection_review.md"
+  },
+  "latest_tl_prepared_partition": {
+    "review": "docs/tl_prepared_partition_review.md",
+    "evidence": "build/verification/tl_prepared_partition/evidence.json",
+    "functional_stage_complete": true,
+    "unit_widths": [
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16
+    ],
+    "unit_vectors": 69462,
+    "actual_peer_configs": 32,
+    "actual_unit_faults": 28,
+    "ownership_induction_widths": [
+      8,
+      16
+    ],
+    "compositional_output_holding": [
+      {
+        "width": 8,
+        "state_bits": 1043,
+        "held_output_input_roots": {
+          "o_valid": [
+            "i_rstn"
+          ],
+          "o_error": [
+            "i_rstn"
+          ],
+          "o_shortfall": [
+            "i_rstn"
+          ],
+          "o_control": [
+            "i_rstn"
+          ],
+          "o_tags": [
+            "i_rstn"
+          ],
+          "o_fields": [
+            "i_rstn"
+          ],
+          "o_end": [
+            "i_rstn"
+          ],
+          "o_cursor": [
+            "i_rstn"
+          ]
+        }
+      },
+      {
+        "width": 16,
+        "state_bits": 1203,
+        "held_output_input_roots": {
+          "o_valid": [
+            "i_rstn"
+          ],
+          "o_error": [
+            "i_rstn"
+          ],
+          "o_shortfall": [
+            "i_rstn"
+          ],
+          "o_control": [
+            "i_rstn"
+          ],
+          "o_tags": [
+            "i_rstn"
+          ],
+          "o_fields": [
+            "i_rstn"
+          ],
+          "o_end": [
+            "i_rstn"
+          ],
+          "o_cursor": [
+            "i_rstn"
+          ]
+        }
+      }
+    ],
+    "formal_fault_witnesses": 4,
+    "physical": [
+      {
+        "width": 8,
+        "cells": 18797,
+        "area_um2": 12195.288,
+        "worst_main_setup_ns": -0.819915,
+        "worst_reference_setup_ns": 4.940085
+      },
+      {
+        "width": 16,
+        "cells": 19510,
+        "area_um2": 13660.416,
+        "worst_main_setup_ns": -0.808205,
+        "worst_reference_setup_ns": 4.951795
+      }
+    ],
+    "reference_sta_passed": 10,
+    "main_sta_passed": 0,
+    "artifact_errors": 0,
+    "artifact_advisories": 17,
+    "compatibility_exit": 0,
+    "full_functional_formal": false,
+    "mapped_equivalence": false,
+    "main_frequency_closed": false,
+    "full_top_sta": false,
+    "full_goal_complete": false
   }
 }

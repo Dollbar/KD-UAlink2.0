@@ -1,5 +1,5 @@
 """Run: python3 verification/tl_control_partition/run_peers.py --kd28-root PATH
-[--blocked none|request|response] [--label NAME] [--single] [--replace FILE] [--dependency-root DIR].
+[--prepared] [--label NAME] [--single] [--replace FILE] [--dependency-root DIR].
 Outputs real dual class-source/port/SRAM/FC traces. Next independent check_evidence.py.
 """
 from pathlib import Path
@@ -7,7 +7,7 @@ import argparse,hashlib,itertools,json,subprocess,sys
 R=Path(__file__).resolve().parents[2];sys.path.insert(0,str(R/'model/tl'))
 from credit_context import decode_context
 from control_partition import choose
-p=argparse.ArgumentParser(description=__doc__);p.add_argument('--kd28-root',type=Path,required=True);p.add_argument('--label');p.add_argument('--single',action='store_true');p.add_argument('--replace',type=Path);p.add_argument('--dependency-root',type=Path);p.add_argument('--bank-depth',type=int,default=3);p.add_argument('--header-depth',type=int,default=2);a=p.parse_args();S=R/'build/verification/tl_control_partition'/(a.label or 'peers');S.mkdir(parents=True,exist_ok=False)
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('--kd28-root',type=Path,required=True);p.add_argument('--label');p.add_argument('--single',action='store_true');p.add_argument('--prepared',action='store_true',help='registered metadata source, with retirement-source ownership shim');p.add_argument('--replace',type=Path);p.add_argument('--dependency-root',type=Path);p.add_argument('--bank-depth',type=int,default=3);p.add_argument('--header-depth',type=int,default=2);a=p.parse_args();S=R/'build/verification/tl_control_partition'/(a.label or 'peers');S.mkdir(parents=True,exist_ok=False)
 blocked=-1
 def pack(v,b):return sum(int(x)<<(j*b) for j,x in enumerate(v))
 def fixtures(auth,side,role):
@@ -134,7 +134,14 @@ if(!hwait||!dwait)$fatal(1,"actual Tx backpressure coverage missing");$display("
 end
 endmodule
 '''
-    (B/'tb.sv').write_text(tb);c=subprocess.run(['iverilog','-g2012','-s','tb','-o',str(B/'sim.vvp'),*map(str,src+external),str(B/'tb.sv')],capture_output=True,text=True);(B/'compile.log').write_text(c.stdout+c.stderr);row=dict(width=width,auth=auth,shared=shared,delay=delay,blocked=blocked,bank_depth=a.bank_depth,header_depth=a.header_depth,tag_pattern=True,compile_exit=c.returncode,passed=False)
+    if a.prepared:
+        # Historical producer advances wh on final retirement. Claim each group once;
+        # a true capture-based producer can replace without this adapter's bubble.
+        tb=tb.replace('tl_control_partition #', 'tl_prepared_partition #')
+        tb=tb.replace('.i_source_valid(shv[side][lane])', '.i_source_valid(shv[side][lane]&&!source_owned)')
+        tb=tb.replace('.o_source_taken(hs[side][lane])', '.o_group_done(hs[side][lane]),.o_source_ready(source_ready),.o_captured(captured)')
+        tb=tb.replace(' tl_prepared_partition #', " reg source_owned;wire source_ready,captured;\n always @(posedge clk)begin if(!rstn)source_owned<=0;else if(captured)source_owned<=1;else if(hs[side][lane])source_owned<=0;end\n tl_prepared_partition #")
+    (B/'tb.sv').write_text(tb);c=subprocess.run(['iverilog','-g2012','-s','tb','-o',str(B/'sim.vvp'),*map(str,src+external),str(B/'tb.sv')],capture_output=True,text=True);(B/'compile.log').write_text(c.stdout+c.stderr);row=dict(width=width,auth=auth,shared=shared,delay=delay,blocked=blocked,bank_depth=a.bank_depth,header_depth=a.header_depth,tag_pattern=True,prepared=a.prepared,compile_exit=c.returncode,passed=False)
     if not c.returncode:
         c=subprocess.run(['vvp',str(B/'sim.vvp')],capture_output=True,text=True,timeout=120);(B/'run.log').write_text(c.stdout+c.stderr);row.update(run_exit=c.returncode,passed=c.returncode==0 and 'PASS actual channels' in c.stdout);print(c.stdout,flush=True)
     rows.append(row);(S/'results.json').write_text(json.dumps(dict(complete=len(rows)==len(configs) and all(x['passed'] for x in rows),results=rows,sources={str(f):hashlib.sha256(f.read_bytes()).hexdigest() for f in src+external}),indent=2)+'\n')
