@@ -33,7 +33,11 @@
   },
   "tl_sram": {
     "configs": 6,
-    "edges": 6750
+    "edges": 6750,
+    "fault_types": 5,
+    "negative_runs": 30,
+    "strict_lint_configs": 2,
+    "generic_synthesis_configs": 2
   },
   "rs_smoke": {
     "serial": 200,
@@ -100,5 +104,11 @@
     "rtl/upli/upli_receive_channel.v": "8fb9827e3490d4258205f501ab38237633dd2592ee599eeee320defa117cbc43",
     "rtl/upli/upli_receive_fifo.v": "24576fa74ecd60eeecdfbcf147424d095ec3d659dd12bdbc90372edbc2f135d6",
     "rtl/upli/upli_receive_storage.v": "21c6ff22968ef6a81d086392bc4c5e8d56fb4c9297b80c82824a4178d4af4969"
+  },
+  "independent_clean_export": {
+    "make_test": "PASS",
+    "make_rtl_smoke": "PASS",
+    "make_sram_smoke": "PASS",
+    "old_build_or_report_tree_available": false
   }
 }
