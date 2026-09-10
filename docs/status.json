@@ -508,6 +508,62 @@
     "mapping_equivalence_note": "Both reset-convergence SAT queries timed out; subsequent induction was not reached",
     "full_top_sta": false,
     "physical_signoff": false,
-    "full_goal_complete": false
+    "full_goal_complete": false,
+    "superseded_by": "static_credit_reduction"
+  },
+  "static_credit_reduction": {
+    "complete": true,
+    "rtl_equivalence_widths": [
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16
+    ],
+    "proved_sat_queries": 207,
+    "proof_scope": "binary combinational; 20 unconditional slot lemmas then 3 flags per width",
+    "protocol_assumptions": [],
+    "unit_vectors": {
+      "tl_credit_admission": 16742,
+      "tl_control_partition": 4856
+    },
+    "actual_peer_configs": 32,
+    "identical_cycle_trace_files": 96,
+    "unit_faults": 12,
+    "actual_wrapper_faults": 16,
+    "formal_faults_replayed": 3,
+    "timing_changes": [
+      {
+        "width": 8,
+        "old_cells": 103634,
+        "new_cells": 18743,
+        "old_area_um2": 56881.692,
+        "new_area_um2": 11121.768,
+        "worst_setup_ns": -1.226602,
+        "worst_reference_setup_ns": 4.533397
+      },
+      {
+        "width": 16,
+        "old_cells": 103601,
+        "new_cells": 18893,
+        "old_area_um2": 57934.422,
+        "new_area_um2": 10519.866,
+        "worst_setup_ns": -1.250022,
+        "worst_reference_setup_ns": 4.509978
+      }
+    ],
+    "passed_sta_runs": 10,
+    "artifact_errors": 0,
+    "artifact_advisories": 13,
+    "compatibility_exit": 0,
+    "main_frequency_closed": false,
+    "mapped_equivalence_closed": false,
+    "full_top_sta": false,
+    "full_goal_complete": false,
+    "review": "docs/tl_credit_reduction_review.md"
   }
 }

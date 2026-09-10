@@ -9,11 +9,13 @@ generate if(WIDTH<8||WIDTH>16)begin:gen_invalid_width // 实际端口信用宽�
  tl_credit_admission_invalid_WIDTH invalid_parameter(); // 非法参数明确拒绝展开
 end endgenerate // 参数合法性检查结束
 wire [1:0] status;wire [3:0] unused_fields;wire [31:0] w_counts;wire [7:0] unused_be; // 规范字段附带数量
+wire [7:0] unused_count_lsb; // 每字段半Flit计数的最低位不参与完整Beat信用计算
+assign unused_count_lsb={w_counts[28],w_counts[24],w_counts[20],w_counts[16],w_counts[12],w_counts[8],w_counts[4],w_counts[0]}; // 明确收集独立解码器接口中有意未使用的奇偶位
 wire valid;wire [2:0] unused_requests;wire [3:0] unused_responses;wire [7:0] unused_starts,w_req,w_rsp;wire [39:0] w_slots; // 字段位置及归属
 wire eligible_format; // 未决及无效tenure均不得准入
 assign eligible_format=valid&&(status==2'd0); // 未决及无效tenure均不得准入
 wire [19:0] available_fit,capacity_fit; // 所有物理槽共同满足才准入
-integer field,slot; // 固定八字段展开索引
+wire [119:0] raw_requirements; // 二十个逻辑槽的固定并行累计，尚未合并共享池
  tl_control_tenure u_tenure(i_half,status,unused_fields,w_counts,unused_be); // 复用已核对tenure解码
  tl_control_decode u_decode(i_half,valid,unused_requests,unused_responses,unused_starts,w_req,w_rsp); // 只解释真正字段起点
 wire [1:0] w_vc0; // sector0字段VC
@@ -72,16 +74,25 @@ assign w_pool7=i_half[238]; // sector7字段Pool
 wire [2:0] w_lane7; // Pool或专用VC
 assign w_lane7=w_pool7?3'd0:({1'b0,w_vc7}+3'd1); // Pool或专用VC
 assign w_slots[35+:5]=(w_req[7]?5'd10:5'd15)+{2'd0,w_lane7}; // 请求与响应Data类
-always @* begin // 整个Control所需CMD及后续全部Data信用
- o_requirements=120'd0;slot=0; // 完整默认值，无隐含状态
- if(i_rstn&&i_control&&eligible_format)begin // 数据和消息阶段不得误解负载
-  for(field=0;field<8;field=field+1)begin // 八个固定字段位置
-   if(w_req[field]||w_rsp[field])begin // 仅CMD字段有需求，FC与NOP无需求
-    slot={27'd0,w_slots[field*5+:5]}; // 保留Request/Response及Pool/VC归属
-    o_requirements[(slot-10)*6+:6]=o_requirements[(slot-10)*6+:6]+6'd1; // 每命令一个信用
-    o_requirements[slot*6+:6]=o_requirements[slot*6+:6]+{3'd0,w_counts[field*4+1+:3]}; // 两个Data半Flit一信用，BE不额外计费
-   end // 字段资源计数结束
-  end // 字段累计结束
+genvar account,field;generate for(account=0;account<20;account=account+1)begin:gen_requirements // 固定逻辑槽避免动态读写宽向量
+ localparam [4:0] DATA_SLOT=(account<10)?account+10:account; // CMD槽与对应Data槽相差十，比较宽度固定五位
+ wire [5:0] contribution[0:7];wire [5:0] pair[0:3];wire [5:0] quad[0:1]; // 六位完整表示最多八命令或三十二Data信用
+ for(field=0;field<8;field=field+1)begin:gen_field // 每个自然对齐字段只向所属槽提供贡献
+  if(account<10)begin:gen_command // CMD每字段扣一份，与Data长度独立
+   assign contribution[field]=((w_req[field]||w_rsp[field])&&(w_slots[field*5+:5]==DATA_SLOT))?6'd1:6'd0; // 仅该逻辑CMD槽接收此字段计数
+  end else begin:gen_data // Data贡献使用已确认的完整Beat数量
+   assign contribution[field]=((w_req[field]||w_rsp[field])&&(w_slots[field*5+:5]==DATA_SLOT))?{3'd0,w_counts[field*4+1+:3]}:6'd0; // BE半Flit不增加Data信用
+  end // 结束CMD与Data静态分支
+ end // 结束八字段独立贡献
+ assign pair[0]=contribution[0]+contribution[1];assign pair[1]=contribution[2]+contribution[3]; // 第一级并行归约低四字段
+ assign pair[2]=contribution[4]+contribution[5];assign pair[3]=contribution[6]+contribution[7]; // 第一级并行归约高四字段
+ assign quad[0]=pair[0]+pair[1];assign quad[1]=pair[2]+pair[3]; // 第二级分别合计前后四字段
+ assign raw_requirements[account*6+:6]=quad[0]+quad[1]; // 第三级得到固定槽总需求，无字段间动态选择链
+end endgenerate // 结束二十逻辑槽的平衡累计
+always @* begin // 合法Control门控与共享池归一化保持原接口时序
+ o_requirements=120'd0; // 非Control、复位或未确认格式无需求
+ if(i_rstn&&i_control&&eligible_format)begin // 所有字段解码语义保持原实现
+  o_requirements=raw_requirements; // 一次写入完整逻辑需求而不逐字段改写动态槽
   if(i_shared)begin // 仅两个Data Pool合并，CMD及专用VC保持独立
    o_requirements[60+:6]=o_requirements[60+:6]+o_requirements[90+:6]; // 共享池总需求最多三十二
    o_requirements[90+:6]=6'd0; // 第二逻辑池在物理账本中已并入槽十

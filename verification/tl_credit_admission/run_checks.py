@@ -5,6 +5,8 @@ Next: audit source identity and the healthy dual-port traces.
 from pathlib import Path
 import argparse,hashlib,json,subprocess,sys
 R=Path(__file__).resolve().parents[2];p=argparse.ArgumentParser(description=__doc__);p.add_argument('--kd28-root',type=Path,required=True);p.add_argument('--label',default='checks');a=p.parse_args()
+pressure_fixtures=sorted((R/'build/verification/tl_receive_credit/pressure_verified').glob('*/tb.v'))
+if len(pressure_fixtures)!=16:p.error('requires all 16 healthy pressure_verified fixtures; generate with tl_receive_credit/run_rtl.py --traffic-pressure --admission --label pressure_verified')
 S=R/'build/verification/tl_credit_admission'/a.label;S.mkdir(parents=True,exist_ok=False)
 rows=[]
 def run(name,cmd):
@@ -22,7 +24,7 @@ for w in (7,17):
 guard=(R/'rtl/tl/tl_credit_admission.v').read_text()
 changes={
  'lose_future_data':('{3\'d0,w_counts[field*4+1+:3]}',"6'd0"),
- 'wrong_data_lane':("slot*6+:6", "((slot==19)?18:slot+1)*6+:6"),
+ 'wrong_data_lane':("(w_slots[field*5+:5]==DATA_SLOT))?{3'd0", "(w_slots[field*5+:5]==((DATA_SLOT==5'd19)?5'd18:DATA_SLOT+5'd1)))?{3'd0"),
  'no_shared_merge':('if(i_shared)begin','if(1\'b0)begin'),
  'merge_vc_pools':("o_requirements[60+:6]+o_requirements[90+:6]","o_requirements[60+:6]+o_requirements[96+:6]"),
  'ignore_available':('(i_done&&(&available_fit))',"(i_done&&1'b1)"),
@@ -38,7 +40,7 @@ for name,(old,new) in changes.items():
 f=S/'tl_credit_admitted_port.v';f.write_text((R/'rtl/tl/tl_credit_admitted_port.v').read_text().replace('.i_send(i_send&&admission_allow)', '.i_send(i_send)'))
 external=[a.kd28_root/'Library/models/kd28/sram/rtl'/n for n in ('kd28_sram_sp_model.v','kd28_sram_sdp_model.v','kd28_sram_tdp_model.v','kd28_sram_cells.v')]+[a.kd28_root/'Library/models/kd28/fifo/rtl/kd28_fifo_sdp_storage_map.v']
 used=[f if q.name==f.name else q for q in sources]+[R/'rtl/upli/upli_receive_fifo.v',R/'rtl/upli/upli_receive_storage.v']+external
-for source in sorted((R/'build/verification/tl_receive_credit/pressure_verified').glob('*/tb.v')):
+for source in pressure_fixtures:
     d=S/('bypass_'+source.parent.name);d.mkdir();tb=d/'tb.v';tb.write_text(source.read_text().replace(str(source.parent/'trace.txt'),str(d/'trace.txt')).replace(str(source.parent/'admission_trace.txt'),str(d/'admission_trace.txt')))
     c=run(d.name+'_compile',['iverilog','-g2012','-s','tb','-o',str(d/'sim.vvp'),*map(str,used),str(tb)])
     if c.returncode:raise RuntimeError('mutant did not compile')

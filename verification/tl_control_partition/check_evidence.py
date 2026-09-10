@@ -4,8 +4,13 @@ Outputs evidence.json; blocked-class completion is explicitly not claimed.
 """
 from pathlib import Path
 from collections import deque
-import hashlib,json,re,sys
+import argparse,hashlib,json,re,sys
 R=Path(__file__).resolve().parents[2];S=R/'build/verification/tl_control_partition';sys.path.insert(0,str(R/'model/tl'))
+p=argparse.ArgumentParser(description=__doc__);p.add_argument('--peers-label',default='peers_semantics');p.add_argument('--minimum-label',default='minimum_semantics');p.add_argument('--peers-only',action='store_true');p.add_argument('--output-label');a=p.parse_args()
+for label in (a.peers_label,a.minimum_label,a.output_label):
+    if label is not None and not re.fullmatch(r'[a-zA-Z0-9_-]+',label):p.error('labels must be single directory/file names')
+if a.peers_only and not a.output_label:p.error('--peers-only requires a distinct --output-label')
+if not a.peers_only and (a.peers_label!='peers_semantics' or a.minimum_label!='minimum_semantics' or a.output_label):p.error('custom labels require --peers-only; full original stage gates are separate')
 from credit_context import Context,decode_context
 from receive_context import ReceiveContext
 from credit_admission import requirements
@@ -18,7 +23,7 @@ def identity(r):
 def pack(v,b):return sum(int(x)<<(j*b) for j,x in enumerate(v))
 def unpack(v,b):return [(v>>(j*b))&((1<<b)-1) for j in range(20)]
 reports={}
-for mode,blocked in (('peers_semantics',-1),('minimum_semantics',-1)):
+for mode,blocked in ((a.peers_label,-1),(a.minimum_label,-1)):
     result=read(S/mode/'results.json');identity(result);need(result['complete'] and len(result['results'])==16,'actual mode denominator '+mode)
     total=dict(cycles=0,headers=[0,0],data_halves=[0,0],stored=0,fc=0,cross_tail=0,held_edges=0,cmd_returns=0,data_returns=0)
     for case in result['results']:
@@ -161,6 +166,9 @@ for mode in reports:
         need(not pending_replies and len(closed)==72,'both endpoints finish 36 read replies each')
     counters['completed_single_beat_read_replies']=completions
 
+if a.peers_only:
+    out=dict(actual_configs=32,modes=reports,queues=queue_reports,partitioning=partition_reports,scope='actual_peer_traces_only',unit_and_fault_gates_included=False,process_sta=False,full_goal_complete=False)
+    (S/(a.output_label+'.json')).write_text(json.dumps(out,indent=2)+'\n');print(json.dumps(out,indent=2));raise SystemExit(0)
 checks=read(S/'checks/results.json');identity(checks);need(checks['complete'],'all external checks completed')
 for kind,n in (('lint',2),('synthesis',2),('unit_fault',8),('peer_fault',56)):
     need(sum(x['kind']==kind for x in checks['results'])==n,'actual external check denominator '+kind)
