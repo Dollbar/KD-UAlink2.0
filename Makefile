@@ -64,7 +64,7 @@ connection-check:
 .DEFAULT_GOAL := help
 .PHONY: help test rtl-smoke sram-smoke clean clean-dry-run
 help:
-	@echo "test | rtl-smoke | sram-smoke KD28_ROOT=/authorized/path | clean-dry-run | clean"
+	@echo "test | rtl-smoke | sram-smoke | prepared-tx-smoke KD28_ROOT=/authorized/path | clean-dry-run | clean"
 test: model
 	mkdir -p "$(ROOT_DIR)/build"
 	cd "$(ROOT_DIR)" && $(PYTHON) -m unittest discover -s verification/tools -p 'test_*.py' -q
@@ -107,3 +107,11 @@ tx-sram-smoke:
 	@test -n "$(KD28_ROOT)" || { echo "Set KD28_ROOT to the authorized external SRAM repository"; exit 1; }
 	$(PYTHON) "$(ROOT_DIR)/verification/tl_tx_buffered/run_fifo.py" --kd28-root "$(KD28_ROOT)"
 	$(PYTHON) "$(ROOT_DIR)/verification/tl_tx_buffered/run_peers.py" --kd28-root "$(KD28_ROOT)" --single --label smoke
+
+# Complete source-group capture into production transmit SRAM queues.
+.PHONY: prepared-tx-smoke
+prepared-tx-smoke:
+	@test -n "$(KD28_ROOT)" || { echo "Set KD28_ROOT to the authorized external SRAM repository"; exit 1; }
+	$(PYTHON) "$(ROOT_DIR)/verification/tl_tx_prepared/run_unit.py" --kd28-root "$(KD28_ROOT)" --label smoke
+	$(PYTHON) "$(ROOT_DIR)/verification/tl_control_partition/run_peers.py" --integrated --kd28-root "$(KD28_ROOT)" --single --label prepared_top_smoke
+	$(PYTHON) "$(ROOT_DIR)/verification/tl_tx_prepared/check_capture.py" --labels prepared_top_smoke
