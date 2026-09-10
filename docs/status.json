@@ -1073,5 +1073,104 @@
     "artifact_errors": 0,
     "artifact_advisories": 9
   },
-  "last_verified_remote_main": "c34f40f2dc00c2e12283897ea0f3de085abfbc7f"
+  "last_verified_remote_main": "c34f40f2dc00c2e12283897ea0f3de085abfbc7f",
+  "registered_control_mapped_equivalence": {
+    "complete": true,
+    "scope": "binary post-reset sequential RTL versus actual TSMC28 mapped module equivalence; independent payload initial states handled by reset/empty relation",
+    "rtl_sha256": "def8d202e6394d755485a191fb7f42ba93ec8ef3af28ca061f3f37e4bace7f78",
+    "library_sha256": "3be5ac20980ae4c7119d8c794a93288346cf88ea272c74072df9d45d8616713a",
+    "inventory": [
+      {
+        "width": 8,
+        "actual_state_bits": 1035,
+        "public_output_bits": 531,
+        "next_state_bits": 1035,
+        "extra_semantic_observation_bits": 1043
+      },
+      {
+        "width": 16,
+        "actual_state_bits": 1195,
+        "public_output_bits": 531,
+        "next_state_bits": 1195,
+        "extra_semantic_observation_bits": 1203
+      }
+    ],
+    "full_state_cec": 2,
+    "reset_queries": 2,
+    "empty_queries": 2,
+    "constant_inductions": 2,
+    "actual_mapped_fault_checks": 8,
+    "actual_cec_fault_detections": 6,
+    "faults": [
+      {
+        "fault": "clock",
+        "width": 8,
+        "check": "actual_clock"
+      },
+      {
+        "fault": "clock",
+        "width": 16,
+        "check": "actual_clock"
+      },
+      {
+        "fault": "capture",
+        "width": 8,
+        "check": "empty"
+      },
+      {
+        "fault": "capture",
+        "width": 16,
+        "check": "empty"
+      },
+      {
+        "fault": "reset",
+        "width": 8,
+        "check": "reset"
+      },
+      {
+        "fault": "reset",
+        "width": 16,
+        "check": "reset"
+      },
+      {
+        "fault": "output",
+        "width": 8,
+        "check": "owned"
+      },
+      {
+        "fault": "output",
+        "width": 16,
+        "check": "owned"
+      }
+    ],
+    "mapped_oracle_replay": [
+      {
+        "label": "mapped_vectors_w8",
+        "width": 8,
+        "vectors": 7718,
+        "negative": false
+      },
+      {
+        "label": "mapped_vectors_w16",
+        "width": 16,
+        "vectors": 7718,
+        "negative": false
+      },
+      {
+        "label": "mapped_fault_vectors",
+        "width": 8,
+        "vectors": 8,
+        "negative": true
+      }
+    ],
+    "mapped_equivalence": true,
+    "main_frequency_closed": false,
+    "full_top_sta": false,
+    "full_goal_complete": false,
+    "review": "docs/tl_prepared_mapping_review.md",
+    "evidence": "build/verification/tl_prepared_mapping/evidence.json",
+    "checker_tests": 20,
+    "compatibility_exit": 0,
+    "normal_and_optimized_audits": true
+  }
 }

@@ -77,6 +77,7 @@ test: model
 	$(PYTHON) "$(ROOT_DIR)/verification/tl_tx_buffered/test_model.py"
 	$(PYTHON) "$(ROOT_DIR)/verification/tl_control_partition/test_model.py"
 	$(PYTHON) "$(ROOT_DIR)/verification/tl_prepared_partition/test_model.py"
+	$(PYTHON) "$(ROOT_DIR)/verification/tl_prepared_partition/test_mapped_state.py"
 rtl-smoke:
 	$(PYTHON) "$(ROOT_DIR)/verification/tl_publish/run_rtl.py"
 	$(PYTHON) "$(ROOT_DIR)/verification/tl_publish/run_receiver.py"

@@ -1,17 +1,17 @@
 {
   "active_goal": "完整Accelerator Endpoint/Controller与Switch数字RTL IP；未完成",
   "previous_goal_turn": "progress",
-  "latest_stage": "registered_control_complete_rtl_reference_equivalence",
+  "latest_stage": "registered_control_complete_mapped_equivalence",
   "rtl": "rtl/tl/tl_prepared_partition.v",
-  "review": "docs/tl_prepared_equivalence_review.md",
-  "evidence": "build/verification/tl_prepared_equivalence",
+  "review": "docs/tl_prepared_mapping_review.md",
+  "evidence": "build/verification/tl_prepared_mapping",
   "full_goal_complete": false,
   "next_actions": [
-    "注册化Control已完成WIDTH8–16全部531位公开输出的组合归纳参考等价：90项单步/复位SAT、9项元数据和9项边界归纳；进入新模块真实工艺网表等价。",
-    "新增状态尚未完成实际工艺网表等价；保留真实时钟/所有状态及全部531位公开输出，不能复用旧四位游标CEC结论。",
-    "640ps主周期最差setup仍为−0.819915ns；继续分级费用/边界选择和AuthTags输出，明确新增寄存级的反压、所有权和吞吐代价。",
-    "完整实际端口与Endpoint/Switch顶层集成、工艺STA、完整UPLI事务转换及每VC独立选择仍待完成。",
-    "单笔超容量Write/Atomic的规范路径、Data Poison及其余TL/数字PHY/INC/安全/管理接口和完整双IP目标继续开放。"
+    "注册化Control的WIDTH8–16 RTL参考等价及WIDTH8/16真实工艺网表等价均已完成；继续面向640ps主周期的微架构优化，不降低完整双IP目标。",
+    "实际SSG低温最差路径为WIDTH8的r_cursor[0]、WIDTH16的r_cursor[3]至AuthTags输出；结合已证明游标范围评估显式消除恒零高位，并分级费用/完整字段边界/标签选择。",
+    "流水线调整必须明确握手、数据所有权、复位、反压及吞吐代价，建立相应独立参考、实际双端回归和新RTL/工艺网表等价，不能沿用失效的源码成绩。",
+    "当前最差640ps setup仍为−0.819915ns；完整实际端口与Endpoint/Switch顶层、工艺STA、完整UPLI事务转换及每VC独立选择仍待完成。",
+    "单笔超容量Write/Atomic规范路径、Data Poison及其余TL/数字PHY/INC/安全/管理接口和完整双IP目标继续开放。"
   ],
   "remote_main": "c34f40f2dc00c2e12283897ea0f3de085abfbc7f",
   "new_work_published": false,
@@ -143,144 +143,99 @@
   },
   "stage_evidence": {
     "complete": true,
-    "scope": "composed binary post-reset RTL equivalence against immutable raw-field baseline; not independent protocol certification",
-    "reference": "1e26fbd486ca4ee96de4635fd9a2442801bfc89d",
+    "scope": "binary post-reset sequential RTL versus actual TSMC28 mapped module equivalence; independent payload initial states handled by reset/empty relation",
     "rtl_sha256": "def8d202e6394d755485a191fb7f42ba93ec8ef3af28ca061f3f37e4bace7f78",
-    "equivalence_widths": [
-      8,
-      9,
-      10,
-      11,
-      12,
-      13,
-      14,
-      15,
-      16
-    ],
-    "public_output_bits": 531,
-    "metadata_inductions": 9,
-    "boundary_inductions": 9,
-    "exhaustive_step_queries": 90,
-    "state_inventory": [
+    "library_sha256": "3be5ac20980ae4c7119d8c794a93288346cf88ea272c74072df9d45d8616713a",
+    "inventory": [
       {
         "width": 8,
-        "side": "gold",
-        "state_bits": 956
-      },
-      {
-        "width": 8,
-        "side": "gate",
-        "state_bits": 1044
+        "actual_state_bits": 1035,
+        "public_output_bits": 531,
+        "next_state_bits": 1035,
+        "extra_semantic_observation_bits": 1043
       },
       {
         "width": 16,
-        "side": "gold",
-        "state_bits": 1116
-      },
-      {
-        "width": 16,
-        "side": "gate",
-        "state_bits": 1204
-      },
-      {
-        "width": 9,
-        "side": "gold",
-        "state_bits": 976
-      },
-      {
-        "width": 9,
-        "side": "gate",
-        "state_bits": 1064
-      },
-      {
-        "width": 10,
-        "side": "gold",
-        "state_bits": 996
-      },
-      {
-        "width": 10,
-        "side": "gate",
-        "state_bits": 1084
-      },
-      {
-        "width": 11,
-        "side": "gold",
-        "state_bits": 1016
-      },
-      {
-        "width": 11,
-        "side": "gate",
-        "state_bits": 1104
-      },
-      {
-        "width": 12,
-        "side": "gold",
-        "state_bits": 1036
-      },
-      {
-        "width": 12,
-        "side": "gate",
-        "state_bits": 1124
-      },
-      {
-        "width": 13,
-        "side": "gold",
-        "state_bits": 1056
-      },
-      {
-        "width": 13,
-        "side": "gate",
-        "state_bits": 1144
-      },
-      {
-        "width": 14,
-        "side": "gold",
-        "state_bits": 1076
-      },
-      {
-        "width": 14,
-        "side": "gate",
-        "state_bits": 1164
-      },
-      {
-        "width": 15,
-        "side": "gold",
-        "state_bits": 1096
-      },
-      {
-        "width": 15,
-        "side": "gate",
-        "state_bits": 1184
+        "actual_state_bits": 1195,
+        "public_output_bits": 531,
+        "next_state_bits": 1195,
+        "extra_semantic_observation_bits": 1203
       }
     ],
-    "formal_fault_witnesses": 8,
-    "reference_vectors": 15436,
-    "actual_full_miter": [
+    "full_state_cec": 2,
+    "reset_queries": 2,
+    "empty_queries": 2,
+    "constant_inductions": 2,
+    "actual_mapped_fault_checks": 8,
+    "actual_cec_fault_detections": 6,
+    "faults": [
       {
-        "label": "miter_vectors",
+        "fault": "clock",
         "width": 8,
-        "edges": 7718,
+        "check": "actual_clock"
+      },
+      {
+        "fault": "clock",
+        "width": 16,
+        "check": "actual_clock"
+      },
+      {
+        "fault": "capture",
+        "width": 8,
+        "check": "empty"
+      },
+      {
+        "fault": "capture",
+        "width": 16,
+        "check": "empty"
+      },
+      {
+        "fault": "reset",
+        "width": 8,
+        "check": "reset"
+      },
+      {
+        "fault": "reset",
+        "width": 16,
+        "check": "reset"
+      },
+      {
+        "fault": "output",
+        "width": 8,
+        "check": "owned"
+      },
+      {
+        "fault": "output",
+        "width": 16,
+        "check": "owned"
+      }
+    ],
+    "mapped_oracle_replay": [
+      {
+        "label": "mapped_vectors_w8",
+        "width": 8,
+        "vectors": 7718,
         "negative": false
       },
       {
-        "label": "miter_fault_vectors",
+        "label": "mapped_vectors_w16",
+        "width": 16,
+        "vectors": 7718,
+        "negative": false
+      },
+      {
+        "label": "mapped_fault_vectors",
         "width": 8,
-        "edges": 8,
+        "vectors": 8,
         "negative": true
       }
     ],
-    "mapped_equivalence": false,
+    "mapped_equivalence": true,
     "main_frequency_closed": false,
     "full_top_sta": false,
     "full_goal_complete": false,
-    "reference_comment_update": {
-      "proved_sha256": "c13af040e824e92bb1a551ae027a36211f087e5a4e32c90264adde3c48cfe2b1",
-      "current_sha256": "041b13b96d2cc9c44c0843c8a903bda1f80d0ad382b56b061e74eab192512294",
-      "change": "exact declaration comment insertion only; all RTL bytes unchanged"
-    },
-    "audit_tests": 8,
-    "reference_lint_warnings": 0,
-    "artifact_errors": 0,
-    "artifact_advisories": 9
+    "checker_tests": 20,
+    "compatibility_exit": 0,
+    "normal_and_optimized_audits": true
   }
 }

@@ -1,5 +1,5 @@
 """Run python3 verification/tl_prepared_partition/run_formal.py [--label formal]
-[--widths 8 16] [--replace FILE] [--undef] [--properties ownership|boundaries|all]. Produces exact instrumented RTL, structural
+[--widths 8 16] [--replace FILE] [--undef] [--properties ownership|boundaries|count_constants|all]. Produces exact instrumented RTL, structural
 state inventory, inductive SAT logs and witnesses under build/verification/
 tl_prepared_partition/LABEL. Next: full registered-reference/mapped equivalence.
 Only ownership/reset/capture/holding/cursor invariants are claimed here.
@@ -47,7 +47,7 @@ def main():
     parser.add_argument('--widths', type=int, nargs='+', choices=range(8, 17), default=[8, 16])
     parser.add_argument('--replace', type=Path)
     parser.add_argument('--undef', action='store_true', help='diagnostic defined-input/state encoding; default is binary SAT')
-    parser.add_argument('--properties', choices=('ownership','boundaries','all'), default='all')
+    parser.add_argument('--properties', choices=('ownership','boundaries','count_constants','all'), default='all')
     args = parser.parse_args()
     need(args.label.replace('_', '').replace('-', '').isalnum(), 'invalid label')
     stage = ROOT / 'build/verification/tl_prepared_partition' / args.label
@@ -74,9 +74,19 @@ always @(posedge i_clk)begin
  end
 end
 '''
+    elif args.properties == 'count_constants':
+        properties = '''
+reg f_past_valid=0;
+always @(posedge i_clk)begin
+ f_past_valid<=1;
+ if(!f_past_valid)assume(!i_rstn);
+ if(f_past_valid&&r_owned)
+  assert({r_counts[28],r_counts[24],r_counts[20],r_counts[16],r_counts[12],r_counts[8],r_counts[4],r_counts[0]}==0);
+end
+'''
     (stage / 'proof.sv').write_text(source.replace('endmodule', properties + '\nendmodule'))
     (stage / 'runner.py').write_bytes(Path(__file__).read_bytes())
-    scopes={'ownership':'binary reset/capture/ownership/state holding and cursor transition','boundaries':'binary reachable cursor range and captured complete-field boundaries','all':'binary reset/capture/ownership/output holding/cursor boundary invariants; not full functional or mapped equivalence'}
+    scopes={'ownership':'binary reset/capture/ownership/state holding and cursor transition','boundaries':'binary reachable cursor range and captured complete-field boundaries','count_constants':'binary owned implies all eight unused captured count LSBs zero','all':'binary reset/capture/ownership/output holding/cursor boundary invariants; not full functional or mapped equivalence'}
     result = dict(complete=False, properties=args.properties, undef_encoding=args.undef, scope=scopes[args.properties], sources={str(p): sha(p) for p in sources}, results=[])
     for width in args.widths:
         folder = stage / f'w{width}'; folder.mkdir()
