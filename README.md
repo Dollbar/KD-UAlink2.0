@@ -40,7 +40,7 @@ make clean
 
 实际TL链路已接入接收SRAM退休到FC发布、整段信用准入、半Flit打包、独立Request/Response选择、发送SRAM队列，以及完整Control字段的容量分组。最新分组阶段32组双端配置完成6,912个字段、2,304个完整Single-Beat读回复；4,856个单位RTL向量通过，72次实际故障注入全部检出。
 
-Control分组模块已完成[固定槽信用累计](docs/tl_credit_reduction_review.md)、[共享前缀费用](docs/tl_prefix_cost_review.md)和[tenure并行计数](docs/tl_partition_select_review.md)优化。当前WIDTH8/16主周期最差setup为−1.057862/−1.054325ns，面积为9,224.208/8,906.310µm²；参考周期五角10/10通过，主周期仍未收敛。最后一步使WIDTH8面积增加约7.07%、WIDTH16下降约1.28%，两种并行输出选择试验则因时序退步而未采用。
+Control分组模块已完成[固定槽信用累计](docs/tl_credit_reduction_review.md)、[共享前缀费用](docs/tl_prefix_cost_review.md)、[tenure并行计数](docs/tl_partition_select_review.md)和[标签共享移位](docs/tl_auth_selection_review.md)优化。当前WIDTH8/16主周期最差setup为−1.044205/−1.044889ns，面积为8,864.604/8,989.848µm²；参考周期五角10/10通过，主周期仍未收敛。最近的标签改动使WIDTH8面积下降约3.90%、WIDTH16增加约0.94%，时序改善约10ps，仍有约1.04ns缺口。
 
 当前九位宽RTL等价、两位宽实际工艺网表等价及复位/故障检查通过，32组双端回归的96份trace保持一致。等价结论限定为已验证模块的一沿复位后二值行为。完整UPLI转换、每VC调度、单笔超容量事务、其余TL消息、完整协议证明和集成顶层STA仍在推进。
 

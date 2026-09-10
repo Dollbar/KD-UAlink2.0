@@ -22,7 +22,7 @@ for w in (8,16):
 source=src[0].read_text();mutations={
  'lost_cursor':("r_cursor<=o_source_taken?4'd0:selected_end", "r_cursor<=4'd0"),
  'early_source_release':("o_source_taken=o_taken&&(selected_end==4'd8)",'o_source_taken=o_taken'),
- 'lost_tag_offset':('source_tag=before_fields+TAG_POSITION','source_tag=TAG_POSITION'),
+ 'lost_tag_offset':(('tags_shifted=before_fields[3]?256\'d0:(before_fields[2]?tags_offset_two[511:256]:tags_offset_two[255:0]);','tags_shifted=i_source_tags[255:0];') if 'assign tags_shifted=' in source else ('source_tag=before_fields+TAG_POSITION','source_tag=TAG_POSITION')),
  'corrupt_field':('selected_control=prefix[pick];',"selected_control=prefix[pick]^256'd1;"),
  'mid_field_cut':(('&&complete_boundary&&',"&&1'b1&&") if a.boundary_fault=='missing_guard' else ('selected_control=prefix[pick];',"selected_control=prefix[pick];if(!starts[pick])selected_control[pick*32+:32]=32'd0;")),
  'auth_overfill':("&&(!i_auth||(prefix_fields[boundary]<=4'd4))",''),

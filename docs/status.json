@@ -765,5 +765,56 @@
     "full_top_sta": false,
     "full_goal_complete": false,
     "review": "docs/tl_partition_select_review.md"
+  },
+  "tl_auth_selection": {
+    "complete": true,
+    "rtl_equivalence_widths": [
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16
+    ],
+    "mapped_equivalence_widths": [
+      8,
+      16
+    ],
+    "unit_vectors": 4856,
+    "actual_peer_configs": 32,
+    "identical_trace_files": 96,
+    "unit_faults": 16,
+    "peer_faults": 56,
+    "mapped_reset_proofs": 2,
+    "mapped_sat_counterexamples": 6,
+    "mapped_clock_rejections": 2,
+    "physical": [
+      {
+        "width": 8,
+        "cells": 15125,
+        "area_um2": 8864.604,
+        "worst_setup_ns": -1.044205,
+        "worst_reference_setup_ns": 4.715795
+      },
+      {
+        "width": 16,
+        "cells": 14957,
+        "area_um2": 8989.848,
+        "worst_setup_ns": -1.044889,
+        "worst_reference_setup_ns": 4.715111
+      }
+    ],
+    "reference_sta_passed": 10,
+    "main_sta_passed": 0,
+    "artifact_errors": 0,
+    "artifact_advisories": 17,
+    "compatibility_exit": 0,
+    "main_frequency_closed": false,
+    "full_top_sta": false,
+    "full_goal_complete": false,
+    "review": "docs/tl_auth_selection_review.md"
   }
 }

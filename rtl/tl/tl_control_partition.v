@@ -110,6 +110,10 @@ assign prefix_cost[(account*8+0)*6+:6]=contribution[0]; // 首字段前缀
  assign prefix_cost[(account*8+5)*6+:6]=quad[0]+pair[2];assign prefix_cost[(account*8+6)*6+:6]=quad[0]+(pair[2]+contribution[6]); // 六字段及七字段前缀
  assign prefix_cost[(account*8+7)*6+:6]=quad[0]+quad[1]; // 八字段平衡总和
 end endgenerate // 结束复用费用与八种前缀累计
+wire [511:0] tags_offset_one,tags_offset_two;wire [255:0] tags_shifted; // 四个输出槽共用已完成字段数的标签移位
+assign tags_offset_one=before_fields[0]?{64'd0,i_source_tags[511:64]}:i_source_tags; // 第一层选择零或一个64位标签偏移
+assign tags_offset_two=before_fields[1]?{128'd0,tags_offset_one[511:128]}:tags_offset_one; // 第二层选择零或两个标签偏移
+assign tags_shifted=before_fields[3]?256'd0:(before_fields[2]?tags_offset_two[511:256]:tags_offset_two[255:0]); // 第三层选择低四或高四标签，源外偏移全部清零
 genvar boundary,sector,tag,slot;generate // 固定八个边界和四个输出认证槽
 for(sector=0;sector<8;sector=sector+1)begin:gen_fc_check // 解码标为非事务起点的单扇区只允许全零NOP
  localparam [3:0] MASK_POSITION=sector[3:0]; // 显式四位游标比较
@@ -140,8 +144,7 @@ for(boundary=0;boundary<8;boundary=boundary+1)begin:gen_prefix // 每个候选�
 end // 结束八种完整前缀候选
 for(tag=0;tag<4;tag=tag+1)begin:gen_tag // 标签跟随未修改的事务字段顺序重新从低槽开始
  localparam [3:0] TAG_POSITION=tag[3:0]; // 输出槽编号与字段数量匹配
- wire [3:0] source_tag;assign source_tag=before_fields+TAG_POSITION; // 已完成字段数量决定输入标签索引
- assign o_tags[tag*64+:64]=(o_valid&&i_auth&&(TAG_POSITION<selected_fields))?i_source_tags[source_tag*64+:64]:64'd0; // 所有未使用槽必须清零
+ assign o_tags[tag*64+:64]=(o_valid&&i_auth&&(TAG_POSITION<selected_fields))?tags_shifted[tag*64+:64]:64'd0; // 所有未使用槽必须清零
 end // 结束认证标签槽映射
 endgenerate // 结束完整字段、容量与标签生成结构
 always @* begin // 选择最长合格完整前缀，并数出已入队标签
