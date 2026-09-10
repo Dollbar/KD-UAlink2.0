@@ -1,0 +1,373 @@
+{
+  "updated": "2026-09-10",
+  "full_goal_complete": false,
+  "release_status": "research_not_signoff",
+  "historical_artifacts_retained": false,
+  "historical_results": {
+    "latest_tl_credit_port_rtl": {
+      "actual_rx_flit_tx_context_integration": true,
+      "normalized_inbound_events": false,
+      "actual_edges": 12988,
+      "width_auth_configs": 4,
+      "real_wiring_faults": 8,
+      "negative_runs": 32,
+      "lint": 2,
+      "synthesis": 2,
+      "state_bits": [
+        1059,
+        1379
+      ],
+      "observed_state_bits": [
+        1060,
+        1380
+      ],
+      "single_clock": true,
+      "latches": false,
+      "unrestricted_reset_hold_queries": 12,
+      "real_safety_faults": 4,
+      "actual_dual_rtl_bootstrap": true,
+      "bootstrap_sent_flits": 12,
+      "bootstrap_received_flits": 12,
+      "bootstrap_link_model": "one-cycle digital register",
+      "complete_reference_induction": false,
+      "full_rx_flit_connection": true,
+      "full_tx_content_validation": true,
+      "tx_packing_budget": true,
+      "credit_free_bootstrap": true,
+      "mapped_equivalence_complete": false,
+      "process_sta": false,
+      "product_adopted": false,
+      "full_goal_complete": false,
+      "candidate": "build/tl_credit_port_rtl_5dilntbk/candidate",
+      "review": "docs/tl_credit_port_rtl_review.md",
+      "evidence": "reports/tl_credit_port_rtl_20260910/evidence.json",
+      "manifest": "reports/tl_credit_port_rtl_20260910/manifest.json",
+      "frozen_files": 231
+    },
+    "latest_tl_credit_peer_payload": {
+      "complete": true,
+      "configs": 16,
+      "actual_cycles": 3088,
+      "actual_frames": 3456,
+      "actual_tokens": 3456,
+      "actual_return_flits": 768,
+      "real_fault_types": 2,
+      "negative_runs": 32,
+      "trace_damages": [
+        {
+          "field": "avail0",
+          "reason": "pre-edge credit state"
+        },
+        {
+          "field": "demands0",
+          "reason": "actual field/data credit ownership"
+        },
+        {
+          "field": "taken0",
+          "reason": "old-credit transmit admission"
+        },
+        {
+          "field": "send0",
+          "reason": "actual send gate/stall"
+        },
+        {
+          "field": "rx0",
+          "reason": "link word/message order"
+        },
+        {
+          "field": "rm0",
+          "reason": "link word/message order"
+        },
+        {
+          "field": "classes0",
+          "reason": "actual receive classes"
+        },
+        {
+          "field": "rxidx0",
+          "reason": "actual source/consumer counters"
+        },
+        {
+          "field": "deleted_cycle",
+          "reason": "trace cycle continuity"
+        }
+      ],
+      "independent_cycle_credit_audit": true,
+      "consumer": "testbench release model",
+      "link": "1/3-cycle digital register pipeline",
+      "actual_receive_buffer_rtl": false,
+      "complete_reference_induction": false,
+      "process_sta": false,
+      "mapped_equivalence_complete": false,
+      "product_adopted": false,
+      "full_goal_complete": false,
+      "evidence": "reports/tl_credit_peer_payload_20260910/evidence.json",
+      "manifest": "reports/tl_credit_peer_payload_20260910/manifest.json",
+      "review": "docs/tl_credit_peer_payload_review.md",
+      "frozen_files": 625
+    },
+    "latest_tl_receive_storage": {
+      "functional_stage_complete": true,
+      "actual_sram_integration": true,
+      "stored_word_bits": 600,
+      "release_policy": "Data second-half and CMD final Data/BE retirement; header-only CMD at header retirement",
+      "configs": 6,
+      "actual_edges": 6750,
+      "actual_stored_words": 2163,
+      "actual_retired_words": 2121,
+      "full_reset_discarded_words": 42,
+      "real_fault_types": 5,
+      "negative_runs": 30,
+      "invalid_parameters": 5,
+      "strict_lint": 2,
+      "synthesis": [
+        {
+          "depth": 1,
+          "cells": 41834,
+          "ff": 1959,
+          "macros": 19,
+          "observed_sram_bits": 600
+        },
+        {
+          "depth": 17,
+          "cells": 41949,
+          "ff": 1977,
+          "macros": 19,
+          "observed_sram_bits": 600
+        }
+      ],
+      "graph_damages": [
+        {
+          "kind": "ff_clock",
+          "reason": "latch or derived clock"
+        },
+        {
+          "kind": "macro_read_clock",
+          "reason": "macro clock or width"
+        },
+        {
+          "kind": "macro_write_clock",
+          "reason": "macro clock or width"
+        },
+        {
+          "kind": "missing_macro",
+          "reason": "19 actual fixed SDP cells"
+        },
+        {
+          "kind": "aliased_q",
+          "reason": "independent macro Q lanes"
+        },
+        {
+          "kind": "lost_release_output",
+          "reason": "all 600 real SRAM Q bits reach saved output cones"
+        }
+      ],
+      "skill_artifact_errors": 0,
+      "skill_artifact_advisory_warnings": 1,
+      "skill_package_selftest_complete": false,
+      "full_receive_credit_capacity_proof": false,
+      "credit_fc_publisher": false,
+      "complete_reference_induction": false,
+      "mapped_equivalence_complete": false,
+      "process_sta": false,
+      "product_adopted": false,
+      "full_goal_complete": false,
+      "candidate": "build/tl_receive_storage_sz5bjg_l/candidate/rtl_normalized",
+      "evidence": "reports/tl_receive_storage_20260910/evidence.json",
+      "review": "docs/tl_receive_storage_review.md",
+      "manifest": "reports/tl_receive_storage_20260910/manifest.json",
+      "frozen_files": 624
+    },
+    "latest_tl_credit_publish": {
+      "functional_stage_complete": true,
+      "width_shared_configs": 8,
+      "actual_edges": 147457,
+      "actual_fc_transfers": 60564,
+      "results": [
+        {
+          "width": 1,
+          "shared": 0,
+          "edges": 866,
+          "fc": 31,
+          "complete": 2,
+          "releases": 30,
+          "stalls": 34
+        },
+        {
+          "width": 1,
+          "shared": 1,
+          "edges": 866,
+          "fc": 26,
+          "complete": 2,
+          "releases": 19,
+          "stalls": 33
+        },
+        {
+          "width": 3,
+          "shared": 0,
+          "edges": 875,
+          "fc": 365,
+          "complete": 2,
+          "releases": 332,
+          "stalls": 130
+        },
+        {
+          "width": 3,
+          "shared": 1,
+          "edges": 884,
+          "fc": 366,
+          "complete": 2,
+          "releases": 337,
+          "stalls": 137
+        },
+        {
+          "width": 8,
+          "shared": 0,
+          "edges": 1807,
+          "fc": 815,
+          "complete": 2,
+          "releases": 688,
+          "stalls": 162
+        },
+        {
+          "width": 8,
+          "shared": 1,
+          "edges": 1818,
+          "fc": 807,
+          "complete": 2,
+          "releases": 708,
+          "stalls": 189
+        },
+        {
+          "width": 16,
+          "shared": 0,
+          "edges": 70190,
+          "fc": 29087,
+          "complete": 2,
+          "releases": 9542,
+          "stalls": 12001
+        },
+        {
+          "width": 16,
+          "shared": 1,
+          "edges": 70151,
+          "fc": 29067,
+          "complete": 2,
+          "releases": 9542,
+          "stalls": 12002
+        }
+      ],
+      "real_fault_types": 7,
+      "negative_runs": 56,
+      "strict_lint": 4,
+      "synthesis": [
+        {
+          "width": 1,
+          "cells": 3454,
+          "ff": 77,
+          "observed_bits": 89
+        },
+        {
+          "width": 16,
+          "cells": 52680,
+          "ff": 385,
+          "observed_bits": 389
+        }
+      ],
+      "proved_safety_and_invariant_queries": 12,
+      "real_formal_negatives": 2,
+      "initial_unrestricted_hold_failures": 2,
+      "hold_proof_requires_certified_valid_active_invariant": true,
+      "actual_receiver_configs": 8,
+      "actual_receiver_cycles": 520,
+      "actual_paid_cmds": 192,
+      "actual_returned_cmds": 192,
+      "receiver_retirement_source": "test model driven by actual Tx CMD taken",
+      "actual_receive_fifo_connection": false,
+      "full_receive_capacity_proof": false,
+      "full_duplex_small_credit_liveness": false,
+      "complete_reference_induction": false,
+      "mapped_equivalence_complete": false,
+      "process_sta": false,
+      "skill_artifact_errors": 0,
+      "skill_artifact_advisory_warnings": 3,
+      "skill_package_selftest_complete": false,
+      "graph_damages": [
+        {
+          "width": 1,
+          "kind": "clock",
+          "reason": "single actual input clock and no latches"
+        },
+        {
+          "width": 1,
+          "kind": "missing_ff",
+          "reason": "complete state count"
+        },
+        {
+          "width": 1,
+          "kind": "missing_observation",
+          "reason": "every actual FF visible in full state bus"
+        },
+        {
+          "width": 16,
+          "kind": "clock",
+          "reason": "single actual input clock and no latches"
+        },
+        {
+          "width": 16,
+          "kind": "missing_ff",
+          "reason": "complete state count"
+        },
+        {
+          "width": 16,
+          "kind": "missing_observation",
+          "reason": "every actual FF visible in full state bus"
+        }
+      ],
+      "product_adopted": false,
+      "full_goal_complete": false,
+      "candidate": "build/tl_credit_publish_ajt7euj_/candidate"
+    },
+    "latest_rs_calendar_reserve_reuse": {
+      "timestamp_utc": "2026-09-10T06:37:20.922412+00:00",
+      "evidence": "reports/rs_calendar_reserve_reuse_20260910/evidence.json",
+      "evidence_sha256": "343afac924ce03c2c654167ea2791fcc5374cc2025752b8ed57f3ca376bd36d6",
+      "frozen_files": 514,
+      "review": "docs/rs_calendar_reserve_reuse_review.md",
+      "selected_implementations": "reports/rs_calendar_reserve_reuse_20260910/selected_updated.json",
+      "next_plan": "docs/rs_calendar_fourteen_plan.md",
+      "next_task": "Continue fourteen unresolved parameter implementations; preserve ten actually closed implementations",
+      "evidence_audit_passed": true,
+      "completed_trials": 4,
+      "healthy_mapping_queries": 12,
+      "actual_sta_reports": 40,
+      "actual_sta_passed": 36,
+      "hold_passed": 40,
+      "electrical_passed": 40,
+      "new_selected_profiles": 1,
+      "newly_closed_profiles": 0,
+      "total_closed_profiles": 10,
+      "remaining_profiles": 14,
+      "combined_selected_sta_passed": 222,
+      "combined_selected_sta_reports": 240,
+      "new_selected_sta_reports": 10,
+      "new_selected_sta_passed": 9,
+      "state_clock_damages": 32,
+      "actual_physical_data_faults": 1,
+      "actual_physical_clock_faults": 1,
+      "new_rtl_simulation_edges": 0,
+      "full_matrix_new_execution": false,
+      "physical_passed": false,
+      "product_adopted": false,
+      "full_goal_complete": false
+    }
+  },
+  "dl_replay": {
+    "new_128x32_joint_conclusions": "468/468",
+    "old_255x64_core_conclusions": "616/616",
+    "actual_dual_peer_cases": 20,
+    "actual_edges": 154882,
+    "payloads": 71600,
+    "best_setup_640ps_ns": -0.641033828,
+    "timing_closed": false
+  }
+}
