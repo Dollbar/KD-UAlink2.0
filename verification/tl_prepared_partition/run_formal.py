@@ -1,5 +1,5 @@
 """Run python3 verification/tl_prepared_partition/run_formal.py [--label formal]
-[--widths 8 16] [--replace FILE] [--undef] [--properties ownership|all]. Produces exact instrumented RTL, structural
+[--widths 8 16] [--replace FILE] [--undef] [--properties ownership|boundaries|all]. Produces exact instrumented RTL, structural
 state inventory, inductive SAT logs and witnesses under build/verification/
 tl_prepared_partition/LABEL. Next: full registered-reference/mapped equivalence.
 Only ownership/reset/capture/holding/cursor invariants are claimed here.
@@ -47,7 +47,7 @@ def main():
     parser.add_argument('--widths', type=int, nargs='+', choices=range(8, 17), default=[8, 16])
     parser.add_argument('--replace', type=Path)
     parser.add_argument('--undef', action='store_true', help='diagnostic defined-input/state encoding; default is binary SAT')
-    parser.add_argument('--properties', choices=('ownership','all'), default='all')
+    parser.add_argument('--properties', choices=('ownership','boundaries','all'), default='all')
     args = parser.parse_args()
     need(args.label.replace('_', '').replace('-', '').isalnum(), 'invalid label')
     stage = ROOT / 'build/verification/tl_prepared_partition' / args.label
@@ -61,9 +61,23 @@ def main():
         # public combinational outputs are left to the broader proof attempt.
         properties = properties.replace('if($past(o_valid&&!i_ready))assert({o_valid,o_control,o_tags,o_fields,o_end,o_cursor}==$past({o_valid,o_control,o_tags,o_fields,o_end,o_cursor}));', 'if($past(o_valid&&!i_ready))assert({r_owned,r_cursor,r_control,r_tags,r_capacity,r_auth,r_shared,r_error,r_starts,r_application,r_counts,r_slots}==$past({r_owned,r_cursor,r_control,r_tags,r_capacity,r_auth,r_shared,r_error,r_starts,r_application,r_counts,r_slots}));')
         properties = properties.replace('  assert(r_cursor<8);\n', '').replace('  if(r_owned&&!r_error)assert(r_cursor==0||r_starts[r_cursor]);\n', '')
+    elif args.properties == 'boundaries':
+        properties = '''
+reg f_past_valid=0;
+always @(posedge i_clk)begin
+ f_past_valid<=1;
+ if(!f_past_valid)assume(!i_rstn);
+ if(f_past_valid)begin
+  assert(r_cursor<8);
+  if(r_owned&&!r_error)assert(r_cursor==0||r_starts[r_cursor]);
+  if(!r_owned)assert(r_cursor==0);
+ end
+end
+'''
     (stage / 'proof.sv').write_text(source.replace('endmodule', properties + '\nendmodule'))
     (stage / 'runner.py').write_bytes(Path(__file__).read_bytes())
-    result = dict(complete=False, properties=args.properties, undef_encoding=args.undef, scope='binary reset/capture/ownership/state holding and cursor transition' if args.properties=='ownership' else 'binary reset/capture/ownership/output holding/cursor boundary invariants; not full functional or mapped equivalence', sources={str(p): sha(p) for p in sources}, results=[])
+    scopes={'ownership':'binary reset/capture/ownership/state holding and cursor transition','boundaries':'binary reachable cursor range and captured complete-field boundaries','all':'binary reset/capture/ownership/output holding/cursor boundary invariants; not full functional or mapped equivalence'}
+    result = dict(complete=False, properties=args.properties, undef_encoding=args.undef, scope=scopes[args.properties], sources={str(p): sha(p) for p in sources}, results=[])
     for width in args.widths:
         folder = stage / f'w{width}'; folder.mkdir()
         deps = ' '.join('"'+str(stage / p.name)+'"' for p in sources[1:])

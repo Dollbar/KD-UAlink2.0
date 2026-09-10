@@ -928,5 +928,150 @@
     "main_frequency_closed": false,
     "full_top_sta": false,
     "full_goal_complete": false
-  }
+  },
+  "registered_control_rtl_reference_equivalence": {
+    "dump_scope": "current composed binary RTL theorem",
+    "review": "docs/tl_prepared_equivalence_review.md",
+    "evidence": "build/verification/tl_prepared_equivalence/evidence.json",
+    "complete": true,
+    "scope": "composed binary post-reset RTL equivalence against immutable raw-field baseline; not independent protocol certification",
+    "reference": "1e26fbd486ca4ee96de4635fd9a2442801bfc89d",
+    "rtl_sha256": "def8d202e6394d755485a191fb7f42ba93ec8ef3af28ca061f3f37e4bace7f78",
+    "equivalence_widths": [
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16
+    ],
+    "public_output_bits": 531,
+    "metadata_inductions": 9,
+    "boundary_inductions": 9,
+    "exhaustive_step_queries": 90,
+    "state_inventory": [
+      {
+        "width": 8,
+        "side": "gold",
+        "state_bits": 956
+      },
+      {
+        "width": 8,
+        "side": "gate",
+        "state_bits": 1044
+      },
+      {
+        "width": 16,
+        "side": "gold",
+        "state_bits": 1116
+      },
+      {
+        "width": 16,
+        "side": "gate",
+        "state_bits": 1204
+      },
+      {
+        "width": 9,
+        "side": "gold",
+        "state_bits": 976
+      },
+      {
+        "width": 9,
+        "side": "gate",
+        "state_bits": 1064
+      },
+      {
+        "width": 10,
+        "side": "gold",
+        "state_bits": 996
+      },
+      {
+        "width": 10,
+        "side": "gate",
+        "state_bits": 1084
+      },
+      {
+        "width": 11,
+        "side": "gold",
+        "state_bits": 1016
+      },
+      {
+        "width": 11,
+        "side": "gate",
+        "state_bits": 1104
+      },
+      {
+        "width": 12,
+        "side": "gold",
+        "state_bits": 1036
+      },
+      {
+        "width": 12,
+        "side": "gate",
+        "state_bits": 1124
+      },
+      {
+        "width": 13,
+        "side": "gold",
+        "state_bits": 1056
+      },
+      {
+        "width": 13,
+        "side": "gate",
+        "state_bits": 1144
+      },
+      {
+        "width": 14,
+        "side": "gold",
+        "state_bits": 1076
+      },
+      {
+        "width": 14,
+        "side": "gate",
+        "state_bits": 1164
+      },
+      {
+        "width": 15,
+        "side": "gold",
+        "state_bits": 1096
+      },
+      {
+        "width": 15,
+        "side": "gate",
+        "state_bits": 1184
+      }
+    ],
+    "formal_fault_witnesses": 8,
+    "reference_vectors": 15436,
+    "actual_full_miter": [
+      {
+        "label": "miter_vectors",
+        "width": 8,
+        "edges": 7718,
+        "negative": false
+      },
+      {
+        "label": "miter_fault_vectors",
+        "width": 8,
+        "edges": 8,
+        "negative": true
+      }
+    ],
+    "mapped_equivalence": false,
+    "main_frequency_closed": false,
+    "full_top_sta": false,
+    "full_goal_complete": false,
+    "reference_comment_update": {
+      "proved_sha256": "c13af040e824e92bb1a551ae027a36211f087e5a4e32c90264adde3c48cfe2b1",
+      "current_sha256": "041b13b96d2cc9c44c0843c8a903bda1f80d0ad382b56b061e74eab192512294",
+      "change": "exact declaration comment insertion only; all RTL bytes unchanged"
+    },
+    "audit_tests": 8,
+    "artifact_errors": 0,
+    "artifact_advisories": 9
+  },
+  "last_verified_remote_main": "c34f40f2dc00c2e12283897ea0f3de085abfbc7f"
 }

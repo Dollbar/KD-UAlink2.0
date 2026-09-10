@@ -1,27 +1,27 @@
 {
   "active_goal": "完整Accelerator Endpoint/Controller与Switch数字RTL IP；未完成",
   "previous_goal_turn": "progress",
-  "latest_stage": "registered_control_metadata_functionally_verified",
+  "latest_stage": "registered_control_complete_rtl_reference_equivalence",
   "rtl": "rtl/tl/tl_prepared_partition.v",
-  "review": "docs/tl_prepared_partition_review.md",
-  "evidence": "build/verification/tl_prepared_partition",
+  "review": "docs/tl_prepared_equivalence_review.md",
+  "evidence": "build/verification/tl_prepared_equivalence",
   "full_goal_complete": false,
   "next_actions": [
-    "注册化Control元数据已完成功能、实际双端及两位宽所有权归纳；建立完整独立时序参考关系，补齐WIDTH8等参数的完整字段边界归纳。",
+    "注册化Control已完成WIDTH8–16全部531位公开输出的组合归纳参考等价：90项单步/复位SAT、9项元数据和9项边界归纳；进入新模块真实工艺网表等价。",
     "新增状态尚未完成实际工艺网表等价；保留真实时钟/所有状态及全部531位公开输出，不能复用旧四位游标CEC结论。",
     "640ps主周期最差setup仍为−0.819915ns；继续分级费用/边界选择和AuthTags输出，明确新增寄存级的反压、所有权和吞吐代价。",
     "完整实际端口与Endpoint/Switch顶层集成、工艺STA、完整UPLI事务转换及每VC独立选择仍待完成。",
     "单笔超容量Write/Atomic的规范路径、Data Poison及其余TL/数字PHY/INC/安全/管理接口和完整双IP目标继续开放。"
   ],
-  "remote_main": "1bc57c143d3d87ac8f638e0990ee19024b474005",
+  "remote_main": "c34f40f2dc00c2e12283897ea0f3de085abfbc7f",
   "new_work_published": false,
   "live_jobs": [],
   "last_authorized_push": {
     "target": "origin/main",
-    "commit": "1bc57c143d3d87ac8f638e0990ee19024b474005",
-    "scope": "User explicitly authorized push then continuing Goal on 2026-09-11; mapped reset and complete mapped equivalence published."
+    "commit": "c34f40f2dc00c2e12283897ea0f3de085abfbc7f",
+    "scope": "User explicitly authorized push before continuing Goal; remote main verified at c34f40f. Subsequent composed RTL equivalence work remains local."
   },
-  "stage_evidence": {
+  "prior_functional_stage_evidence": {
     "functional_stage_complete": true,
     "unit_widths": [
       8,
@@ -140,5 +140,147 @@
       8,
       16
     ]
+  },
+  "stage_evidence": {
+    "complete": true,
+    "scope": "composed binary post-reset RTL equivalence against immutable raw-field baseline; not independent protocol certification",
+    "reference": "1e26fbd486ca4ee96de4635fd9a2442801bfc89d",
+    "rtl_sha256": "def8d202e6394d755485a191fb7f42ba93ec8ef3af28ca061f3f37e4bace7f78",
+    "equivalence_widths": [
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16
+    ],
+    "public_output_bits": 531,
+    "metadata_inductions": 9,
+    "boundary_inductions": 9,
+    "exhaustive_step_queries": 90,
+    "state_inventory": [
+      {
+        "width": 8,
+        "side": "gold",
+        "state_bits": 956
+      },
+      {
+        "width": 8,
+        "side": "gate",
+        "state_bits": 1044
+      },
+      {
+        "width": 16,
+        "side": "gold",
+        "state_bits": 1116
+      },
+      {
+        "width": 16,
+        "side": "gate",
+        "state_bits": 1204
+      },
+      {
+        "width": 9,
+        "side": "gold",
+        "state_bits": 976
+      },
+      {
+        "width": 9,
+        "side": "gate",
+        "state_bits": 1064
+      },
+      {
+        "width": 10,
+        "side": "gold",
+        "state_bits": 996
+      },
+      {
+        "width": 10,
+        "side": "gate",
+        "state_bits": 1084
+      },
+      {
+        "width": 11,
+        "side": "gold",
+        "state_bits": 1016
+      },
+      {
+        "width": 11,
+        "side": "gate",
+        "state_bits": 1104
+      },
+      {
+        "width": 12,
+        "side": "gold",
+        "state_bits": 1036
+      },
+      {
+        "width": 12,
+        "side": "gate",
+        "state_bits": 1124
+      },
+      {
+        "width": 13,
+        "side": "gold",
+        "state_bits": 1056
+      },
+      {
+        "width": 13,
+        "side": "gate",
+        "state_bits": 1144
+      },
+      {
+        "width": 14,
+        "side": "gold",
+        "state_bits": 1076
+      },
+      {
+        "width": 14,
+        "side": "gate",
+        "state_bits": 1164
+      },
+      {
+        "width": 15,
+        "side": "gold",
+        "state_bits": 1096
+      },
+      {
+        "width": 15,
+        "side": "gate",
+        "state_bits": 1184
+      }
+    ],
+    "formal_fault_witnesses": 8,
+    "reference_vectors": 15436,
+    "actual_full_miter": [
+      {
+        "label": "miter_vectors",
+        "width": 8,
+        "edges": 7718,
+        "negative": false
+      },
+      {
+        "label": "miter_fault_vectors",
+        "width": 8,
+        "edges": 8,
+        "negative": true
+      }
+    ],
+    "mapped_equivalence": false,
+    "main_frequency_closed": false,
+    "full_top_sta": false,
+    "full_goal_complete": false,
+    "reference_comment_update": {
+      "proved_sha256": "c13af040e824e92bb1a551ae027a36211f087e5a4e32c90264adde3c48cfe2b1",
+      "current_sha256": "041b13b96d2cc9c44c0843c8a903bda1f80d0ad382b56b061e74eab192512294",
+      "change": "exact declaration comment insertion only; all RTL bytes unchanged"
+    },
+    "audit_tests": 8,
+    "reference_lint_warnings": 0,
+    "artifact_errors": 0,
+    "artifact_advisories": 9
   }
 }
