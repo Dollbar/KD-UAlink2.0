@@ -89,7 +89,7 @@ assign w_lane7=w_pool7?3'd0:({1'b0,w_vc7}+3'd1); // Pool或专用VC
 assign source_slots[35+:5]=(request_starts[7]?5'd10:5'd15)+{2'd0,w_lane7}; // 请求与响应Data类
 genvar account,field;generate for(account=0;account<20;account=account+1)begin:gen_shared_cost // 每个物理账户的字段费用只计算一次
  localparam [4:0] ACCOUNT=account[4:0];localparam [4:0] COMMAND_DATA_SLOT=account+10; // CMD账户按原逻辑Data编号关联
- wire [5:0] contribution[0:7];wire [5:0] pair[0:3];wire [5:0] quad[0:1]; // 六位完整容纳八命令或三十二Data信用
+ wire [5:0] contribution[0:7]; // 六位完整容纳八命令或三十二Data信用
  for(field=0;field<8;field=field+1)begin:gen_field_cost // 八个自然位置在所有完整候选中复用
   localparam [3:0] FIELD_POSITION=field[3:0]; // 后缀掩码仅作用于已捕获的完整字段起点
   if(account<10)begin:gen_cmd // 每实际CMD字段计一个信用
@@ -106,14 +106,46 @@ genvar account,field;generate for(account=0;account<20;account=account+1)begin:g
    assign contribution[field]=((r_application[field]&&(r_cursor<=FIELD_POSITION))&&physical_match)?{3'd0,r_counts[field*4+1+:3]}:6'd0; // BE不增加Data信用
   end // 结束CMD与Data静态选择
  end // 结束八字段费用
- assign pair[0]=contribution[0]+contribution[1];assign pair[1]=contribution[2]+contribution[3]; // 低半字的二字段并行归约
- assign pair[2]=contribution[4]+contribution[5];assign pair[3]=contribution[6]+contribution[7]; // 高半字的二字段并行归约
- assign quad[0]=pair[0]+pair[1];assign quad[1]=pair[2]+pair[3]; // 两个四字段完整费用
-assign prefix_cost[(account*8+0)*6+:6]=contribution[0]; // 首字段前缀
- assign prefix_cost[(account*8+1)*6+:6]=pair[0];assign prefix_cost[(account*8+2)*6+:6]=pair[0]+contribution[2]; // 两字段及三字段前缀
- assign prefix_cost[(account*8+3)*6+:6]=quad[0];assign prefix_cost[(account*8+4)*6+:6]=quad[0]+contribution[4]; // 四字段及五字段前缀
- assign prefix_cost[(account*8+5)*6+:6]=quad[0]+pair[2];assign prefix_cost[(account*8+6)*6+:6]=quad[0]+(pair[2]+contribution[6]); // 六字段及七字段前缀
- assign prefix_cost[(account*8+7)*6+:6]=quad[0]+quad[1]; // 八字段平衡总和
+// BEGIN_COST_COMPRESSION
+ wire [5:0] cost_sum_0,cost_carry_0; // 三操作数六位进位保存结果
+ assign cost_sum_0=contribution[0]^contribution[1]^contribution[2]; // 同位异或不沿位传播进位
+ assign cost_carry_0=((contribution[0]&contribution[1])|(contribution[0]&contribution[2])|(contribution[1]&contribution[2]))<<1; // 多数位左移，六位模加法保持原截断语义
+ wire [5:0] cost_sum_1,cost_carry_1; // 三操作数六位进位保存结果
+ assign cost_sum_1=cost_sum_0^cost_carry_0^contribution[3]; // 同位异或不沿位传播进位
+ assign cost_carry_1=((cost_sum_0&cost_carry_0)|(cost_sum_0&contribution[3])|(cost_carry_0&contribution[3]))<<1; // 多数位左移，六位模加法保持原截断语义
+ wire [5:0] cost_sum_2,cost_carry_2; // 三操作数六位进位保存结果
+ assign cost_sum_2=cost_sum_1^cost_carry_1^contribution[4]; // 同位异或不沿位传播进位
+ assign cost_carry_2=((cost_sum_1&cost_carry_1)|(cost_sum_1&contribution[4])|(cost_carry_1&contribution[4]))<<1; // 多数位左移，六位模加法保持原截断语义
+ wire [5:0] cost_sum_3,cost_carry_3; // 三操作数六位进位保存结果
+ assign cost_sum_3=contribution[3]^contribution[4]^contribution[5]; // 同位异或不沿位传播进位
+ assign cost_carry_3=((contribution[3]&contribution[4])|(contribution[3]&contribution[5])|(contribution[4]&contribution[5]))<<1; // 多数位左移，六位模加法保持原截断语义
+ wire [5:0] cost_sum_4,cost_carry_4; // 三操作数六位进位保存结果
+ assign cost_sum_4=cost_sum_0^cost_carry_0^cost_sum_3; // 同位异或不沿位传播进位
+ assign cost_carry_4=((cost_sum_0&cost_carry_0)|(cost_sum_0&cost_sum_3)|(cost_carry_0&cost_sum_3))<<1; // 多数位左移，六位模加法保持原截断语义
+ wire [5:0] cost_sum_5,cost_carry_5; // 三操作数六位进位保存结果
+ assign cost_sum_5=cost_sum_4^cost_carry_4^cost_carry_3; // 同位异或不沿位传播进位
+ assign cost_carry_5=((cost_sum_4&cost_carry_4)|(cost_sum_4&cost_carry_3)|(cost_carry_4&cost_carry_3))<<1; // 多数位左移，六位模加法保持原截断语义
+ wire [5:0] cost_sum_6,cost_carry_6; // 三操作数六位进位保存结果
+ assign cost_sum_6=cost_sum_5^cost_carry_5^contribution[6]; // 同位异或不沿位传播进位
+ assign cost_carry_6=((cost_sum_5&cost_carry_5)|(cost_sum_5&contribution[6])|(cost_carry_5&contribution[6]))<<1; // 多数位左移，六位模加法保持原截断语义
+ wire [5:0] cost_sum_7,cost_carry_7; // 三操作数六位进位保存结果
+ assign cost_sum_7=cost_carry_3^contribution[6]^contribution[7]; // 同位异或不沿位传播进位
+ assign cost_carry_7=((cost_carry_3&contribution[6])|(cost_carry_3&contribution[7])|(contribution[6]&contribution[7]))<<1; // 多数位左移，六位模加法保持原截断语义
+ wire [5:0] cost_sum_8,cost_carry_8; // 三操作数六位进位保存结果
+ assign cost_sum_8=cost_sum_4^cost_carry_4^cost_sum_7; // 同位异或不沿位传播进位
+ assign cost_carry_8=((cost_sum_4&cost_carry_4)|(cost_sum_4&cost_sum_7)|(cost_carry_4&cost_sum_7))<<1; // 多数位左移，六位模加法保持原截断语义
+ wire [5:0] cost_sum_9,cost_carry_9; // 三操作数六位进位保存结果
+ assign cost_sum_9=cost_sum_8^cost_carry_8^cost_carry_7; // 同位异或不沿位传播进位
+ assign cost_carry_9=((cost_sum_8&cost_carry_8)|(cost_sum_8&cost_carry_7)|(cost_carry_8&cost_carry_7))<<1; // 多数位左移，六位模加法保持原截断语义
+ assign prefix_cost[(account*8+0)*6+:6]=contribution[0]; // 完整前缀只在末级传播一次进位
+ assign prefix_cost[(account*8+1)*6+:6]=contribution[0]+contribution[1]; // 完整前缀只在末级传播一次进位
+ assign prefix_cost[(account*8+2)*6+:6]=cost_sum_0+cost_carry_0; // 完整前缀只在末级传播一次进位
+ assign prefix_cost[(account*8+3)*6+:6]=cost_sum_1+cost_carry_1; // 完整前缀只在末级传播一次进位
+ assign prefix_cost[(account*8+4)*6+:6]=cost_sum_2+cost_carry_2; // 完整前缀只在末级传播一次进位
+ assign prefix_cost[(account*8+5)*6+:6]=cost_sum_5+cost_carry_5; // 完整前缀只在末级传播一次进位
+ assign prefix_cost[(account*8+6)*6+:6]=cost_sum_6+cost_carry_6; // 完整前缀只在末级传播一次进位
+ assign prefix_cost[(account*8+7)*6+:6]=cost_sum_9+cost_carry_9; // 完整前缀只在末级传播一次进位
+// END_COST_COMPRESSION
 end endgenerate // 结束复用费用与八种前缀累计
 wire [511:0] tags_offset_one,tags_offset_two;wire [255:0] tags_shifted; // 四个输出槽共用已完成字段数的标签移位
 assign tags_offset_one=before_fields[0]?{64'd0,r_tags[511:64]}:r_tags; // 第一层选择零或一个64位标签偏移

@@ -1,17 +1,17 @@
 {
   "active_goal": "完整Accelerator Endpoint/Controller与Switch数字RTL IP；未完成",
   "previous_goal_turn": "progress",
-  "latest_stage": "registered_control_parallel_selection_direct_accounts",
+  "latest_stage": "registered_control_carry_save_cost_compression",
   "rtl": "rtl/tl/tl_prepared_partition.v",
-  "review": "docs/tl_selection_reduction_review.md",
-  "evidence": "build/verification/tl_selection_reduction",
+  "review": "docs/tl_cost_compression_review.md",
+  "evidence": "build/verification/tl_cost_compression",
   "full_goal_complete": false,
   "next_actions": [
-    "已采用并行扇区/标签掩码和直接物理账户匹配；九位宽RTL全状态CEC、独立复位/捕获和两位宽实际工艺网表等价通过。",
-    "在保持640ps目标、源组所有权、一拍捕获延迟和同拍退休替换能力的前提下，处理账户费用至字段选择路径；评估预注册物理账户元数据或更深分级。",
-    "当前SSG低温最差路径WIDTH8从r_slots[2]、WIDTH16从r_cursor[0]至o_fields[0]；最差主setup仍为−0.735223ns，完整顶层尚未STA。",
-    "跨真实端口、UPLI事务转换、每VC独立选择及完整Endpoint/Switch顶层继续实现并验证，双端退休适配器仍有组间气泡。",
-    "单笔超容量Write/Atomic规范路径、Data Poison及其余TL/数字PHY/INC/安全/管理接口和完整双IP目标继续开放。"
+    "优先把tl_prepared_partition接入生产发送组合：当前只有验证顶层实例化，tl_tx_buffered仍接收已准备好的Control。",
+    "为Request/Response完整源组明确捕获、八标签所有权、实际头部入队及复位/反压关系；建立独立参考和无测试退休适配气泡的真实双端回归。",
+    "对实际准备器/发送队列/信用端口组合做工艺映射与STA；新接口不能使用无关单模块成绩代替完整集成结论。",
+    "当前费用进位保存结构已通过九位宽完整RTL CEC、18项复位/捕获以及两位宽真实工艺网表等价；主setup仍为−0.707760/−0.712052ns，后续账户预解码或流水分级需重新证明延迟、所有权与吞吐。",
+    "继续完整UPLI事务转换、每VC独立选择、超容量Write/Atomic规范路径、Data Poison及Endpoint/Switch、数字PHY/INC/安全/管理范围；完整双IP目标未完成。"
   ],
   "remote_main": "c34f40f2dc00c2e12283897ea0f3de085abfbc7f",
   "new_work_published": false,
@@ -144,9 +144,8 @@
   "stage_evidence": {
     "complete": true,
     "adopted": true,
-    "rtl_sha256": "0e58dd764016974129329bd1c9c6cc7d854c19ff8cb4bb1e7529b52ef1190dc0",
-    "reference": "8bf4afcd54eaec3bc4ac35811fd6266b4ba86e61",
-    "scope": "binary post-reset module equivalence; complete outputs and actual next-state; unchanged capture latency and ownership",
+    "rtl_sha256": "d8df94f8b36b7d037366dca0a60c0f389fbf4965e725ec3073f5becdcfeb571a",
+    "scope": "binary post-reset module equivalence and actual mapped equivalence; no protocol/ownership/latency change",
     "rtl_widths": [
       8,
       9,
@@ -160,12 +159,16 @@
     ],
     "rtl_full_state_cec": 9,
     "rtl_reset_capture_queries": 18,
-    "selection_combinations": 1048576,
+    "independent_arithmetic_theorems": 2,
+    "arithmetic_input_bits": 48,
+    "arithmetic_output_bits": 48,
+    "arithmetic_assumptions": [],
+    "actual_arithmetic_faults": 1,
     "unit_vectors": 69462,
-    "actual_rtl_fault_detections": 28,
+    "actual_rtl_fault_detections": 30,
     "actual_peer_configs": 32,
     "peer_partitioning": {
-      "selection_direct_peers": {
+      "cost_compression_peers": {
         "source_groups": 768,
         "partitions": 2624,
         "fields": 3456,
@@ -173,7 +176,7 @@
         "stalled_edges": 31176,
         "completed_single_beat_read_replies": 1152
       },
-      "selection_direct_minimum": {
+      "cost_compression_minimum": {
         "source_groups": 768,
         "partitions": 2624,
         "fields": 3456,
@@ -189,17 +192,17 @@
     "physical": [
       {
         "width": 8,
-        "cells": 16542,
-        "area_um2": 10614.744,
-        "worst_main_setup_ns": -0.735223,
-        "worst_reference_setup_ns": 5.024776
+        "cells": 17358,
+        "area_um2": 11272.59,
+        "worst_main_setup_ns": -0.70776,
+        "worst_reference_setup_ns": 5.05224
       },
       {
         "width": 16,
-        "cells": 17564,
-        "area_um2": 11748.618,
-        "worst_main_setup_ns": -0.723638,
-        "worst_reference_setup_ns": 5.036361
+        "cells": 18335,
+        "area_um2": 11753.28,
+        "worst_main_setup_ns": -0.712052,
+        "worst_reference_setup_ns": 5.047947
       }
     ],
     "main_sta_passed": 0,
@@ -211,7 +214,7 @@
     "full_goal_complete": false,
     "compatibility_exit": 0,
     "normal_and_optimized_audits": true,
-    "checker_tests": 20
+    "checker_tests": 26
   },
   "previous_stage_evidence": {
     "complete": true,
@@ -309,5 +312,77 @@
     "checker_tests": 20,
     "compatibility_exit": 0,
     "normal_and_optimized_audits": true
+  },
+  "prior_selection_stage_evidence": {
+    "complete": true,
+    "adopted": true,
+    "rtl_sha256": "0e58dd764016974129329bd1c9c6cc7d854c19ff8cb4bb1e7529b52ef1190dc0",
+    "reference": "8bf4afcd54eaec3bc4ac35811fd6266b4ba86e61",
+    "scope": "binary post-reset module equivalence; complete outputs and actual next-state; unchanged capture latency and ownership",
+    "rtl_widths": [
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16
+    ],
+    "rtl_full_state_cec": 9,
+    "rtl_reset_capture_queries": 18,
+    "selection_combinations": 1048576,
+    "unit_vectors": 69462,
+    "actual_rtl_fault_detections": 28,
+    "actual_peer_configs": 32,
+    "peer_partitioning": {
+      "selection_direct_peers": {
+        "source_groups": 768,
+        "partitions": 2624,
+        "fields": 3456,
+        "split_groups": 576,
+        "stalled_edges": 31176,
+        "completed_single_beat_read_replies": 1152
+      },
+      "selection_direct_minimum": {
+        "source_groups": 768,
+        "partitions": 2624,
+        "fields": 3456,
+        "split_groups": 576,
+        "stalled_edges": 41196,
+        "completed_single_beat_read_replies": 1152
+      }
+    },
+    "mapped_full_state_cec": 2,
+    "mapped_reset_capture_queries": 4,
+    "mapped_equivalence": true,
+    "current_candidate_gate_simulation_rerun": false,
+    "physical": [
+      {
+        "width": 8,
+        "cells": 16542,
+        "area_um2": 10614.744,
+        "worst_main_setup_ns": -0.735223,
+        "worst_reference_setup_ns": 5.024776
+      },
+      {
+        "width": 16,
+        "cells": 17564,
+        "area_um2": 11748.618,
+        "worst_main_setup_ns": -0.723638,
+        "worst_reference_setup_ns": 5.036361
+      }
+    ],
+    "main_sta_passed": 0,
+    "reference_sta_passed": 10,
+    "artifact_errors": 0,
+    "artifact_advisories": 19,
+    "main_frequency_closed": false,
+    "full_top_sta": false,
+    "full_goal_complete": false,
+    "compatibility_exit": 0,
+    "normal_and_optimized_audits": true,
+    "checker_tests": 20
   }
 }
