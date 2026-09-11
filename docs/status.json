@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-11T03:22:53.589209+00:00",
+  "updated": "2026-09-11T03:55:27.819595+00:00",
   "full_goal_complete": false,
   "release_status": "research_not_signoff",
   "historical_artifacts_retained": false,
@@ -1775,7 +1775,7 @@
     "candidate_applies_to_current_rtl": false
   },
   "credit_slot_selection": {
-    "adopted": false,
+    "adopted": true,
     "review": "docs/tl_credit_slot_selection_review.md",
     "plan": "docs/tl_credit_slot_selection_plan.md",
     "reference_commit": "6f10b33539624664cc4231bbb681e7b1d62dc401",
@@ -1790,13 +1790,45 @@
     "reference_cache_tests": 4,
     "production_unit_configurations": 36,
     "production_peer_configurations": 32,
-    "physical_complete": false,
-    "current_mapped_equivalence": false,
+    "physical_complete": true,
+    "current_mapped_equivalence": true,
     "full_goal_complete": false,
     "peer_normal_optimized_audits_identical": true,
     "identical_trace_files": 128,
     "production_wire_fault_detections": 22,
     "standard_admission_checks_complete": true,
-    "wrapper_fault_detections": 16
+    "wrapper_fault_detections": 16,
+    "physical_measurements": 60,
+    "physical_normal_optimized_audits_identical": true,
+    "ownership_configurations": 27,
+    "ownership_normal_optimized_audits_identical": true,
+    "clean_clone_make_exit": 0,
+    "clean_clone_explicit_reference_queries": 23,
+    "mapped_reset_queries": 4,
+    "mapped_cursor_queries": 4,
+    "mapped_dormant_queries": 4,
+    "mapped_fault_detections": 6,
+    "mapped_partitions_running": false,
+    "main_closed": 0,
+    "reference_closed": 26,
+    "measurements": [
+      {
+        "width": 8,
+        "area_um2": 43569.792,
+        "worst_setup_ns": -1.816202,
+        "worst_hold_ns": -0.008036
+      },
+      {
+        "width": 16,
+        "area_um2": 45162.054,
+        "worst_setup_ns": -1.799045,
+        "worst_hold_ns": -0.008036
+      }
+    ],
+    "mapped_partitions": 12,
+    "mapped_normal_optimized_audits_identical": true,
+    "evidence": "docs/tl_credit_slot_selection_evidence.json",
+    "source_checkpoint": "c84c113402d4fea8443c05687ccd3b056193dd84",
+    "applies_to_current_rtl": true
   }
 }

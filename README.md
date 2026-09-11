@@ -38,13 +38,13 @@ make clean
 
 ## 当前状态
 
-[FIFO 预取资格选择实验](docs/tl_fifo_issue_selection_review.md)因实测退化被拒绝。随后[信用槽直接匹配候选](docs/tl_credit_slot_selection_review.md)通过隔离语义检查并进入实际顶层验证，尚未采用；下述完整物理/映射数据仍对应 Header visibility 基线 `6f10b33`。
+[FIFO 预取资格选择实验](docs/tl_fifo_issue_selection_review.md)因实测退化被拒绝。随后[信用槽直接匹配](docs/tl_credit_slot_selection_review.md)完成实际顶层语义、物理及映射审计，`c84c113` 已采用为研发基线。两位宽面积均下降，WIDTH8 setup 退化 9.817 ps、WIDTH16 改善 35.620 ps，时序收敛配置数不变。
 
 实际 TL 链路已接入接收 SRAM 退休、信用发布与准入、半 Flit 打包、Request/Response 选择、发送 SRAM 队列和完整 Control 源组捕获。生产顶层 `tl_tx_prepared` 的 32 组双端配置通过，1,536 源组、5,248 分组和 6,912 字段完整到达；36 组单位配置、22 项接线故障与 8 项带负载复位故障检查通过。
 
 生产发送组合的 WIDTH 8～16 × HEADER_DEPTH 1/2/3 共 27 配置，每组 35 项所有权/头部队列守恒断言完成无界归纳。该结论使用任意 SRAM 读值，不代表完整载荷形式证明。
 
-[当前发送顶层优化](docs/tl_tx_header_visibility_review.md)已完成两位宽、五个标准单元角、三种 synthetic SRAM 视图和两周期共 60 组测量及证据审计。640 ps 主周期 0/30 收敛，6.4 ns 参考周期 26/30 收敛；WIDTH 8/16 最差 setup 为 −1.806385/−1.834665 ns，最差 hold 均为 −0.008036 ns，标准单元面积为 44,790.732/45,603.936 µm²，不含 SRAM 面积。当前源码与实际映射网表的复位后二值对应证明通过，包括 12 个完整输出/下一状态分区和独立复位、游标、空闲载荷关系证明。普通/优化 Python 审计一致。640 ps 收敛、真实宏与布局后签核、活动率功耗评估及最终双 IP 交付仍未完成。
+[当前发送顶层优化](docs/tl_credit_slot_selection_review.md)已完成两位宽、五个标准单元角、三种 synthetic SRAM 视图和两周期共 60 组测量及证据审计。640 ps 主周期 0/30 收敛，6.4 ns 参考周期 26/30 收敛；WIDTH 8/16 最差 setup 为 −1.816202/−1.799045 ns，最差 hold 均为 −0.008036 ns，标准单元面积为 43,569.792/45,162.054 µm²，不含 SRAM 面积。当前源码与实际映射网表的复位后二值对应证明通过，包括 12 个完整输出/下一状态分区和独立复位、游标、空闲载荷关系证明。普通/优化 Python 审计一致。640 ps 收敛、真实宏与布局后签核、活动率功耗评估及最终双 IP 交付仍未完成。
 
 详细范围见[工程状态](docs/status.md)。模块结果及复跑入口分别见[信用准入](docs/tl_credit_admission_review.md)、[半Flit打包](docs/tl_tx_packer_review.md)、[类别选择](docs/tl_tx_channels_review.md)、[发送SRAM](docs/tl_tx_buffered_review.md)、[字段分组](docs/tl_control_partition_review.md)和[工艺时序基线](docs/tl_control_partition_timing_review.md)。发送数据源必须按 `o_data_accepted` 的实际接纳数量推进，最小容量支持部分入队。
 

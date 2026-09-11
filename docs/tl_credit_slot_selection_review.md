@@ -2,7 +2,7 @@
 
 The candidate replaces intermediate five-bit slot encoding followed by fixed-account comparisons in `tl_credit_admission` with direct Request/Response, Pool and VC matching. Field extraction, six-bit contribution/reduction arithmetic, shared Data Pool merge, public requirements masking and allow/wait/shortfall expressions are unchanged. No port, parameter, state, cycle, clock/reset or credit-charging behavior is added.
 
-The prior FIFO prefetch experiment was rejected and restored before this candidate was applied. Its completed rejection checkpoint is `ec569982fa7229efce66ad573ac0d474d0245ee0`, pushed and verified on `work/tl-receive-credit`. The last adopted physical/mapped RTL remains `6f10b33`; this new candidate is not yet adopted on physical evidence.
+The prior FIFO prefetch experiment was rejected and restored before this candidate was applied. Its completed rejection checkpoint is `ec569982fa7229efce66ad573ac0d474d0245ee0`, pushed and verified on `work/tl-receive-credit`. The candidate at `c84c113` is now adopted as the research baseline after complete current-source semantic, physical and mapped audits. The prior comparison baseline is `6f10b33`.
 
 ## Semantic qualification
 
@@ -19,9 +19,13 @@ The existing proof runner's explicit reference option initially rejected a diffe
 
 Current production unit regressions pass all 36 configurations, and both actual production peer matrices pass 32 configurations. Independent wire/queue/partition/capture audits pass; normal/optimized wire evidence is identical, and all 128 actual trace files match the adopted header-visibility baseline byte for byte. All 22 production wire faults are detected. Standard admission checks pass strict lint/synthesis and invalid WIDTH 7/17 rejection, six fault types at both widths and sixteen actual wrapper-bypass faults. The admission fault runner supports both the historical encoded-slot anchor and the new direct Data-only VC mutation.
 
-The 27-configuration ownership matrix and complete 60-profile physical matrix are running under fresh `slot_direct_*` labels. Current-source mapped correspondence and clean-clone checks remain pending. Initial WIDTH8 mapping reports standard-cell area 43,569.792 µm²; the incomplete physical matrix is not an adoption result.
+The 27-configuration ownership matrix is complete, with 35 assertions per configuration and byte-identical normal/optimized audits. A clean Git clone at `c84c113` passes `make test rtl-smoke prepared-tx-smoke` with the authorized SRAM root supplied explicitly; the clone also passes the 23-query explicit-reference admission proof without a shared legacy cache.
 
-No measured area or timing gain, current mapped equivalence, macro signoff, activity-based power result or full dual-IP completion is claimed. After the complete physical audit, retain or reject the candidate based on both widths' real setup/hold/area tradeoff. If retained, complete its actual mapped reset/cursor/dormant/partition/fault correspondence and independent audits before adoption. Full Endpoint/Switch, protocol/payload, digital PHY/PCS/FEC, INC, security, management, CDC/RDC and characterized-macro obligations remain open.
+All 60 physical measurements are complete and independently audited in normal/optimized Python with identical evidence. WIDTH 8/16 standard-cell areas are 43,569.792/45,162.054 µm², reductions of 2.73%/0.97% relative to `6f10b33`. Worst setup is −1.816202/−1.799045 ns: WIDTH 8 regresses 9.817 ps and WIDTH 16 improves 35.620 ps. Worst hold remains −0.008036 ns at both widths; 640 ps closes 0/30 profiles and 6.4 ns closes 26/30. These are standard-cell, synthetic-SRAM prelayout measurements, excluding SRAM area.
+
+Actual mapped reset, cursor and dormant-state relations pass four queries each, and all six actual mapped reset/capture/partition faults are detected. All twelve complete output/next-state CEC partitions now pass, six per width, covering 4,144 public/macro output bits per width and actual complete next state. The normal/optimized final mapped evidence is byte-identical. No old-source mapped proof is transferred to this candidate.
+
+The candidate is retained for measured area reduction at both widths, with the disclosed WIDTH8 setup regression and WIDTH16 improvement. Current-source mapped correspondence is complete in its explicit binary/reset/SRAM-input scope. Macro signoff, activity-based power and full dual-IP completion remain unestablished. Evidence bindings are recorded in `docs/tl_credit_slot_selection_evidence.json`. Full Endpoint/Switch, protocol/payload, digital PHY/PCS/FEC, INC, security, management, CDC/RDC and characterized-macro obligations remain open.
 
 ## Reproduction
 
