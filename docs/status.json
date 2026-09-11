@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-11",
+  "updated": "2026-09-11T00:00:07.866688+00:00",
   "full_goal_complete": false,
   "release_status": "research_not_signoff",
   "historical_artifacts_retained": false,
@@ -1446,43 +1446,75 @@
     "full_goal_complete": false
   },
   "production_transmit_physical_baseline": {
-    "measurement_complete": false,
-    "mapped_widths": [
+    "measurement_complete": true,
+    "fully_measured_widths": [
       8,
       16
     ],
-    "fully_measured_widths": [
-      8
-    ],
+    "measurements": 60,
+    "main_closed": 0,
+    "reference_closed": 26,
     "mapped": [
       {
         "width": 8,
         "cells": 73677,
         "ff_cells": 6254,
         "macro_cells": 64,
-        "standard_cell_area_um2": 47213.082
+        "standard_cell_area_um2": 47213.082,
+        "worst_setup_ns": -3.217651,
+        "worst_hold_ns": -0.008036
       },
       {
         "width": 16,
         "cells": 75364,
         "ff_cells": 6574,
         "macro_cells": 64,
-        "standard_cell_area_um2": 48461.994
+        "standard_cell_area_um2": 48461.994,
+        "worst_setup_ns": -3.261416,
+        "worst_hold_ns": -0.008036
       }
     ],
-    "width8_measurements": 30,
-    "width8_main_closed": 0,
-    "width8_reference_closed": 13,
-    "width8_worst_setup_ns": -3.217651,
-    "width8_worst_hold_ns": -0.008036,
     "report_parser_tests": 12,
     "mapped_inventory_tests": 6,
-    "full_matrix_audit_complete": false,
+    "full_matrix_audit_complete": true,
+    "normal_and_optimized_audits": true,
     "mapped_equivalence": false,
     "macro_signoff": false,
     "full_goal_complete": false,
+    "running": false,
     "review": "docs/tl_tx_prepared_timing_review.md",
-    "evidence": "build/verification/tl_tx_prepared/physical_baseline",
-    "running": true
+    "evidence": "build/verification/tl_tx_prepared/physical_baseline"
+  },
+  "last_verified_remote_branch": {
+    "branch": "work/tl-receive-credit",
+    "commit": "7b450175424d1119a3e72760a7df765309dd3691"
+  },
+  "production_transmit_mapped_correspondence": {
+    "complete": false,
+    "scope": "actual D/Q inventory and explicit cursor relation prepared; complete conditional CEC unresolved",
+    "widths": [
+      8,
+      16
+    ],
+    "all_original_state_observed": true,
+    "public_macro_output_bits": 4144,
+    "relation_tests": 5,
+    "state_checker_tests": 20,
+    "normal_and_optimized_tests": true,
+    "whole_network_cec_timeout_widths": [
+      8,
+      16
+    ],
+    "partitioned_cec_timeout_widths": [
+      8
+    ],
+    "external_timeout_seconds": 150,
+    "reset_relation": false,
+    "dormant_relation": false,
+    "actual_mapped_fault_qualified": false,
+    "mapped_equivalence": false,
+    "full_goal_complete": false,
+    "evidence": "build/verification/tl_tx_prepared/encoded_step_techmapped",
+    "review": "docs/tl_tx_prepared_mapping_review.md"
   }
 }

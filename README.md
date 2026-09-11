@@ -38,11 +38,11 @@ make clean
 
 ## 当前状态
 
-实际TL链路已接入接收SRAM退休到FC发布、整段信用准入、半Flit打包、独立Request/Response选择、发送SRAM队列，以及完整Control字段的容量分组。最新分组阶段32组双端配置完成6,912个字段、2,304个完整Single-Beat读回复；4,856个单位RTL向量通过，72次实际故障注入全部检出。
+实际 TL 链路已接入接收 SRAM 退休、信用发布与准入、半 Flit 打包、Request/Response 选择、发送 SRAM 队列和完整 Control 源组捕获。生产顶层 `tl_tx_prepared` 的 32 组双端配置通过，1,536 源组、5,248 分组和 6,912 字段完整到达；36 组单位配置、22 项接线故障与 8 项带负载复位故障检查通过。
 
-Control分组模块已完成[固定槽信用累计](docs/tl_credit_reduction_review.md)、[共享前缀费用](docs/tl_prefix_cost_review.md)、[tenure并行计数](docs/tl_partition_select_review.md)和[标签共享移位](docs/tl_auth_selection_review.md)优化。当前WIDTH8/16主周期最差setup为−1.044205/−1.044889ns，面积为8,864.604/8,989.848µm²；参考周期五角10/10通过，主周期仍未收敛。最近的标签改动使WIDTH8面积下降约3.90%、WIDTH16增加约0.94%，时序改善约10ps，仍有约1.04ns缺口。
+生产发送组合的 WIDTH 8～16 × HEADER_DEPTH 1/2/3 共 27 配置，每组 35 项所有权/头部队列守恒断言完成无界归纳。该结论使用任意 SRAM 读值，不代表完整载荷形式证明。
 
-当前九位宽RTL等价、两位宽实际工艺网表等价及复位/故障检查通过，32组双端回归的96份trace保持一致。等价结论限定为已验证模块的一沿复位后二值行为。完整UPLI转换、每VC调度、单笔超容量事务、其余TL消息、完整协议证明和集成顶层STA仍在推进。
+[生产顶层工艺基线](docs/tl_tx_prepared_timing_review.md)已完成两位宽、五个标准单元角、三种 synthetic SRAM 视图和两周期共 60 组测量及证据审计。640 ps 主周期 0/30 收敛，6.4 ns 参考周期 26/30 收敛；WIDTH 8/16 最差 setup 为 −3.217651/−3.261416 ns，标准单元面积为 47,213.082/48,461.994 µm²，不含 SRAM 面积。完整生产顶层映射等价、时序收敛、真实宏签核与最终双 IP 交付仍未完成。
 
 详细范围见[工程状态](docs/status.md)。模块结果及复跑入口分别见[信用准入](docs/tl_credit_admission_review.md)、[半Flit打包](docs/tl_tx_packer_review.md)、[类别选择](docs/tl_tx_channels_review.md)、[发送SRAM](docs/tl_tx_buffered_review.md)、[字段分组](docs/tl_control_partition_review.md)和[工艺时序基线](docs/tl_control_partition_timing_review.md)。发送数据源必须按 `o_data_accepted` 的实际接纳数量推进，最小容量支持部分入队。
 

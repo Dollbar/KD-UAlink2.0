@@ -1,33 +1,23 @@
 {
   "active_goal": "完整Accelerator Endpoint/Controller与Switch数字RTL IP；未完成",
   "previous_goal_turn": "progress",
-  "latest_stage": "production_transmit_physical_measurement_running",
+  "latest_stage": "production_transmit_physical_complete_mapped_cec_unresolved",
   "rtl": "rtl/tl/tl_tx_prepared.v",
   "review": "docs/tl_tx_prepared_timing_review.md",
   "evidence": "build/verification/tl_tx_prepared/physical_baseline",
   "full_goal_complete": false,
   "next_actions": [
-    "首先轮询已有exec session 4476；WIDTH 8的30组STA已完成，WIDTH 16的剩余STA仍在原任务内继续。不要因观察超时重启矩阵。",
-    "原任务终止后，运行check_physical.py --label physical_baseline及-O模式，核对60组完整矩阵、实际库/网表/路径/时钟；记录最差setup/hold及真实RTL端点，清除live_jobs。",
+    "使用已审计的实际D/Q、显式游标编码及保留全部输出根的pruned BLIF，完成可审核的分区CEC；原整体两位宽与WIDTH8自动分区均150秒未决，不要当作通过或反例。继而证明复位/独立空闲载荷关系并检出实际映射故障。",
     "完成组合顶层实际映射网表的时序/状态等价。针对缓存计数经发送消费判断返回FIFO预取计数的长反馈路径，规划保存或预计算队首解码/信用元数据的实现，并独立验证吞吐与所有权契约；SRAM输入hold单独处理。",
     "继续完整载荷/Data bank形式对应、UPLI事务转换、最终Endpoint/Switch、每VC独立选择、超容量Write/Atomic、Data Poison、数字PHY、INC、安全和管理。真实宏签核与synthetic STA分别报告。"
   ],
   "remote_main": "c34f40f2dc00c2e12283897ea0f3de085abfbc7f",
   "new_work_published": false,
-  "live_jobs": [
-    {
-      "unified_exec_session_id": 4476,
-      "status_at_checkpoint": "running",
-      "last_verified_utc": "2026-09-10T23:36:46.273445+00:00",
-      "command": "python3 verification/tl_tx_prepared/run_physical.py --lib-root CONFIGURED_LIB_ROOT --kd28-root AUTHORIZED_KD28_ROOT --sta CONFIGURED_OPENSTA --label physical_baseline",
-      "evidence": "build/verification/tl_tx_prepared/physical_baseline",
-      "next_action": "Poll existing session 4476 first; do not restart the matrix because of an observation timeout. WIDTH 16 STA remains in progress."
-    }
-  ],
+  "live_jobs": [],
   "last_authorized_push": {
-    "target": "origin/main",
-    "commit": "c34f40f2dc00c2e12283897ea0f3de085abfbc7f",
-    "scope": "User explicitly authorized push before continuing Goal; remote main verified at c34f40f. Subsequent composed RTL equivalence work remains local."
+    "target": "origin/work/tl-receive-credit",
+    "commit": "7b450175424d1119a3e72760a7df765309dd3691",
+    "scope": "User authorized push before continuing Goal; existing implementation pushed successfully."
   },
   "prior_functional_stage_evidence": {
     "functional_stage_complete": true,
@@ -150,41 +140,42 @@
     ]
   },
   "stage_evidence": {
-    "measurement_complete": false,
-    "mapped_widths": [
+    "measurement_complete": true,
+    "fully_measured_widths": [
       8,
       16
     ],
-    "fully_measured_widths": [
-      8
-    ],
+    "measurements": 60,
+    "main_closed": 0,
+    "reference_closed": 26,
     "mapped": [
       {
         "width": 8,
         "cells": 73677,
         "ff_cells": 6254,
         "macro_cells": 64,
-        "standard_cell_area_um2": 47213.082
+        "standard_cell_area_um2": 47213.082,
+        "worst_setup_ns": -3.217651,
+        "worst_hold_ns": -0.008036
       },
       {
         "width": 16,
         "cells": 75364,
         "ff_cells": 6574,
         "macro_cells": 64,
-        "standard_cell_area_um2": 48461.994
+        "standard_cell_area_um2": 48461.994,
+        "worst_setup_ns": -3.261416,
+        "worst_hold_ns": -0.008036
       }
     ],
-    "width8_measurements": 30,
-    "width8_main_closed": 0,
-    "width8_reference_closed": 13,
-    "width8_worst_setup_ns": -3.217651,
-    "width8_worst_hold_ns": -0.008036,
     "report_parser_tests": 12,
     "mapped_inventory_tests": 6,
-    "full_matrix_audit_complete": false,
+    "full_matrix_audit_complete": true,
+    "normal_and_optimized_audits": true,
     "mapped_equivalence": false,
     "macro_signoff": false,
-    "full_goal_complete": false
+    "full_goal_complete": false,
+    "running": false
   },
   "previous_stage_evidence": {
     "complete": true,
@@ -551,5 +542,33 @@
     "full_goal_complete": false,
     "complete": true,
     "scope": "unbounded source-group and actual header-FIFO conservation; arbitrary SRAM read values"
+  },
+  "mapped_correspondence": {
+    "complete": false,
+    "scope": "actual D/Q inventory and explicit cursor relation prepared; complete conditional CEC unresolved",
+    "widths": [
+      8,
+      16
+    ],
+    "all_original_state_observed": true,
+    "public_macro_output_bits": 4144,
+    "relation_tests": 5,
+    "state_checker_tests": 20,
+    "normal_and_optimized_tests": true,
+    "whole_network_cec_timeout_widths": [
+      8,
+      16
+    ],
+    "partitioned_cec_timeout_widths": [
+      8
+    ],
+    "external_timeout_seconds": 150,
+    "reset_relation": false,
+    "dormant_relation": false,
+    "actual_mapped_fault_qualified": false,
+    "mapped_equivalence": false,
+    "full_goal_complete": false,
+    "evidence": "build/verification/tl_tx_prepared/encoded_step_techmapped",
+    "review": "docs/tl_tx_prepared_mapping_review.md"
   }
 }
