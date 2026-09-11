@@ -7,7 +7,7 @@
   "evidence": "docs/endpoint_causal_read_evidence.json",
   "full_goal_complete": false,
   "next_actions": [
-    "Publish verified causal Read increment into authorized Overflow/RTL/UAlink2.0.",
+    "Publish into the existing lowercase Overflow/rtl/UAlink2.0 path; preserve unrelated RTL.",
     "Expand real transaction coverage: full Read sizes/masks and response modes, in-flight network reset/recovery and supported parameter matrix; preserve independent event/data checking.",
     "Continue replacing 136 unimplemented RTL shells for full Endpoint/Switch, native UPLI, standard per-hop TL/DL, digital PHY, INC, security, management and CDC/RDC/process STA."
   ],
@@ -613,5 +613,6 @@
     "macro_signoff": false,
     "full_goal_complete": false,
     "running": false
-  }
+  },
+  "publication_target": "config/publication.json"
 }

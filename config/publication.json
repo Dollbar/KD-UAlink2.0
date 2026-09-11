@@ -1,0 +1,8 @@
+{
+  "repository": "https://github.com/Dollbar/Overflow",
+  "branch": "main",
+  "subdirectory": "rtl/UAlink2.0",
+  "path_case": "Use the existing lowercase rtl directory; supersedes the initial uppercase RTL publication path",
+  "source_scope": "Tracked RTL, model, verification, scripts, configuration and source-delivery documentation",
+  "excluded": "Private specifications, external licensed libraries, waveforms, build outputs and runtime caches"
+}
