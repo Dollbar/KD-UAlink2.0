@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-11T00:32:13.079882+00:00",
+  "updated": "2026-09-11T02:49:08.591676+00:00",
   "full_goal_complete": false,
   "release_status": "research_not_signoff",
   "historical_artifacts_retained": false,
@@ -1487,7 +1487,7 @@
   },
   "last_verified_remote_branch": {
     "branch": "work/tl-receive-credit",
-    "commit": "6839cac6a0e789fdef41787ae6da3e8546e896b2"
+    "commit": "a98c4cd57342700a4d2bdd46763923bc9d4bc022"
   },
   "production_transmit_mapped_correspondence": {
     "complete": true,
@@ -1648,8 +1648,8 @@
   "transmit_header_visibility": {
     "review": "docs/tl_tx_header_visibility_review.md",
     "plan": "docs/tl_tx_header_visibility_plan.md",
-    "adopted": false,
-    "scope": "Final lint-corrected raw-header qualification candidate; final physical/mapped gates still running",
+    "adopted": true,
+    "scope": "Final header visibility RTL, actual mapped binary post-reset correspondence and synthetic-SRAM prelayout measurements; full dual-IP Goal remains open",
     "reference_commit": "6839cac6a0e789fdef41787ae6da3e8546e896b2",
     "channel_composite_configurations": 9,
     "channel_default_configurations": 9,
@@ -1657,8 +1657,8 @@
     "fifo_reset_queries": 72,
     "actual_missing_mask_fault_detections": 4,
     "profile_checks": 16,
-    "clean_buffered_configurations_complete": 6,
-    "clean_buffered_middle_configurations_pending": 21,
+    "clean_buffered_configurations_complete": 27,
+    "clean_buffered_middle_configurations_pending": 0,
     "initial_physical_measurements": 60,
     "initial_normal_and_optimized_physical_audits": true,
     "initial_measurements": [
@@ -1674,7 +1674,7 @@
       }
     ],
     "initial_measurements_apply_to_current_source": false,
-    "current_mapped_equivalence": false,
+    "current_mapped_equivalence": true,
     "main_frequency_closed": false,
     "macro_signoff": false,
     "full_goal_complete": false,
@@ -1683,6 +1683,43 @@
       "rtl/tl/tl_tx_channels.v": "bf535db97580c52dca77779d8861cefdb4340ce67120b4400f90d62974230699",
       "rtl/upli/upli_receive_fifo.v": "e0bf4e74e5150e008ed0cc4a5aa58fccb0e3d2b6c7ffa3b4a6270dfaafc3b1c3",
       "rtl/upli/upli_receive_storage.v": "6920eb6927098622a162e193145133caa6af243ce0c4e17cfdfa64940f10bd16"
-    }
+    },
+    "source_checkpoint": "1194c73711541aadc2633a52fafe8de368d778ff",
+    "buffered_reset_queries": 54,
+    "current_physical_measurements": 60,
+    "current_measurements": [
+      {
+        "width": 8,
+        "standard_cell_area_um2": 44790.732,
+        "cells": 69382,
+        "flops": 6254,
+        "macros": 64,
+        "profiles": 30,
+        "worst_setup_ns": -1.806385,
+        "worst_hold_ns": -0.008036
+      },
+      {
+        "width": 16,
+        "standard_cell_area_um2": 45603.936,
+        "cells": 69967,
+        "flops": 6574,
+        "macros": 64,
+        "profiles": 30,
+        "worst_setup_ns": -1.834665,
+        "worst_hold_ns": -0.008036
+      }
+    ],
+    "mapped_partitions": 12,
+    "mapped_reset_queries": 4,
+    "mapped_cursor_queries": 4,
+    "mapped_dormant_queries": 4,
+    "mapped_fault_detections": 6,
+    "normal_optimized_audits_identical": true,
+    "unit_configurations": 36,
+    "peer_configurations": 32,
+    "ownership_configurations": 27,
+    "power_evaluated": false,
+    "evidence": "docs/tl_tx_header_visibility_evidence.json",
+    "full_top_cdc_rdc_complete": false
   }
 }
