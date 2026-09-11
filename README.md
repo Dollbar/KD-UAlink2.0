@@ -42,7 +42,7 @@ make clean
 
 生产发送组合的 WIDTH 8～16 × HEADER_DEPTH 1/2/3 共 27 配置，每组 35 项所有权/头部队列守恒断言完成无界归纳。该结论使用任意 SRAM 读值，不代表完整载荷形式证明。
 
-[生产顶层工艺基线](docs/tl_tx_prepared_timing_review.md)已完成两位宽、五个标准单元角、三种 synthetic SRAM 视图和两周期共 60 组测量及证据审计。640 ps 主周期 0/30 收敛，6.4 ns 参考周期 26/30 收敛；WIDTH 8/16 最差 setup 为 −3.217651/−3.261416 ns，标准单元面积为 47,213.082/48,461.994 µm²，不含 SRAM 面积。完整生产顶层映射等价、时序收敛、真实宏签核与最终双 IP 交付仍未完成。
+[生产顶层工艺基线](docs/tl_tx_prepared_timing_review.md)已完成两位宽、五个标准单元角、三种 synthetic SRAM 视图和两周期共 60 组测量及证据审计。640 ps 主周期 0/30 收敛，6.4 ns 参考周期 26/30 收敛；WIDTH 8/16 最差 setup 为 −3.217651/−3.261416 ns，标准单元面积为 47,213.082/48,461.994 µm²，不含 SRAM 面积。生产顶层已完成[复位后二值工艺映射等价](docs/tl_tx_prepared_mapping_review.md)，包括完整输出/下一状态分区比较及独立复位、游标和空闲载荷关系证明。时序收敛、真实宏签核与最终双 IP 交付仍未完成。
 
 详细范围见[工程状态](docs/status.md)。模块结果及复跑入口分别见[信用准入](docs/tl_credit_admission_review.md)、[半Flit打包](docs/tl_tx_packer_review.md)、[类别选择](docs/tl_tx_channels_review.md)、[发送SRAM](docs/tl_tx_buffered_review.md)、[字段分组](docs/tl_control_partition_review.md)和[工艺时序基线](docs/tl_control_partition_timing_review.md)。发送数据源必须按 `o_data_accepted` 的实际接纳数量推进，最小容量支持部分入队。
 

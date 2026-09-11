@@ -1,14 +1,14 @@
 {
   "active_goal": "完整Accelerator Endpoint/Controller与Switch数字RTL IP；未完成",
   "previous_goal_turn": "progress",
-  "latest_stage": "production_transmit_physical_complete_mapped_cec_unresolved",
+  "latest_stage": "production_transmit_post_reset_mapped_equivalence",
   "rtl": "rtl/tl/tl_tx_prepared.v",
-  "review": "docs/tl_tx_prepared_timing_review.md",
-  "evidence": "build/verification/tl_tx_prepared/physical_baseline",
+  "review": "docs/tl_tx_prepared_mapping_review.md",
+  "evidence": "build/verification/tl_tx_prepared/mapped_correspondence_evidence.json",
   "full_goal_complete": false,
   "next_actions": [
-    "使用已审计的实际D/Q、显式游标编码及保留全部输出根的pruned BLIF，完成可审核的分区CEC；原整体两位宽与WIDTH8自动分区均150秒未决，不要当作通过或反例。继而证明复位/独立空闲载荷关系并检出实际映射故障。",
-    "完成组合顶层实际映射网表的时序/状态等价。针对缓存计数经发送消费判断返回FIFO预取计数的长反馈路径，规划保存或预计算队首解码/信用元数据的实现，并独立验证吞吐与所有权契约；SRAM输入hold单独处理。",
+    "实际生产发送顶层WIDTH8/16复位后二值映射等价已完成。保持完整源组捕获、入队、线上退休及吞吐契约，优化实际头部FIFO缓存计数经仲裁/重复头部解码返回预取计数的长反馈路径；先提出可验证的元数据保存/复用方案，再改RTL。",
+    "每次实际RTL变更均重新验证独立单位/真实双端/故障矩阵、所有权与相关顺序等价，并映射实际组合顶层重跑五角×三synthetic SRAM视图×双周期STA。当前主周期0/30，参考26/30；SRAM输入hold单独处理。",
     "继续完整载荷/Data bank形式对应、UPLI事务转换、最终Endpoint/Switch、每VC独立选择、超容量Write/Atomic、Data Poison、数字PHY、INC、安全和管理。真实宏签核与synthetic STA分别报告。"
   ],
   "remote_main": "c34f40f2dc00c2e12283897ea0f3de085abfbc7f",
@@ -16,8 +16,8 @@
   "live_jobs": [],
   "last_authorized_push": {
     "target": "origin/work/tl-receive-credit",
-    "commit": "7b450175424d1119a3e72760a7df765309dd3691",
-    "scope": "User authorized push before continuing Goal; existing implementation pushed successfully."
+    "commit": "d05b0204a61ecbf2b87e82378c138ceedfd40563",
+    "scope": "Prior user-authorized push verified; current mapped equivalence continuation is local."
   },
   "prior_functional_stage_evidence": {
     "functional_stage_complete": true,
@@ -140,42 +140,39 @@
     ]
   },
   "stage_evidence": {
-    "measurement_complete": true,
-    "fully_measured_widths": [
-      8,
-      16
-    ],
-    "measurements": 60,
-    "main_closed": 0,
-    "reference_closed": 26,
-    "mapped": [
+    "complete": true,
+    "scope": "binary post-reset actual standard-cell equivalence with common arbitrary SRAM read values",
+    "results": [
       {
         "width": 8,
-        "cells": 73677,
-        "ff_cells": 6254,
-        "macro_cells": 64,
-        "standard_cell_area_um2": 47213.082,
-        "worst_setup_ns": -3.217651,
-        "worst_hold_ns": -0.008036
+        "complete_partitions": 6,
+        "public_macro_output_bits": 4144,
+        "actual_gold_state_bits": 6244,
+        "actual_gate_state_bits": 6254
       },
       {
         "width": 16,
-        "cells": 75364,
-        "ff_cells": 6574,
-        "macro_cells": 64,
-        "standard_cell_area_um2": 48461.994,
-        "worst_setup_ns": -3.261416,
-        "worst_hold_ns": -0.008036
+        "complete_partitions": 6,
+        "public_macro_output_bits": 4144,
+        "actual_gold_state_bits": 6564,
+        "actual_gate_state_bits": 6574
       }
     ],
-    "report_parser_tests": 12,
-    "mapped_inventory_tests": 6,
-    "full_matrix_audit_complete": true,
-    "normal_and_optimized_audits": true,
-    "mapped_equivalence": false,
+    "reset_queries": 4,
+    "cursor_queries": 4,
+    "dormant_queries": 4,
+    "actual_reset_faults": 2,
+    "actual_capture_faults": 2,
+    "actual_partition_faults": 2,
+    "mapped_equivalence": true,
     "macro_signoff": false,
     "full_goal_complete": false,
-    "running": false
+    "normal_and_optimized_audits": true,
+    "checker_tests": 21,
+    "rtl_changed": false,
+    "main_frequency_closed": false,
+    "review": "docs/tl_tx_prepared_mapping_review.md",
+    "evidence": "build/verification/tl_tx_prepared/mapped_correspondence_evidence.json"
   },
   "previous_stage_evidence": {
     "complete": true,
@@ -544,31 +541,76 @@
     "scope": "unbounded source-group and actual header-FIFO conservation; arbitrary SRAM read values"
   },
   "mapped_correspondence": {
-    "complete": false,
-    "scope": "actual D/Q inventory and explicit cursor relation prepared; complete conditional CEC unresolved",
-    "widths": [
-      8,
-      16
+    "complete": true,
+    "scope": "binary post-reset actual standard-cell equivalence with common arbitrary SRAM read values",
+    "results": [
+      {
+        "width": 8,
+        "complete_partitions": 6,
+        "public_macro_output_bits": 4144,
+        "actual_gold_state_bits": 6244,
+        "actual_gate_state_bits": 6254
+      },
+      {
+        "width": 16,
+        "complete_partitions": 6,
+        "public_macro_output_bits": 4144,
+        "actual_gold_state_bits": 6564,
+        "actual_gate_state_bits": 6574
+      }
     ],
-    "all_original_state_observed": true,
-    "public_macro_output_bits": 4144,
-    "relation_tests": 5,
-    "state_checker_tests": 20,
-    "normal_and_optimized_tests": true,
-    "whole_network_cec_timeout_widths": [
-      8,
-      16
-    ],
-    "partitioned_cec_timeout_widths": [
-      8
-    ],
-    "external_timeout_seconds": 150,
-    "reset_relation": false,
-    "dormant_relation": false,
-    "actual_mapped_fault_qualified": false,
-    "mapped_equivalence": false,
+    "reset_queries": 4,
+    "cursor_queries": 4,
+    "dormant_queries": 4,
+    "actual_reset_faults": 2,
+    "actual_capture_faults": 2,
+    "actual_partition_faults": 2,
+    "mapped_equivalence": true,
+    "macro_signoff": false,
     "full_goal_complete": false,
-    "evidence": "build/verification/tl_tx_prepared/encoded_step_techmapped",
-    "review": "docs/tl_tx_prepared_mapping_review.md"
+    "normal_and_optimized_audits": true,
+    "checker_tests": 21,
+    "rtl_changed": false,
+    "main_frequency_closed": false,
+    "review": "docs/tl_tx_prepared_mapping_review.md",
+    "evidence": "build/verification/tl_tx_prepared/mapped_correspondence_evidence.json"
+  },
+  "prior_production_physical_stage_evidence": {
+    "measurement_complete": true,
+    "fully_measured_widths": [
+      8,
+      16
+    ],
+    "measurements": 60,
+    "main_closed": 0,
+    "reference_closed": 26,
+    "mapped": [
+      {
+        "width": 8,
+        "cells": 73677,
+        "ff_cells": 6254,
+        "macro_cells": 64,
+        "standard_cell_area_um2": 47213.082,
+        "worst_setup_ns": -3.217651,
+        "worst_hold_ns": -0.008036
+      },
+      {
+        "width": 16,
+        "cells": 75364,
+        "ff_cells": 6574,
+        "macro_cells": 64,
+        "standard_cell_area_um2": 48461.994,
+        "worst_setup_ns": -3.261416,
+        "worst_hold_ns": -0.008036
+      }
+    ],
+    "report_parser_tests": 12,
+    "mapped_inventory_tests": 6,
+    "full_matrix_audit_complete": true,
+    "normal_and_optimized_audits": true,
+    "mapped_equivalence": false,
+    "macro_signoff": false,
+    "full_goal_complete": false,
+    "running": false
   }
 }

@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-11T00:00:07.866688+00:00",
+  "updated": "2026-09-11T00:32:13.079882+00:00",
   "full_goal_complete": false,
   "release_status": "research_not_signoff",
   "historical_artifacts_retained": false,
@@ -1487,34 +1487,41 @@
   },
   "last_verified_remote_branch": {
     "branch": "work/tl-receive-credit",
-    "commit": "7b450175424d1119a3e72760a7df765309dd3691"
+    "commit": "d05b0204a61ecbf2b87e82378c138ceedfd40563"
   },
   "production_transmit_mapped_correspondence": {
-    "complete": false,
-    "scope": "actual D/Q inventory and explicit cursor relation prepared; complete conditional CEC unresolved",
-    "widths": [
-      8,
-      16
+    "complete": true,
+    "scope": "binary post-reset actual standard-cell equivalence with common arbitrary SRAM read values",
+    "results": [
+      {
+        "width": 8,
+        "complete_partitions": 6,
+        "public_macro_output_bits": 4144,
+        "actual_gold_state_bits": 6244,
+        "actual_gate_state_bits": 6254
+      },
+      {
+        "width": 16,
+        "complete_partitions": 6,
+        "public_macro_output_bits": 4144,
+        "actual_gold_state_bits": 6564,
+        "actual_gate_state_bits": 6574
+      }
     ],
-    "all_original_state_observed": true,
-    "public_macro_output_bits": 4144,
-    "relation_tests": 5,
-    "state_checker_tests": 20,
-    "normal_and_optimized_tests": true,
-    "whole_network_cec_timeout_widths": [
-      8,
-      16
-    ],
-    "partitioned_cec_timeout_widths": [
-      8
-    ],
-    "external_timeout_seconds": 150,
-    "reset_relation": false,
-    "dormant_relation": false,
-    "actual_mapped_fault_qualified": false,
-    "mapped_equivalence": false,
+    "reset_queries": 4,
+    "cursor_queries": 4,
+    "dormant_queries": 4,
+    "actual_reset_faults": 2,
+    "actual_capture_faults": 2,
+    "actual_partition_faults": 2,
+    "mapped_equivalence": true,
+    "macro_signoff": false,
     "full_goal_complete": false,
-    "evidence": "build/verification/tl_tx_prepared/encoded_step_techmapped",
-    "review": "docs/tl_tx_prepared_mapping_review.md"
+    "normal_and_optimized_audits": true,
+    "checker_tests": 21,
+    "rtl_changed": false,
+    "main_frequency_closed": false,
+    "review": "docs/tl_tx_prepared_mapping_review.md",
+    "evidence": "build/verification/tl_tx_prepared/mapped_correspondence_evidence.json"
   }
 }
