@@ -1738,6 +1738,17 @@
     "candidate_fault_detections": 12,
     "physical_complete": false,
     "current_mapped_equivalence": false,
-    "full_goal_complete": false
+    "full_goal_complete": false,
+    "source_checkpoint": "161ed37248c08d3f7f5e12c63515d9b365adafb0",
+    "buffered_configurations": 6,
+    "buffered_reset_queries": 12,
+    "ownership_configurations": 27,
+    "ownership_normal_optimized_audits_identical": true,
+    "clean_clone_make_exit": 0,
+    "evidence": "docs/tl_fifo_issue_selection_evidence.json",
+    "partial_width8_measurements": 30,
+    "partial_width8_area_um2": 45184.86,
+    "partial_width8_worst_setup_ns": -1.80945,
+    "width16_sta_pending": true
   }
 }
