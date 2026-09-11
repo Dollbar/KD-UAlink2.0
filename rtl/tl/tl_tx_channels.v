@@ -1,4 +1,4 @@
-module tl_tx_channels #(parameter WIDTH=16)( // tl_tx_channels模块：独立Request与Response候选及Data所有权选择
+module tl_tx_channels #(parameter WIDTH=16,parameter integer RAW_HEADERS=0)( // tl_tx_channels模块：独立Request与Response候选及Data所有权选择
  input wire i_clk,i_rstn,i_taken, // 唯一输入时钟、同步低有效复位及真实端口发送事件
  input wire [6:0] i_pending,input wire i_auth,i_done,i_shared, // 同一真实端口的序列、认证及初始信用状态
  input wire [20*(WIDTH+1)-1:0] i_available,i_capacity, // 两类共同观察唯一物理信用账本
@@ -11,12 +11,16 @@ module tl_tx_channels #(parameter WIDTH=16)( // tl_tx_channels模块：独立Req
  output wire [1:0] o_header_taken,o_tags_taken,output wire [3:0] o_data_taken,output wire o_fc_taken, // 分别确认被实际消费的类与来源
  output wire [1:0] o_header_error,o_capacity_shortfall // 分类错误和各队首超容量的独立本地诊断
 ); // 结束模块端口声明
+generate if((RAW_HEADERS!=0)&&(RAW_HEADERS!=1))begin:gen_invalid_profile // 内部可见性模式只允许零或一
+ tl_tx_channels_parameters_invalid Invalid_Inst(); // 非法覆盖在展开时失败
+end endgenerate // 结束参数检查
 reg r_preferred,r_owner,r_hold_class,r_hold_valid; // 下一头部偏好、旧Data所有者和停顿中的头部类
 reg selected_class; // 本拍准备好的Control来源，不决定旧尾部的数据源
 wire data_class;wire [1:0] format_ok,credit_ok,budget_ok,ready,nop_ready,candidate; // 两条独立候选资格
 wire [1:0] credit_shortfall;wire [1:0] old_data_valid; // 两类超容量诊断及旧Data队首可用数量
 wire header_taken,tags_taken;wire [1:0] data_taken; // 内层packer按真实发送确认
 wire [1:0] has_data; // 两类原始tenure标记也在仲裁前计算
+wire payload_visible;wire [255:0] selected_header,selected_tags; // 原始内部字只供资格解码，对外组包保持原无效零值
 wire position_ready; // 当前Control位置是否允许新头部
 assign old_data_valid=r_owner?i_data_valid[3:2]:i_data_valid[1:0]; // 旧tenure只观察已接纳头部的数据类
 assign position_ready=(i_pending<=7'd1)&&!(i_auth&&(i_pending==7'd1))&&!((i_pending==7'd1)&&i_fc_valid&&(i_fc_msg!=2'd0)); // 保留Auth尾部及完成消息规则
@@ -34,7 +38,7 @@ genvar lane;generate for(lane=0;lane<2;lane=lane+1)begin:gen_class // Request和
  assign format_ok[lane]=valid&&(status==2'd0)&&(fields!=4'd0)&&(!i_auth||(fields<=4'd4))&&((lane==0)?(responses==4'd0):(requests==3'd0)); // 只准许本队列对应的请求或响应字段
  assign candidate[lane]=i_header_valid[lane]&&format_ok[lane]; // 错类队首不能伪装成另一类发出
  assign budget_ok[lane]=(requests<=i_request_budget)&&(responses<=i_response_budget); // 两类catch条件分别核对
- assign has_data[lane]=(|counts)||(|be); // Data或额外BE都来自本类有序负载源
+ assign has_data[lane]=((RAW_HEADERS==0)||i_header_valid[lane])&&((|counts)||(|be)); // Data或额外BE都来自本类有序负载源
  assign payload_ready=(i_pending!=7'd0)?(old_data_valid>=2'd1):(i_auth?i_tags_valid[lane]:(!has_data[lane]||(i_data_valid[lane*2+:2]>=2'd1))); // 有旧尾时保留旧类，新tenure才选择新类数据
  assign ready[lane]=candidate[lane]&&credit_ok[lane]&&budget_ok[lane]&&payload_ready&&position_ready; // 全部资格独立满足才参与优先仲裁
  assign nop_ready[lane]=candidate[lane]&&credit_ok[lane]&&!budget_ok[lane]; // 没有可发头部时选择需要catch NOP的候选
@@ -49,10 +53,13 @@ always @* begin // 按就绪程度优先，再在同等级的两类间轮换
  else if(|candidate)selected_class=candidate[r_preferred]?r_preferred:!r_preferred; // 保留可诊断的未获资格队首供内层等待或FC选择
 end // 结束头部类别选择
 assign data_class=(i_pending!=7'd0)?r_owner:selected_class; // 混合旧尾和新头时必须使用旧Data所有者
+assign payload_visible=(RAW_HEADERS==0)||i_header_valid[selected_class]; // 兼容外部默认接口及内部空队首，包括任意停顿状态
+assign selected_header=payload_visible?(selected_class?i_headers[511:256]:i_headers[255:0]):256'd0; // 仅在最终负载边界恢复原头部屏蔽
+assign selected_tags=payload_visible?(selected_class?i_tags[511:256]:i_tags[255:0]):256'd0; // 标签与头部来自同一个原子存储字
  tl_tx_packer_core Packer_Inst( // 直接复用两类已完成的资格，避免选择头部后重复解码和信用比较
  .i_clk(i_clk),.i_rstn(i_rstn),.i_taken(i_taken),.i_pending(i_pending),.i_auth(i_auth), // 状态与真实端口同步
  .i_header_ready(ready[selected_class]),.i_nop_ready(nop_ready[selected_class]),.i_has_data(has_data[selected_class]), // 包括原位置、负载、信用及catch规则
- .i_header(selected_class?i_headers[511:256]:i_headers[255:0]),.i_tags(selected_class?i_tags[511:256]:i_tags[255:0]), // 当前原始头部及标签保持至真实确认
+ .i_header(selected_header),.i_tags(selected_tags), // 当前原始头部及标签保持至真实确认
  .i_data_valid(data_class?i_data_valid[3:2]:i_data_valid[1:0]),.i_data0(data_class?i_data0[511:256]:i_data0[255:0]),.i_data1(data_class?i_data1[511:256]:i_data1[255:0]), // Data仍跟随实际tenure所有者
  .i_fc_valid(i_fc_valid),.i_fc_flit(i_fc_flit),.i_fc_msg(i_fc_msg), // FC来源独立于头部资格
  .o_valid(o_valid),.o_flit(o_flit),.o_msg(o_msg),.o_header_taken(header_taken),.o_tags_taken(tags_taken),.o_data_taken(data_taken),.o_fc_taken(o_fc_taken) // 同一真实发送事件确认各输入

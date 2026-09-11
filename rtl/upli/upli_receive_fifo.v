@@ -6,7 +6,8 @@
 module upli_receive_fifo #( // 同步复位及双读缓存的 SRAM FIFO 控制器模块。
     parameter integer C_DEPTH = 5, // 逻辑容量范围一至六万五千五百三十五。
     parameter integer C_DATA_WIDTH = 32, // 存储字宽必须为正的八位整数倍。
-    parameter integer C_COUNT_WIDTH = (C_DEPTH < 2) ? 1 : (C_DEPTH < 4) ? 2 : (C_DEPTH < 8) ? 3 : (C_DEPTH < 16) ? 4 : (C_DEPTH < 32) ? 5 : (C_DEPTH < 64) ? 6 : (C_DEPTH < 128) ? 7 : (C_DEPTH < 256) ? 8 : (C_DEPTH < 512) ? 9 : (C_DEPTH < 1024) ? 10 : (C_DEPTH < 2048) ? 11 : (C_DEPTH < 4096) ? 12 : (C_DEPTH < 8192) ? 13 : (C_DEPTH < 16384) ? 14 : (C_DEPTH < 32768) ? 15 : 16 // 派生位宽必须能表示零至完整容量。
+    parameter integer C_COUNT_WIDTH = (C_DEPTH < 2) ? 1 : (C_DEPTH < 4) ? 2 : (C_DEPTH < 8) ? 3 : (C_DEPTH < 16) ? 4 : (C_DEPTH < 32) ? 5 : (C_DEPTH < 64) ? 6 : (C_DEPTH < 128) ? 7 : (C_DEPTH < 256) ? 8 : (C_DEPTH < 512) ? 9 : (C_DEPTH < 1024) ? 10 : (C_DEPTH < 2048) ? 11 : (C_DEPTH < 4096) ? 12 : (C_DEPTH < 8192) ? 13 : (C_DEPTH < 16384) ? 14 : (C_DEPTH < 32768) ? 15 : 16, // 派生位宽必须能表示零至完整容量。
+    parameter integer C_ZERO_INVALID = 1 // 默认屏蔽无效字；内部原始可见模式必须由消费者保留有效性门控。
 ) ( // 内部 ready/valid 接口不是新增原生 UPLI 字段。
     input wire i_clk, // 全部控制、缓存及 SRAM 端口的共同上升沿时钟。
     input wire i_rstn, // 同步低有效复位，不驱动物理 SRAM 内容复位。
@@ -15,7 +16,7 @@ module upli_receive_fifo #( // 同步复位及双读缓存的 SRAM FIFO 控制�
     output wire o_write_ready, // 沿前总占用小于精确容量才允许写入。
     input wire i_read_ready, // 消费者确认接收当前有效缓存字。
     output wire o_read_valid, // 队首已经从 SRAM 捕获且尚未消费。
-    output wire [C_DATA_WIDTH-1:0] o_read_data, // 注册缓存的队首字，无效周期输出零。
+    output wire [C_DATA_WIDTH-1:0] o_read_data, // 注册缓存队首，默认在无效周期输出零。
     output wire [C_COUNT_WIDTH-1:0] o_count, // 未读、读在途与缓存的完整逻辑占用。
     output wire o_sram_write_cs, // 仅实际接受写握手时写入后端 SRAM。
     output wire [C_COUNT_WIDTH-1:0] o_sram_write_addr, // 使用计数宽度零扩展的循环写地址。
@@ -39,7 +40,7 @@ module upli_receive_fifo #( // 同步复位及双读缓存的 SRAM FIFO 控制�
     wire [2:0] reserved; // 三位预约计算避免缓存数量加法回绕。
     assign o_write_ready = i_rstn && (cnt_total < C_CAPACITY); // 不借用同拍消费产生的新空间。
     assign o_read_valid = cnt_cached != 2'd0; // 同步缓存有效性不取决于当前读准备信号。
-    assign o_read_data = o_read_valid ? reg_head : {C_DATA_WIDTH{1'b0}}; // 未初始化 SRAM 值不暴露于无效输出。
+    assign o_read_data = ((C_ZERO_INVALID==0) || o_read_valid) ? reg_head : {C_DATA_WIDTH{1'b0}}; // 默认屏蔽无效字，内部模式仅提供保留字给资格计算。
     assign o_count = cnt_total; // 对外资源数量始终包含缓存与在途读。
     assign flag_write = o_write_ready && i_write_valid; // 仅真实写握手推进地址和计数。
     assign flag_consume = i_rstn && o_read_valid && i_read_ready; // 复位及空缓存不产生消费。
@@ -53,7 +54,7 @@ module upli_receive_fifo #( // 同步复位及双读缓存的 SRAM FIFO 控制�
     assign o_sram_read_cs = flag_issue; // 后端只读取确实已存储的旧数据。
     assign o_sram_read_addr = reg_read_addr; // 不旁路本沿新写入的地址。
     generate // 非法参数必须在 elaboration 失败。
-        if ((C_DEPTH < 1) || (C_DEPTH > 65535) || (C_DATA_WIDTH < 8) || ((C_DATA_WIDTH % 8) != 0) || (C_COUNT_WIDTH != C_DERIVED_WIDTH)) begin : gen_invalid // 拒绝容量截断、非整字节和错误派生宽度。
+        if ((C_DEPTH < 1) || (C_DEPTH > 65535) || (C_DATA_WIDTH < 8) || ((C_DATA_WIDTH % 8) != 0) || (C_COUNT_WIDTH != C_DERIVED_WIDTH) || ((C_ZERO_INVALID != 0) && (C_ZERO_INVALID != 1))) begin : gen_invalid // 拒绝容量截断、非整字节和错误派生宽度。
             upli_receive_parameters_invalid Invalid_Inst (); // 明确未定义的层次标记使非法配置失败。
         end // 结束参数合法性检查。
     endgenerate // 结束同步 SRAM FIFO 参数结构检查。

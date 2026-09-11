@@ -27,7 +27,7 @@ genvar lane;generate for(lane=0;lane<2;lane=lane+1)begin:gen_queues // 每个类
  wire tags_ready; // Auth关闭时不要求无意义的标签有效
  assign tags_ready=!i_auth||i_tags_valid[lane]; // 配置在复位时期确定且运行中稳定
  assign o_header_ready[lane]=raw_header_ready&&tags_ready; // 头部握手只有同时保存其标签时才对外成立
- upli_receive_storage #(.C_DEPTH(HEADER_DEPTH),.C_DATA_WIDTH(512),.C_COUNT_WIDTH(HEADER_COUNT_WIDTH)) Header_Inst( // 每类头部和标签在同一SRAM字中
+ upli_receive_storage #(.C_DEPTH(HEADER_DEPTH),.C_DATA_WIDTH(512),.C_COUNT_WIDTH(HEADER_COUNT_WIDTH),.C_ZERO_INVALID(0)) Header_Inst( // 每类头部和标签在同一SRAM字中
  .i_clk(i_clk),.i_rstn(i_rstn),.i_write_valid(i_header_valid[lane]&&tags_ready),.i_write_data({i_tags[lane*256+:256],i_headers[lane*256+:256]}),.o_write_ready(raw_header_ready), // 接纳端和输出端独立推进
  .i_read_ready(header_taken[lane]),.o_read_valid(header_valid[lane]),.o_read_data(header_word),.o_count(o_header_count[lane*HEADER_COUNT_WIDTH+:HEADER_COUNT_WIDTH]) // 线上实际发送后才释放头部容量
  ); // 结束每类头部SRAM实例
@@ -39,7 +39,7 @@ genvar lane;generate for(lane=0;lane<2;lane=lane+1)begin:gen_queues // 每个类
  .o_count(o_data_count[lane*(DATA_COUNT_WIDTH+1)+:(DATA_COUNT_WIDTH+1)]),.o_error(o_input_error[lane]) // 发布精确总容量及本地数量错误
  ); // 结束每类双bank数据缓存实例
 end endgenerate // 结束两类相互独立的真实发送存储结构
-tl_tx_channels #(.WIDTH(WIDTH)) Channels_Inst( // 复用已验证独立准入、旧Data所有权和FC公平打包
+tl_tx_channels #(.WIDTH(WIDTH),.RAW_HEADERS(1)) Channels_Inst( // 复用已验证独立准入、旧Data所有权和FC公平打包
  .i_clk(i_clk),.i_rstn(i_rstn),.i_taken(i_taken),.i_pending(i_pending),.i_auth(i_auth),.i_done(i_done),.i_shared(i_shared), // 所有状态来自唯一实际信用端口
  .i_available(i_available),.i_capacity(i_capacity),.i_request_budget(i_request_budget),.i_response_budget(i_response_budget), // 原有整段信用和catch预算约束
  .i_header_valid(header_valid),.i_headers(headers),.i_tags_valid(header_valid),.i_tags(tags), // 每个保存的头部拥有原子配对的标签
