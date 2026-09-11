@@ -36,7 +36,7 @@
 
 所有字段使用完整位宽；不截断高地址、Tag、ID、授权标签、命令、属性或元数据。除valid外合计189bit。`upli_request_channel`为无时钟、无缓存的组合发送层，具有`i_rstn`与对应`i_*`/`o_*`原生字段；有效输出等于`i_rstn && i_valid`，无效周期所有输出字段及parity清零，这是比规范无效字段不关心更确定的本地行为。无`ready`线上信号、无新增私有线上字段。
 
-四个输出为`o_valid_parity`、`o_auth_tag_parity`、`o_address_parity`、`o_control_parity`。valid保护自身；授权保护64bit AuthTag；地址保护57bit Addr；控制保护Tag11/Len6/Attr8/Cmd6/Meta8/VC2/ASI2/Src10/Dst10/Port2/NumBeats2/Pool1，恰好68bit。三类字段保护互不混入。候选先用显式XOR生成；后续公共parity primitive须按同一保护集合替换。
+四个输出为`o_valid_parity`、`o_auth_tag_parity`、`o_address_parity`、`o_control_parity`。valid保护自身；授权保护64bit AuthTag；地址保护57bit Addr；控制保护Tag11/Len6/Attr8/Cmd6/Meta8/VC2/ASI2/Src10/Dst10/Port2/NumBeats2/Pool1，恰好68bit。三类字段保护互不混入。原候选使用显式XOR；当前生产leaf已接公共parity primitive，并按同一保护集合完成全部输出组合等价验证。
 
 ## 唯一发送所有权及连接
 
@@ -50,7 +50,7 @@
 
 ## 上游资格与后续接收职责
 
-Table 2-2要求未授权请求或无效周期AuthTag为零。统一wrapper在候选发出前依据显式`authorization_active`把未授权AuthTag清零；授权功能是否启用属于本地配置，不是新增UPLI线信号。leaf有效周期保持所有输入位，不能猜测授权状态。ReqAddr低两位应为零；普通Read的NumBeats应为零，Vendor Defined Read的NumBeats有独立语义；Cmd[5]=1的写/原子/消息类NumBeats必须与实际OrigData拍数匹配。ReqSrc/Dst/ASI/Attr/Metadata在Collective及Vendor命令中存在其他语义，不能把它们统一限制成普通Read/Write配置。命令合法性、256B边界、BE以及业务权限由候选前的事务资格层负责，发送字段层不是完整命令执行器。
+Table 2-2要求未授权请求或无效周期AuthTag为零。当前统一wrapper没有`authorization_active`输入，也不执行授权清零；输入生产者必须在候选发出前将未授权AuthTag置零。后续事务资格层负责落实该条件，授权功能是否启用属于本地配置。leaf有效周期保持所有输入位，不能猜测授权状态。ReqAddr低两位应为零；普通Read的NumBeats应为零，Vendor Defined Read的NumBeats有独立语义；Cmd[5]=1的写/原子/消息类NumBeats必须与实际OrigData拍数匹配。ReqSrc/Dst/ASI/Attr/Metadata在Collective及Vendor命令中存在其他语义，不能把它们统一限制成普通Read/Write配置。命令合法性、256B边界、BE以及业务权限由候选前的事务资格层负责，发送字段层不是完整命令执行器。
 
 返回接口保持四端口原生形状：CreditVld4、CreditPool4、各端口VC合并8、各端口Num合并8、InitDone4；另CreditVldParity保护全部4个valid位且每周期检查，CreditParity保护全部20bit Pool/VC/Num且任一valid时检查，即使部分端口当前无返回也不能只保护被选账户。InitDone不包含在这两个保护集合内。信用错误不能用重新生成parity洗掉；共享wrapper的真实接收检查/RAS诊断须先检输入保护，再交银行。银行当前非法事件整沿保持并报注册诊断；该诊断不撤销已经在线发送的Beat，集成必须把其定义为故障边界并停止后续候选，而非伪称自动恢复。
 
