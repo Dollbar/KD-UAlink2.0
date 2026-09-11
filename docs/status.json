@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-11T21:30:00+08:00",
+  "updated": "2026-09-11T22:10:00+08:00",
   "full_goal_complete": false,
   "release_status": "research_not_signoff",
   "current_native_receive_increment": {
@@ -48,8 +48,8 @@
       ]
     },
     "inventory": {
-      "modules": 220,
-      "existing_partial": 97,
+      "modules": 221,
+      "existing_partial": 98,
       "planned_shells": 123
     },
     "native_rx_complete": false,
@@ -154,7 +154,8 @@
     "reviews": [
       "docs/switch_egress_packet_queue_review.md",
       "docs/switch_egress_vc_queues_review.md",
-      "docs/switch_egress_scheduler_review.md"
+      "docs/switch_egress_scheduler_review.md",
+      "docs/switch_egress_pipeline_review.md"
     ],
     "scheduler": {
       "configurations": 4,
@@ -164,6 +165,19 @@
       "static_checks": 12,
       "creates_capacity_events": false,
       "review": "docs/switch_egress_scheduler_review.md"
+    },
+    "queue_to_scheduler_pipeline_complete": true,
+    "pipeline": {
+      "port_vc_configurations": 9,
+      "cycles": 2944,
+      "admitted_packets": 303,
+      "completed_packets": 294,
+      "releases": 294,
+      "words": 737,
+      "reset_cancelled_packets": 9,
+      "real_wiring_faults": 5,
+      "g2001_lint_yosys": 9,
+      "review": "docs/switch_egress_pipeline_review.md"
     }
   },
   "historical_artifacts_retained": false,

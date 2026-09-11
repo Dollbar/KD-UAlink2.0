@@ -11862,6 +11862,54 @@
         "Packet-granular physical egress arbitration without creating reservation or release capacity events"
       ],
       "functional_interface_status": "scheduler_without_ingress_classifier_repack_top_integration_deadlock_proof_or_qos_time_bound"
+    },
+    {
+      "id": "switch_egress_pipeline",
+      "module": "switch_egress_pipeline",
+      "path": "rtl/switch/switch_egress_pipeline.v",
+      "roles": [
+        "switch"
+      ],
+      "subsystem": "switch",
+      "status": "existing_partial",
+      "purpose": "Connect Request/Response/VC-partitioned egress queues to the physical egress scheduler while preserving the queue as the sole packet reservation and release owner.",
+      "dependencies": [
+        "switch_egress_vc_queues",
+        "switch_egress_scheduler"
+      ],
+      "source_refs": [
+        {
+          "family": "F20",
+          "source": "L §7–10"
+        },
+        {
+          "family": "F21",
+          "source": "L §7–10"
+        }
+      ],
+      "interface_status": "existing_rtl_ports",
+      "level": "integration",
+      "inputs": [
+        "Per-class/VC packet admissions and body words plus physical egress readiness"
+      ],
+      "outputs": [
+        "One complete packet stream per physical egress and exact queue-owned reservation/release diagnostics"
+      ],
+      "phase": "existing_source_not_full_protocol_signoff",
+      "existence_at_inventory": true,
+      "external_dependencies": [],
+      "port_source": "rtl/switch/switch_egress_pipeline.v",
+      "integration_parents": [
+        "switch_core",
+        "ualink_switch_top"
+      ],
+      "functional_inputs": [
+        "Header/body packets classified by egress, Request/Response and VC"
+      ],
+      "functional_outputs": [
+        "Actual bounded storage through packet-locking scheduler with one final-beat release"
+      ],
+      "functional_interface_status": "queue_scheduler_pipeline_without_standard_tl_classifier_repack_switch_top_or_process_sta"
     }
   ],
   "software_modules": [
@@ -12274,7 +12322,7 @@
     "Implementation order: all module ownership and hierarchy -> per-module contract/function -> adjacent interface integration -> full traffic/coverage/signoff."
   ],
   "counts": {
-    "existing_rtl": 97,
+    "existing_rtl": 98,
     "planned_rtl": 123,
     "software_planned": 13,
     "external_boundaries": 4
