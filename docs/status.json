@@ -1487,7 +1487,7 @@
   },
   "last_verified_remote_branch": {
     "branch": "work/tl-receive-credit",
-    "commit": "1f917a1381277a080a700849d638d39b766c665a"
+    "commit": "222818783cffe75e88cf297414af30a3d780e8f7"
   },
   "production_transmit_mapped_correspondence": {
     "complete": true,
@@ -1577,7 +1577,7 @@
     ],
     "actual_mapped_reset_queries": 4,
     "actual_cursor_queries": 4,
-    "mapped_correspondence_complete": false,
+    "mapped_correspondence_complete": true,
     "macro_signoff": false,
     "full_goal_complete": false,
     "rtl_sources": {
@@ -1586,10 +1586,14 @@
       "rtl/tl/tl_tx_channels.v": "819d9cb5cff51e3ad9f2513d056bc84c7394e7ca5f33a878925cbc406cc373b1"
     },
     "evidence_manifest": "build/verification/tl_tx_qualification/rtl_checkpoint_manifest.json",
-    "running_stages": [
-      "qualification_reuse_partitions"
-    ],
+    "running_stages": [],
     "physical_evidence": "build/verification/tl_tx_prepared/qualification_reuse_physical/evidence.json",
-    "actual_mapped_dormant_queries": 4
+    "actual_mapped_dormant_queries": 4,
+    "mapped_correspondence_evidence": "build/verification/tl_tx_prepared/qualification_reuse_mapped_correspondence_evidence.json",
+    "normal_and_optimized_mapped_audit": true,
+    "mapped_partition_count": 12,
+    "actual_mapped_fault_detections": 6,
+    "mapped_auditor_checks": 31,
+    "source_checkpoint": "222818783cffe75e88cf297414af30a3d780e8f7"
   }
 }

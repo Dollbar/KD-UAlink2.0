@@ -1,5 +1,5 @@
 """Run python3 verification/tl_tx_prepared/check_mapped_correspondence.py
-[--output PATH]. Audit complete actual output/next-state CEC, reset, cursor
+[--prefix NAME] [--output PATH]. Audit complete actual output/next-state CEC, reset, cursor
 closure, dormant payload and real mapped fault evidence. Writes evidence.json.
 Next repair physical timing and continue full payload/final dual-IP obligations.
 """
@@ -16,6 +16,30 @@ from run_partitioned_cec import outcome
 
 BASE = ROOT / 'build/verification/tl_tx_prepared'
 
+ROLE_SUFFIXES = {
+    'physical_baseline': 'physical', 'mapped_pair': 'pair',
+    'encoded_step_techmapped': 'encoded', 'explicit_wide_partition': 'partitions',
+    'independent_reset': 'reset', 'cursor_relation': 'cursor',
+    'dormant_capture': 'dormant', 'actual_reset_fault': 'reset_fault',
+    'actual_capture_fault': 'capture_fault', 'actual_partition_fault': 'partition_fault',
+}
+
+
+def configure_stages(prefix):
+    if prefix is None:
+        return {role: role for role in ROLE_SUFFIXES}
+    need(isinstance(prefix, str) and prefix.replace('_', '').replace('-', '').isalnum(),
+         'invalid evidence prefix')
+    return {role: prefix + '_' + suffix for role, suffix in ROLE_SUFFIXES.items()}
+
+
+STAGES = configure_stages(None)
+
+
+def stage(role):
+    return BASE / STAGES[role]
+
+
 
 def read(path):
     return json.loads(path.read_text())
@@ -28,18 +52,18 @@ def hashes(folder, entries):
 
 
 def sat(folder, row, positive=True):
-    scope = folder.parent.name
+    scope = next((role for role, name in STAGES.items() if name == folder.parent.name), None)
     width = folder.name.split('_')[0]
     need(width in ('w8', 'w16'), 'unknown SAT width')
     if scope == 'independent_reset':
         side = folder.name.split('_')[1]
         need(side in ('gold', 'gate') and positive, 'wrong reset proof scope')
-        source, stem, top, show = BASE / f'mapped_pair/{width}/{side}_cut.json', 'reset', 'reset_step', ''
+        source, stem, top, show = stage('mapped_pair') / f'{width}/{side}_cut.json', 'reset', 'reset_step', ''
     elif scope in ('dormant_capture', 'cursor_relation'):
         need(positive and folder.name.split('_')[1] in ('lane0', 'lane1'), 'wrong state proof scope')
         side = 'gate' if scope == 'dormant_capture' else 'gold'
         stem = 'dormant' if scope == 'dormant_capture' else 'cursor'
-        source, top, show = BASE / f'mapped_pair/{width}/{side}_cut.json', stem + '_step', ''
+        source, top, show = stage('mapped_pair') / f'{width}/{side}_cut.json', stem + '_step', ''
     elif scope in ('actual_reset_fault', 'actual_capture_fault'):
         need(not positive, 'negative mapped proof required')
         source = folder / 'cut.json'
@@ -77,7 +101,7 @@ def audit_parts(row, networks, folder):
 
 
 def actual_pair(width):
-    folder = BASE / f'mapped_pair/w{width}'
+    folder = stage('mapped_pair') / f'w{width}'
     layouts, graphs = {}, {}
     for side in ('gold', 'gate'):
         layouts[side] = read(folder / f'{side}_state.json')
@@ -101,12 +125,12 @@ def cursor_text(graph, layout, lane):
 
 
 def audit_fault(label, width, healthy):
-    folder = BASE / label / f'w{width}'
-    record = read(BASE / label / 'results.json')
+    folder = stage(label) / f'w{width}'
+    record = read(stage(label) / 'results.json')
     row = next(r for r in record['results'] if r['width'] == width)
     need(record['complete'] and row['detected'] and row['prepare']['exit'] == 0, 'incomplete mapped fault')
     mutation = read(folder / 'mutation.json')
-    source = BASE / f'physical_baseline/w{width}/mapped.json'
+    source = stage('physical_baseline') / f'w{width}/mapped.json'
     need(sha(source) == mutation['source_sha256'], 'mapped mutant source changed')
     original = read(source)['modules']['tl_tx_prepared']
     changed = read(folder / 'mapped_fault.json')['modules']['tl_tx_prepared']
@@ -150,31 +174,34 @@ def audit_fault(label, width, healthy):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--output', type=Path, default=BASE / 'mapped_correspondence_evidence.json')
+    parser.add_argument('--prefix')
+    parser.add_argument('--output', type=Path)
     args = parser.parse_args()
-    matrix = read(BASE / 'explicit_wide_partition/results.json')
+    STAGES.update(configure_stages(args.prefix))
+    output = args.output or BASE / ((args.prefix + '_' if args.prefix else '') + 'mapped_correspondence_evidence.json')
+    matrix = read(stage('explicit_wide_partition') / 'results.json')
     need(matrix['complete'] and set(matrix['widths']) == {'8', '16'}, 'complete two-width matrix required')
-    reset, dormant, cursor = [read(BASE / label / 'results.json') for label in ('independent_reset', 'dormant_capture', 'cursor_relation')]
+    reset, dormant, cursor = [read(stage(label) / 'results.json') for label in ('independent_reset', 'dormant_capture', 'cursor_relation')]
     for report in (reset, dormant, cursor):
         need(report['complete'] and len(report['results']) == 4 and all(r['passed'] for r in report['results']), 'incomplete sequential relation matrix')
-    encoded = read(BASE / 'encoded_step_techmapped/results.json')
-    pair_record = read(BASE / 'mapped_pair/results.json')
+    encoded = read(stage('encoded_step_techmapped') / 'results.json')
+    pair_record = read(stage('mapped_pair') / 'results.json')
     hashes(ROOT, pair_record['sources'])
     need(sha(Path(pair_record['library']['path'])) == pair_record['library']['sha256'], 'actual mapped library changed')
     evidence = dict(complete=False, scope='binary post-reset actual standard-cell equivalence with common arbitrary SRAM read values',
-                    results=[], reset_queries=4, cursor_queries=4, dormant_queries=4,
+                    stages=dict(STAGES), results=[], reset_queries=4, cursor_queries=4, dormant_queries=4,
                     actual_reset_faults=2, actual_capture_faults=2, actual_partition_faults=2,
                     mapped_equivalence=False, macro_signoff=False, full_goal_complete=False)
     for width in (8, 16):
         layouts, graphs = actual_pair(width)
         paired = next(r for r in pair_record['results'] if r['width'] == width)
-        need(sha(BASE / f'mapped_pair/w{width}/mapped.v') == paired['netlist_sha256'] ==
-             sha(BASE / f'physical_baseline/w{width}/mapped.v'), 'actual physical netlist identity changed')
+        need(sha(stage('mapped_pair') / f'w{width}/mapped.v') == paired['netlist_sha256'] ==
+             sha(stage('physical_baseline') / f'w{width}/mapped.v'), 'actual physical netlist identity changed')
         original_row = next(r for r in encoded['results'] if r['width'] == width)
         hashes(ROOT, original_row['sources'])
-        codebook = relation(layouts['gold'], layouts['gate'], (BASE / f'physical_baseline/w{width}/map.log').read_text())
+        codebook = relation(layouts['gold'], layouts['gate'], (stage('physical_baseline') / f'w{width}/map.log').read_text())
         networks = {}
-        source = BASE / f'encoded_step_techmapped/w{width}'
+        source = stage('encoded_step_techmapped') / f'w{width}'
         hashes(source, matrix['widths'][str(width)]['sources'])
         for side in ('gold', 'gate'):
             need((source / f'{side}.sv').read_text() == wrapper(side, graphs[side]['ports'], layouts['gold'], layouts['gate'], codebook),
@@ -183,33 +210,33 @@ def main():
             networks[side] = Network((source / f'{side}_pruned.blif').read_text())
             audit_partition(raw, networks[side], raw.outputs)
             row = next(r for r in reset['results'] if r['width'] == width and r['side'] == side)
-            folder = BASE / f'independent_reset/w{width}_{side}'
-            hashes(BASE / f'mapped_pair/w{width}', row['source_hashes'])
+            folder = stage('independent_reset') / f'w{width}_{side}'
+            hashes(stage('mapped_pair') / f'w{width}', row['source_hashes'])
             observed, excluded = reset_inventory(layouts[side], side)
             need(row['observed_state_bits'] == len(observed) and row['independent_dormant_payload_bits'] == len(excluded), 'reset coverage changed')
             need((folder / 'reset.v').read_text() == reset_wrapper(side, graphs[side], layouts[side], observed), 'reset wrapper changed')
             sat(folder, row)
         need(set(networks['gold'].inputs) == set(networks['gate'].inputs) and set(networks['gold'].outputs) == set(networks['gate'].outputs), 'full encoded interface mismatch')
-        parts = audit_parts(matrix['widths'][str(width)], networks, BASE / f'explicit_wide_partition/w{width}')
+        parts = audit_parts(matrix['widths'][str(width)], networks, stage('explicit_wide_partition') / f'w{width}')
         for lane in (0, 1):
             row = next(r for r in dormant['results'] if r['width'] == width and r['lane'] == lane)
-            folder = BASE / f'dormant_capture/w{width}_lane{lane}'
-            hashes(BASE / f'mapped_pair/w{width}', row['source_hashes'])
+            folder = stage('dormant_capture') / f'w{width}_lane{lane}'
+            hashes(stage('mapped_pair') / f'w{width}', row['source_hashes'])
             need((folder / 'dormant.v').read_text() == dormant_wrapper(graphs['gate'], layouts['gate'], lane), 'dormant proof wrapper changed')
             sat(folder, row)
             row = next(r for r in cursor['results'] if r['width'] == width and r['lane'] == lane)
-            folder = BASE / f'cursor_relation/w{width}_lane{lane}'
+            folder = stage('cursor_relation') / f'w{width}_lane{lane}'
             need((folder / 'cursor.v').read_text() == cursor_text(graphs['gold'], layouts['gold'], lane), 'cursor domain proof changed')
             sat(folder, row)
         for label in ('actual_reset_fault', 'actual_capture_fault'):
             audit_fault(label, width, layouts['gate'])
-        fault = read(BASE / 'actual_partition_fault/results.json')
+        fault = read(stage('actual_partition_fault') / 'results.json')
         row = next(r for r in fault['results'] if r['width'] == width)
-        need(fault['complete'] and row['detected'] and outcome(row['proof'], (BASE / f'actual_partition_fault/w{width}/cec.log').read_text()) == 'different', 'actual partition fault not detected')
+        need(fault['complete'] and row['detected'] and outcome(row['proof'], (stage('actual_partition_fault') / f'w{width}/cec.log').read_text()) == 'different', 'actual partition fault not detected')
         hashes(ROOT, row['source_hashes'])
-        folder = BASE / f'actual_partition_fault/w{width}'
-        mutated_graph = read(BASE / f'actual_reset_fault/w{width}/cut.json')['modules']['step_gate']
-        mutated_layout = read(BASE / f'actual_reset_fault/w{width}/state.json')
+        folder = stage('actual_partition_fault') / f'w{width}'
+        mutated_graph = read(stage('actual_reset_fault') / f'w{width}/cut.json')['modules']['step_gate']
+        mutated_layout = read(stage('actual_reset_fault') / f'w{width}/state.json')
         need((folder / 'gate.v').read_text() == wrapper('gate', mutated_graph['ports'], layouts['gold'], mutated_layout, codebook), 'actual CEC fault wrapper changed')
         index = layouts['gate']['aliases']['Buffered_Inst.Channels_Inst.Packer_Inst.r_prefer_fc'][0]
         need(row['outputs'] == [f'c_next[{index}]'], 'actual fault observation changed')
@@ -219,7 +246,7 @@ def main():
                                         public_macro_output_bits=4144, actual_gold_state_bits=layouts['gold']['state_bits'],
                                         actual_gate_state_bits=layouts['gate']['state_bits']))
     evidence.update(complete=True, mapped_equivalence=True)
-    dump(args.output, evidence)
+    dump(output, evidence)
     print(json.dumps(evidence, indent=2))
     return 0
 

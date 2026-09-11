@@ -1,4 +1,6 @@
 """Run python3 verification/tl_tx_prepared/run_partition_fault.py --label NEW_LABEL
+[--pair mapped_pair] [--physical physical_baseline]
+[--reset-fault actual_reset_fault] [--encoded encoded_step_techmapped]
 [--widths 8 16]. Reuse the actual one-D-pin mutants from actual_reset_fault,
 derive their encoded next state, and qualify the exact output-cone CEC path.
 Outputs source-bound BLIF partitions and actual mismatch logs. Next finish the
@@ -16,9 +18,14 @@ from run_partitioned_cec import outcome
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--label', required=True)
+    parser.add_argument('--pair', default='mapped_pair')
+    parser.add_argument('--physical', default='physical_baseline')
+    parser.add_argument('--reset-fault', default='actual_reset_fault')
+    parser.add_argument('--encoded', default='encoded_step_techmapped')
     parser.add_argument('--widths', type=int, nargs='+', choices=(8, 16), default=[8, 16])
     args = parser.parse_args()
-    need(args.label.replace('_', '').replace('-', '').isalnum(), 'invalid label')
+    for label in (args.label, args.pair, args.physical, args.reset_fault, args.encoded):
+        need(label.replace('_', '').replace('-', '').isalnum(), 'invalid label')
     need(len(args.widths) == len(set(args.widths)), 'duplicate widths')
     base = ROOT / 'build/verification/tl_tx_prepared'
     stage = base / args.label
@@ -27,13 +34,13 @@ def main():
     result = dict(complete=False, scope='actual mapped reset-D mutant detected by exact partition CEC',
                   results=[], mapped_equivalence=False, full_goal_complete=False)
     for width in args.widths:
-        source = base / f'actual_reset_fault/w{width}'
-        pair = base / f'mapped_pair/w{width}'
+        source = base / args.reset_fault / f'w{width}'
+        pair = base / args.pair / f'w{width}'
         folder = stage / f'w{width}'
         folder.mkdir()
         gold = json.loads((pair / 'gold_state.json').read_text())
         gate = json.loads((source / 'state.json').read_text())
-        mapping_log = base / f'physical_baseline/w{width}/map.log'
+        mapping_log = base / args.physical / f'w{width}/map.log'
         rel = relation(gold, gate, mapping_log.read_text())
         graph = json.loads((source / 'cut.json').read_text())['modules']['step_gate']
         (folder / 'gate.v').write_text(wrapper('gate', graph['ports'], gold, gate, rel))
@@ -42,7 +49,7 @@ def main():
         (folder / 'prepare.ys').write_text(script)
         prepare = execute(['yosys', '-Q', '-T', '-s', str(folder / 'prepare.ys')], folder / 'prepare.log', 120)
         need(prepare['exit'] == 0, 'actual mutant encoded emission failed')
-        healthy = base / f'encoded_step_techmapped/w{width}/gold.blif'
+        healthy = base / args.encoded / f'w{width}/gold.blif'
         original = Network(healthy.read_text())
         mutant = Network((folder / 'gate_raw.blif').read_text())
         need(set(original.inputs) == set(mutant.inputs) and set(original.outputs) == set(mutant.outputs),

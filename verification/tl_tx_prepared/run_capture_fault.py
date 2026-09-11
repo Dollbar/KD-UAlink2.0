@@ -1,5 +1,5 @@
 """Run python3 verification/tl_tx_prepared/run_capture_fault.py --label NEW_LABEL
-[--widths 8 16]. Mutate one actual mapped preparation payload FF D pin to the
+[--pair mapped_pair] [--physical physical_baseline] [--widths 8 16]. Mutate one actual mapped preparation payload FF D pin to the
 neighboring old payload Q. Prove the dormant/capture checker detects this real
 failure with independent old payloads at an actual capture. Outputs complete
 mapped mutation, D/Q inventories and SAT witnesses; next audit proof composition.
@@ -16,12 +16,15 @@ from mapped_state import observe
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--label', required=True)
+    parser.add_argument('--pair', default='mapped_pair')
+    parser.add_argument('--physical', default='physical_baseline')
     parser.add_argument('--widths', type=int, nargs='+', choices=(8, 16), default=[8, 16])
     args = parser.parse_args()
-    need(args.label.replace('_', '').replace('-', '').isalnum(), 'invalid label')
+    for label in (args.label, args.pair, args.physical):
+        need(label.replace('_', '').replace('-', '').isalnum(), 'invalid label')
     need(len(args.widths) == len(set(args.widths)), 'duplicate widths')
     base = ROOT / 'build/verification/tl_tx_prepared'
-    physical = base / 'physical_baseline'
+    physical = base / args.physical
     baseline = json.loads((physical / 'results.json').read_text())
     library = Path(baseline['libraries']['ssg0p81v125c']['path'])
     need(sha(library) == baseline['libraries']['ssg0p81v125c']['sha256'], 'library changed')
@@ -32,7 +35,7 @@ def main():
     (stage / 'runner.py').write_bytes(Path(__file__).read_bytes())
     (stage / 'dormant_runner.py').write_bytes(Path(__file__).with_name('run_dormant_state.py').read_bytes())
     result = dict(complete=False, scope='actual mapped payload-D fault qualification for dormant/capture proof',
-                  library_sha256=sha(library), results=[], mapped_equivalence=False, full_goal_complete=False)
+                  pair=args.pair, physical=args.physical, library_sha256=sha(library), results=[], mapped_equivalence=False, full_goal_complete=False)
     field = 'gen_prepare[0].Prepare_Inst.r_control'
     for width in args.widths:
         folder = stage / f'w{width}'
@@ -61,7 +64,7 @@ def main():
         dump(stage / 'results.json', result)
         need(prepare['exit'] == 0, 'actual payload mutant preparation failed')
         graph = json.loads((folder / 'observed.json').read_text())['modules']['tl_tx_prepared']
-        healthy = json.loads((base / f'mapped_pair/w{width}/gate_state.json').read_text())
+        healthy = json.loads((base / args.pair / f'w{width}/gate_state.json').read_text())
         cut, layout = observe(graph, list(healthy['aliases']))
         audit_cut(graph, cut, layout)
         need(layout['aliases'] == healthy['aliases'], 'fault changed actual state layout')
