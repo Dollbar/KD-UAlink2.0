@@ -1,12 +1,14 @@
 # KD-UAlink2.0
 
-UALink Endpoint / Controller 与 Switch 数字 RTL 研发工程，目标为 Common 2.0 与 200G DL/PL 2.0，面向 TSMC 28 nm ASIC 流程。当前处于分层 RTL 集成阶段，尚未形成完整可交付 IP，也未完成全顶层工艺时序收敛。
+UALink Endpoint / Controller 与 Switch 数字 RTL 研发工程，目标为 Common 2.0 与 200G DL/PL 2.0，面向 TSMC 28 nm ASIC 流程。现已提供 Endpoint/Switch 研发顶层和完整规划模块骨架；协议功能、逐层衔接和工艺时序仍在完善，尚未达到完整 IP 签核。
 
 ## 工程结构
 
 | 目录 | 内容 |
 |---|---|
-| `rtl/{upli,dl,tl,phy}` | 当前工作 RTL 与各层依赖 |
+| `rtl/{endpoint,switch}` | Endpoint/Switch 顶层及事务/交换模块 |
+| `rtl/{upli,dl,tl,phy,station}` | 链路、传输与 station 模块 |
+| `rtl/{inc,security,management,ras,common,scaffold}` | 完整规划服务模块与显式未实现接口壳 |
 | `model/ualink` | UPLI、DL 与配置参考模型 |
 | `model/{tl,phy}` | TL 信用/字段/存储与 RS 参考模型 |
 | `verification/` | 模型、真实 RTL、双端通信、形式验证与工具测试 |
@@ -37,6 +39,16 @@ make clean
 每个 RTL 脚本也可单独运行，使用 `--help` 查看参数。保留验证证据时，请使用新的 `--label` 或干净导出副本；部分脚本拒绝覆盖已有目录。`make clean` 会删除本地验证结果。已有 UPLI 单模块入口保留，例如 `make sim-connection`，其工艺分析需显式提供 `LIB_ROOT`。
 
 ## 当前状态
+
+优先交付的[Endpoint/Switch 顶层](docs/ip_top_bringup.md)已可构建并运行实际两端通信。模块清单中 202 个 RTL 条目均有源码：57 个已有部分实现、145 个明确标识的接口壳；两套顶层均实例化相应预留层级。结构检查、通用逻辑综合及 Endpoint→Switch→Endpoint 正常/重放回归通过。Switch 目前为显式目标侧带的数字 fabric，标准逐跳 TL/DL、完整事务、PHY、INC、安全与管理仍须实现。模块存在不代表功能完成。
+
+```sh
+make ip-structure IP_RUN_LABEL=fresh_structure
+make ip-top-smoke KD28_ROOT=/authorized/path IP_RUN_LABEL=fresh_system
+make ip-top-synth KD28_ROOT=/authorized/path IP_RUN_LABEL=fresh_synth
+```
+
+模块职责、状态和依赖见[完整清单](docs/ip_module_inventory.md)，机器可读定义见[库存](config/ip_module_inventory.json)。
 
 实际固定 SRAM 映射新增 95/96 配置的宏引脚与整字 bank 选择归纳，另有 96/96 生产参数行为回归、2,362,336 次整字比较及 24 组实际 FIFO/mapper/功能宏包装器接线检查。600-bit、深度 65,535 的形式查询仍因资源时限未完成；不计通过，也不阻塞真实端点事务实施。宏 Q 在引脚证明中为任意输入，行为仿真和接线检查分开成立；尚无完整 TL 联合载荷归纳及真实宏签核。详见[映射证据](docs/sram_storage_mapping_evidence.json)。
 

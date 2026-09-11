@@ -2,6 +2,16 @@
 
 更新时间：2026-09-11。完整 Endpoint/Controller 与 Switch 数字 RTL IP 的 Goal 仍在进行；本次整理没有改变交付完成条件。
 
+优先交付的[Endpoint/Switch 顶层](ip_top_bringup.md)已可构建并运行实际两端通信。模块清单中 202 个 RTL 条目均有源码：57 个已有部分实现、145 个明确标识的接口壳；两套顶层均实例化相应预留层级。结构检查、通用逻辑综合及 Endpoint→Switch→Endpoint 正常/重放回归通过。Switch 目前为显式目标侧带的数字 fabric，标准逐跳 TL/DL、完整事务、PHY、INC、安全与管理仍须实现。模块存在不代表功能完成。
+
+```sh
+make ip-structure IP_RUN_LABEL=fresh_structure
+make ip-top-smoke KD28_ROOT=/authorized/path IP_RUN_LABEL=fresh_system
+make ip-top-synth KD28_ROOT=/authorized/path IP_RUN_LABEL=fresh_synth
+```
+
+模块职责、状态和依赖见[完整清单](ip_module_inventory.md)，机器可读定义见[库存](../config/ip_module_inventory.json)。
+
 本轮新增[实际 TL/DL 跨层集成](endpoint_link_integration_review.md)：7 组正常配置、4 项真实接线故障全部达到预期；2,686 个唯一 TL 记录全部交付、2,313 次 SRAM 退休、66 次 DL 重放、双向序号环回完成，普通/优化 Python 检查一致。Request/Response 仍为独立测试源，尚无真实 completer/Tag 关联，测试的 520-bit DL 槽也不是标准 framing。
 
 实际固定 SRAM 映射新增 95/96 配置的宏引脚与整字 bank 选择归纳，另有 96/96 生产参数行为回归、2,362,336 次整字比较及 24 组实际 FIFO/mapper/功能宏包装器接线检查。600-bit、深度 65,535 的形式查询仍因资源时限未完成；不计通过，也不阻塞真实端点事务实施。宏 Q 在引脚证明中为任意输入，行为仿真和接线检查分开成立；尚无完整 TL 联合载荷归纳及真实宏签核。详见[映射证据](sram_storage_mapping_evidence.json)。
@@ -17,7 +27,7 @@
 - TL：完整 Flit 验证、发送上下文、共享信用账本、实际双向端口、600 位接收存储和 FC 发布器迁入 `rtl/tl/`。
 - PHY/RS：速率日历、帧控制、块格式化及其集成模块迁入 `rtl/phy/`。这是数字 RS 子集，没有完成 PCS/FEC/SerDes。
 
-当前 RTL 取自已完成对应功能验证的工作候选；放入主源码目录表示继续研发所用基线，不表示产品签核或完整协议实现。源码原始位置和 SHA-256 见 `config/source_provenance.json`。
+原有功能 RTL 保留各自已验证的限定范围；新增顶层与模块壳按 `config/ip_module_inventory.json` 区分部分实现和未实现状态。放入主源码目录不表示产品签核或完整协议实现。历史源码来源见 `config/source_provenance.json`，本轮顶层及结构证据见 `ip_top_evidence.json`。
 
 ## 已完成的阶段验证
 

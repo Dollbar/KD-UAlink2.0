@@ -64,7 +64,7 @@ connection-check:
 .DEFAULT_GOAL := help
 .PHONY: help test rtl-smoke sram-smoke clean clean-dry-run
 help:
-	@echo "test | rtl-smoke | sram-smoke | prepared-tx-smoke KD28_ROOT=/authorized/path | clean-dry-run | clean"
+	@echo "test | rtl-smoke | sram-smoke | prepared-tx-smoke KD28_ROOT=/authorized/path | ip-structure IP_RUN_LABEL=fresh | ip-top-smoke KD28_ROOT=/authorized/path IP_RUN_LABEL=fresh | clean-dry-run | clean"
 test: model
 	mkdir -p "$(ROOT_DIR)/build"
 	cd "$(ROOT_DIR)" && $(PYTHON) -m unittest discover -s verification/tools -p 'test_*.py' -q
@@ -125,3 +125,19 @@ RUN_LABEL ?= endpoint_link
 endpoint-link-regression:
 	@test -n "$(KD28_ROOT)" || { echo "Set KD28_ROOT to the authorized external SRAM repository"; exit 1; }
 	$(PYTHON) "$(ROOT_DIR)/verification/endpoint_link/run_matrix.py" --kd28-root "$(KD28_ROOT)" --label "$(RUN_LABEL)"
+
+# Development Endpoint/Switch structure and actual digital top integration.
+IP_RUN_LABEL ?= ip_tops
+.PHONY: ip-structure ip-top-smoke ip-top-elaborate ip-top-synth
+ip-structure:
+	$(PYTHON) "$(ROOT_DIR)/scripts/check_ip_structure.py" --label "$(IP_RUN_LABEL)"
+ip-top-smoke: ip-structure
+	@test -n "$(KD28_ROOT)" || { echo "Set KD28_ROOT to the authorized external SRAM repository"; exit 1; }
+	$(PYTHON) "$(ROOT_DIR)/verification/ip_tops/run_switch.py" --label "$(IP_RUN_LABEL)"
+	$(PYTHON) "$(ROOT_DIR)/verification/ip_tops/run_link.py" --kd28-root "$(KD28_ROOT)" --label "$(IP_RUN_LABEL)" --ports 4 --inject
+ip-top-elaborate: ip-structure
+	@test -n "$(KD28_ROOT)" || { echo "Set KD28_ROOT to the authorized external SRAM repository"; exit 1; }
+	$(PYTHON) "$(ROOT_DIR)/verification/ip_tops/run_elaboration.py" --kd28-root "$(KD28_ROOT)" --label "$(IP_RUN_LABEL)"
+ip-top-synth: ip-structure
+	@test -n "$(KD28_ROOT)" || { echo "Set KD28_ROOT to the authorized external SRAM repository"; exit 1; }
+	$(PYTHON) "$(ROOT_DIR)/verification/ip_tops/run_elaboration.py" --kd28-root "$(KD28_ROOT)" --label "$(IP_RUN_LABEL)" --synth
