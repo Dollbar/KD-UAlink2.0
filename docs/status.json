@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-11T02:49:08.591676+00:00",
+  "updated": "2026-09-11T02:58:06.221293+00:00",
   "full_goal_complete": false,
   "release_status": "research_not_signoff",
   "historical_artifacts_retained": false,
@@ -1720,6 +1720,24 @@
     "ownership_configurations": 27,
     "power_evaluated": false,
     "evidence": "docs/tl_tx_header_visibility_evidence.json",
-    "full_top_cdc_rdc_complete": false
+    "full_top_cdc_rdc_complete": false,
+    "applies_to_current_rtl": false
+  },
+  "fifo_issue_selection": {
+    "adopted": false,
+    "review": "docs/tl_fifo_issue_selection_review.md",
+    "plan": "docs/tl_fifo_issue_selection_plan.md",
+    "baseline_commit": "6f10b33539624664cc4231bbb681e7b1d62dc401",
+    "candidate_fifo_sha256": "3348d06961770df6da9e10e44077624e6b160312254b72bdc5a9240fe7ff3b06",
+    "fifo_composition_configurations": 36,
+    "fifo_reset_queries": 72,
+    "unit_configurations": 36,
+    "peer_configurations": 32,
+    "identical_peer_trace_files": 128,
+    "prechange_fault_detections": 6,
+    "candidate_fault_detections": 12,
+    "physical_complete": false,
+    "current_mapped_equivalence": false,
+    "full_goal_complete": false
   }
 }

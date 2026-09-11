@@ -37,7 +37,7 @@ module upli_receive_fifo #( // 同步复位及双读缓存的 SRAM FIFO 控制�
     reg [C_DATA_WIDTH-1:0] reg_head, reg_tail; // 独立保存可消费队首和后一缓存字。
     wire flag_write, flag_consume, flag_issue; // 本沿写入、消费及新读预约事件。
     wire [1:0] survivors, cached_next; // 消费后幸存缓存和接收旧读结果后的缓存数量。
-    wire [2:0] reserved; // 三位预约计算避免缓存数量加法回绕。
+    wire flag_space_now, flag_space_after_consume; // 提前按缓存和在途数量判断槽位，消费仅选择最终预取资格。
     assign o_write_ready = i_rstn && (cnt_total < C_CAPACITY); // 不借用同拍消费产生的新空间。
     assign o_read_valid = cnt_cached != 2'd0; // 同步缓存有效性不取决于当前读准备信号。
     assign o_read_data = ((C_ZERO_INVALID==0) || o_read_valid) ? reg_head : {C_DATA_WIDTH{1'b0}}; // 默认屏蔽无效字，内部模式仅提供保留字给资格计算。
@@ -45,8 +45,9 @@ module upli_receive_fifo #( // 同步复位及双读缓存的 SRAM FIFO 控制�
     assign flag_write = o_write_ready && i_write_valid; // 仅真实写握手推进地址和计数。
     assign flag_consume = i_rstn && o_read_valid && i_read_ready; // 复位及空缓存不产生消费。
     assign survivors = cnt_cached - {1'b0, flag_consume}; // 消费存在的队首后剩余零至两个字。
-    assign reserved = {1'b0, survivors} + {2'b00, reg_pending}; // 为此前已发出的读结果保留一个位置。
-    assign flag_issue = i_rstn && (cnt_unread != {C_COUNT_WIDTH{1'b0}}) && (reserved < 3'd2); // 至少剩余一个已预约安全槽才发新读。
+    assign flag_space_now = (cnt_cached == 2'd0) || ((cnt_cached == 2'd1) && !reg_pending); // 不消费时，旧缓存与在途结果合计小于两个槽才有空位。
+    assign flag_space_after_consume = (cnt_cached == 2'd1) || ((cnt_cached == 2'd2) && !reg_pending); // 消费一个有效字后仍为旧读结果预留位置，非法三字状态不借槽。
+    assign flag_issue = i_rstn && (cnt_unread != {C_COUNT_WIDTH{1'b0}}) && (flag_space_now || (flag_consume && flag_space_after_consume)); // 迟到的消费事件只选择预先计算的安全预取资格。
     assign cached_next = survivors + {1'b0, reg_pending}; // 旧读结果本沿完成后才成为可消费数据。
     assign o_sram_write_cs = flag_write; // 后端不会收到未接受的写请求。
     assign o_sram_write_addr = reg_write_addr; // 后端地址与真实写握手同沿采样。

@@ -38,6 +38,8 @@ make clean
 
 ## 当前状态
 
+当前研发候选正在检查 [FIFO 预取资格选择](docs/tl_fifo_issue_selection_review.md)，尚未采用；下述完整工艺与映射结论对应已采用的 Header visibility 基线 `6f10b33`。
+
 实际 TL 链路已接入接收 SRAM 退休、信用发布与准入、半 Flit 打包、Request/Response 选择、发送 SRAM 队列和完整 Control 源组捕获。生产顶层 `tl_tx_prepared` 的 32 组双端配置通过，1,536 源组、5,248 分组和 6,912 字段完整到达；36 组单位配置、22 项接线故障与 8 项带负载复位故障检查通过。
 
 生产发送组合的 WIDTH 8～16 × HEADER_DEPTH 1/2/3 共 27 配置，每组 35 项所有权/头部队列守恒断言完成无界归纳。该结论使用任意 SRAM 读值，不代表完整载荷形式证明。
