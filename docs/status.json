@@ -1487,7 +1487,7 @@
   },
   "last_verified_remote_branch": {
     "branch": "work/tl-receive-credit",
-    "commit": "222818783cffe75e88cf297414af30a3d780e8f7"
+    "commit": "6839cac6a0e789fdef41787ae6da3e8546e896b2"
   },
   "production_transmit_mapped_correspondence": {
     "complete": true,
@@ -1595,5 +1595,53 @@
     "actual_mapped_fault_detections": 6,
     "mapped_auditor_checks": 31,
     "source_checkpoint": "222818783cffe75e88cf297414af30a3d780e8f7"
+  },
+  "transmit_ready_selection_experiment": {
+    "review": "docs/tl_tx_ready_selection_review.md",
+    "adopted": false,
+    "rtl_restored_to": "6839cac6a0e789fdef41787ae6da3e8546e896b2",
+    "reason": "Both widths regress in area and worst setup",
+    "rtl_equivalence_configurations": 9,
+    "independent_reset_queries": 18,
+    "identity_queries": 2,
+    "identity_counterexamples": 2,
+    "actual_rtl_mutant_detections": 2,
+    "channel_vectors": 1258,
+    "channel_unit_fault_detections": 16,
+    "channel_peer_fault_detections": 64,
+    "production_unit_configurations": 36,
+    "production_unit_cycles": 5760,
+    "actual_peer_configurations": 32,
+    "byte_identical_traces": 128,
+    "production_wire_fault_detections": 22,
+    "ownership_configurations": 27,
+    "ownership_properties_per_configuration": 35,
+    "normal_and_optimized_audits": true,
+    "physical_measurements": 60,
+    "main_closed": 0,
+    "reference_closed": 26,
+    "candidate_mapped_equivalence": false,
+    "macro_signoff": false,
+    "candidate_results_apply_to_current_rtl": false,
+    "full_goal_complete": false,
+    "measurements": [
+      {
+        "width": 8,
+        "cells": 69012,
+        "ff_cells": 6254,
+        "area_um2": 44770.698,
+        "worst_setup_ns": -1.859017,
+        "worst_hold_ns": -0.008036
+      },
+      {
+        "width": 16,
+        "cells": 71181,
+        "ff_cells": 6574,
+        "area_um2": 47464.452,
+        "worst_setup_ns": -1.953218,
+        "worst_hold_ns": -0.008036
+      }
+    ],
+    "next_plan": "docs/tl_tx_header_visibility_plan.md"
   }
 }
