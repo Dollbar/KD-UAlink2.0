@@ -11,7 +11,7 @@ end endgenerate // 参数合法性检查结束
 wire [1:0] status;wire [3:0] unused_fields;wire [31:0] w_counts;wire [7:0] unused_be; // 规范字段附带数量
 wire [7:0] unused_count_lsb; // 每字段半Flit计数的最低位不参与完整Beat信用计算
 assign unused_count_lsb={w_counts[28],w_counts[24],w_counts[20],w_counts[16],w_counts[12],w_counts[8],w_counts[4],w_counts[0]}; // 明确收集独立解码器接口中有意未使用的奇偶位
-wire valid;wire [2:0] unused_requests;wire [3:0] unused_responses;wire [7:0] unused_starts,w_req,w_rsp;wire [39:0] w_slots; // 字段位置及归属
+wire valid;wire [2:0] unused_requests;wire [3:0] unused_responses;wire [7:0] unused_starts,w_req,w_rsp;wire [15:0] field_vc;wire [7:0] field_pool; // 各字段保留原VC与Pool，直接匹配固定账户
 wire eligible_format; // 未决及无效tenure均不得准入
 assign eligible_format=valid&&(status==2'd0); // 未决及无效tenure均不得准入
 wire [19:0] available_fit,capacity_fit; // 所有物理槽共同满足才准入
@@ -22,66 +22,54 @@ wire [1:0] w_vc0; // sector0字段VC
 assign w_vc0=(i_half[127:124]==4'd1)?i_half[117:116]:((i_half[63:60]==4'd2)?i_half[59:58]:(i_half[63:60]==4'd3)?i_half[56:55]:i_half[27:26]); // sector0字段VC
 wire w_pool0; // sector0字段Pool
 assign w_pool0=(i_half[127:124]==4'd1)?i_half[102]:((i_half[63:60]==4'd2)?i_half[46]:(i_half[63:60]==4'd3)?i_half[41]:i_half[14]); // sector0字段Pool
-wire [2:0] w_lane0; // Pool或专用VC
-assign w_lane0=w_pool0?3'd0:({1'b0,w_vc0}+3'd1); // Pool或专用VC
-assign w_slots[0+:5]=(w_req[0]?5'd10:5'd15)+{2'd0,w_lane0}; // 请求与响应Data类
+assign field_vc[0+:2]=w_vc0;assign field_pool[0]=w_pool0; // 第0字段按原始VC和Pool属性匹配固定槽
 wire [1:0] w_vc1; // sector1字段VC
 assign w_vc1=i_half[59:58]; // sector1字段VC
 wire w_pool1; // sector1字段Pool
 assign w_pool1=i_half[46]; // sector1字段Pool
-wire [2:0] w_lane1; // Pool或专用VC
-assign w_lane1=w_pool1?3'd0:({1'b0,w_vc1}+3'd1); // Pool或专用VC
-assign w_slots[5+:5]=(w_req[1]?5'd10:5'd15)+{2'd0,w_lane1}; // 请求与响应Data类
+assign field_vc[2+:2]=w_vc1;assign field_pool[1]=w_pool1; // 第1字段按原始VC和Pool属性匹配固定槽
 wire [1:0] w_vc2; // sector2字段VC
 assign w_vc2=(i_half[127:124]==4'd2)?i_half[123:122]:(i_half[127:124]==4'd3)?i_half[120:119]:i_half[91:90]; // sector2字段VC
 wire w_pool2; // sector2字段Pool
 assign w_pool2=(i_half[127:124]==4'd2)?i_half[110]:(i_half[127:124]==4'd3)?i_half[105]:i_half[78]; // sector2字段Pool
-wire [2:0] w_lane2; // Pool或专用VC
-assign w_lane2=w_pool2?3'd0:({1'b0,w_vc2}+3'd1); // Pool或专用VC
-assign w_slots[10+:5]=(w_req[2]?5'd10:5'd15)+{2'd0,w_lane2}; // 请求与响应Data类
+assign field_vc[4+:2]=w_vc2;assign field_pool[2]=w_pool2; // 第2字段按原始VC和Pool属性匹配固定槽
 wire [1:0] w_vc3; // sector3字段VC
 assign w_vc3=i_half[123:122]; // sector3字段VC
 wire w_pool3; // sector3字段Pool
 assign w_pool3=i_half[110]; // sector3字段Pool
-wire [2:0] w_lane3; // Pool或专用VC
-assign w_lane3=w_pool3?3'd0:({1'b0,w_vc3}+3'd1); // Pool或专用VC
-assign w_slots[15+:5]=(w_req[3]?5'd10:5'd15)+{2'd0,w_lane3}; // 请求与响应Data类
+assign field_vc[6+:2]=w_vc3;assign field_pool[3]=w_pool3; // 第3字段按原始VC和Pool属性匹配固定槽
 wire [1:0] w_vc4; // sector4字段VC
 assign w_vc4=(i_half[255:252]==4'd1)?i_half[245:244]:((i_half[191:188]==4'd2)?i_half[187:186]:(i_half[191:188]==4'd3)?i_half[184:183]:i_half[155:154]); // sector4字段VC
 wire w_pool4; // sector4字段Pool
 assign w_pool4=(i_half[255:252]==4'd1)?i_half[230]:((i_half[191:188]==4'd2)?i_half[174]:(i_half[191:188]==4'd3)?i_half[169]:i_half[142]); // sector4字段Pool
-wire [2:0] w_lane4; // Pool或专用VC
-assign w_lane4=w_pool4?3'd0:({1'b0,w_vc4}+3'd1); // Pool或专用VC
-assign w_slots[20+:5]=(w_req[4]?5'd10:5'd15)+{2'd0,w_lane4}; // 请求与响应Data类
+assign field_vc[8+:2]=w_vc4;assign field_pool[4]=w_pool4; // 第4字段按原始VC和Pool属性匹配固定槽
 wire [1:0] w_vc5; // sector5字段VC
 assign w_vc5=i_half[187:186]; // sector5字段VC
 wire w_pool5; // sector5字段Pool
 assign w_pool5=i_half[174]; // sector5字段Pool
-wire [2:0] w_lane5; // Pool或专用VC
-assign w_lane5=w_pool5?3'd0:({1'b0,w_vc5}+3'd1); // Pool或专用VC
-assign w_slots[25+:5]=(w_req[5]?5'd10:5'd15)+{2'd0,w_lane5}; // 请求与响应Data类
+assign field_vc[10+:2]=w_vc5;assign field_pool[5]=w_pool5; // 第5字段按原始VC和Pool属性匹配固定槽
 wire [1:0] w_vc6; // sector6字段VC
 assign w_vc6=(i_half[255:252]==4'd2)?i_half[251:250]:(i_half[255:252]==4'd3)?i_half[248:247]:i_half[219:218]; // sector6字段VC
 wire w_pool6; // sector6字段Pool
 assign w_pool6=(i_half[255:252]==4'd2)?i_half[238]:(i_half[255:252]==4'd3)?i_half[233]:i_half[206]; // sector6字段Pool
-wire [2:0] w_lane6; // Pool或专用VC
-assign w_lane6=w_pool6?3'd0:({1'b0,w_vc6}+3'd1); // Pool或专用VC
-assign w_slots[30+:5]=(w_req[6]?5'd10:5'd15)+{2'd0,w_lane6}; // 请求与响应Data类
+assign field_vc[12+:2]=w_vc6;assign field_pool[6]=w_pool6; // 第6字段按原始VC和Pool属性匹配固定槽
 wire [1:0] w_vc7; // sector7字段VC
 assign w_vc7=i_half[251:250]; // sector7字段VC
 wire w_pool7; // sector7字段Pool
 assign w_pool7=i_half[238]; // sector7字段Pool
-wire [2:0] w_lane7; // Pool或专用VC
-assign w_lane7=w_pool7?3'd0:({1'b0,w_vc7}+3'd1); // Pool或专用VC
-assign w_slots[35+:5]=(w_req[7]?5'd10:5'd15)+{2'd0,w_lane7}; // 请求与响应Data类
+assign field_vc[14+:2]=w_vc7;assign field_pool[7]=w_pool7; // 第7字段按原始VC和Pool属性匹配固定槽
 genvar account,field;generate for(account=0;account<20;account=account+1)begin:gen_requirements // 固定逻辑槽避免动态读写宽向量
- localparam [4:0] DATA_SLOT=(account<10)?account+10:account; // CMD槽与对应Data槽相差十，比较宽度固定五位
+ localparam integer SLOT_LANE=account%5; // 每类零号为Pool，其余四槽对应专用VC
+ localparam integer SLOT_VC_VALUE=SLOT_LANE-1; // 专用槽减一得到原始两位VC编号
+ localparam [1:0] SLOT_VC=SLOT_VC_VALUE[1:0]; // Pool分支不使用此值，专用VC显式限制为两位
  wire [5:0] contribution[0:7];wire [5:0] pair[0:3];wire [5:0] quad[0:1]; // 六位完整表示最多八命令或三十二Data信用
  for(field=0;field<8;field=field+1)begin:gen_field // 每个自然对齐字段只向所属槽提供贡献
+  wire slot_match; // 不构造中间槽号，直接判断字段类别和Pool或VC
+  assign slot_match=(((account%10)<5)?w_req[field]:(w_rsp[field]&&!w_req[field]))&&((SLOT_LANE==0)?field_pool[field]:(!field_pool[field]&&(field_vc[field*2+:2]==SLOT_VC))); // 保留原请求优先归属及五个物理lane的精确选择
   if(account<10)begin:gen_command // CMD每字段扣一份，与Data长度独立
-   assign contribution[field]=((w_req[field]||w_rsp[field])&&(w_slots[field*5+:5]==DATA_SLOT))?6'd1:6'd0; // 仅该逻辑CMD槽接收此字段计数
+   assign contribution[field]=slot_match?6'd1:6'd0; // 仅该逻辑CMD槽接收此字段计数
   end else begin:gen_data // Data贡献使用已确认的完整Beat数量
-   assign contribution[field]=((w_req[field]||w_rsp[field])&&(w_slots[field*5+:5]==DATA_SLOT))?{3'd0,w_counts[field*4+1+:3]}:6'd0; // BE半Flit不增加Data信用
+   assign contribution[field]=slot_match?{3'd0,w_counts[field*4+1+:3]}:6'd0; // BE半Flit不增加Data信用
   end // 结束CMD与Data静态分支
  end // 结束八字段独立贡献
  assign pair[0]=contribution[0]+contribution[1];assign pair[1]=contribution[2]+contribution[3]; // 第一级并行归约低四字段

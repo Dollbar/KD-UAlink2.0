@@ -38,7 +38,7 @@ make clean
 
 ## 当前状态
 
-[FIFO 预取资格选择实验](docs/tl_fifo_issue_selection_review.md)因实测退化被拒绝，当前 RTL 已恢复到下述完整验证的 Header visibility 基线 `6f10b33`。下一项[信用槽直接匹配](docs/tl_credit_slot_selection_plan.md)在隔离副本中验证。
+[FIFO 预取资格选择实验](docs/tl_fifo_issue_selection_review.md)因实测退化被拒绝。随后[信用槽直接匹配候选](docs/tl_credit_slot_selection_review.md)通过隔离语义检查并进入实际顶层验证，尚未采用；下述完整物理/映射数据仍对应 Header visibility 基线 `6f10b33`。
 
 实际 TL 链路已接入接收 SRAM 退休、信用发布与准入、半 Flit 打包、Request/Response 选择、发送 SRAM 队列和完整 Control 源组捕获。生产顶层 `tl_tx_prepared` 的 32 组双端配置通过，1,536 源组、5,248 分组和 6,912 字段完整到达；36 组单位配置、22 项接线故障与 8 项带负载复位故障检查通过。
 

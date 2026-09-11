@@ -22,9 +22,14 @@ for w in (7,17):
     x=run(f'invalid_{w}',['iverilog','-g2001','-s','tl_credit_admission',f'-Ptl_credit_admission.WIDTH={w}','-o',str(S/f'invalid_{w}.vvp'),*map(str,sources)])
     rows.append(dict(kind='invalid_parameter',width=w,exit=x.returncode,passed=x.returncode!=0 and 'invalid_WIDTH' in x.stderr))
 guard=(R/'rtl/tl/tl_credit_admission.v').read_text()
+data_lane_change=("(w_slots[field*5+:5]==DATA_SLOT))?{3'd0", "(w_slots[field*5+:5]==((DATA_SLOT==5'd19)?5'd18:DATA_SLOT+5'd1)))?{3'd0")
+if "slot_match?{3'd0" in guard:
+    # Keep the fault on Data contributions only; invert the dedicated VC match.
+    wrong_lane="((((account%10)<5)?w_req[field]:(w_rsp[field]&&!w_req[field]))&&((SLOT_LANE==0)?field_pool[field]:(!field_pool[field]&&(field_vc[field*2+:2]==(SLOT_VC^2'd1)))))"
+    data_lane_change=("slot_match?{3'd0",wrong_lane+"?{3'd0")
 changes={
  'lose_future_data':('{3\'d0,w_counts[field*4+1+:3]}',"6'd0"),
- 'wrong_data_lane':("(w_slots[field*5+:5]==DATA_SLOT))?{3'd0", "(w_slots[field*5+:5]==((DATA_SLOT==5'd19)?5'd18:DATA_SLOT+5'd1)))?{3'd0"),
+ 'wrong_data_lane':data_lane_change,
  'no_shared_merge':('if(i_shared)begin','if(1\'b0)begin'),
  'merge_vc_pools':("o_requirements[60+:6]+o_requirements[90+:6]","o_requirements[60+:6]+o_requirements[96+:6]"),
  'ignore_available':('(i_done&&(&available_fit))',"(i_done&&1'b1)"),
