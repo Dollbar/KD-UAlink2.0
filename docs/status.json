@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-11T03:55:27.819595+00:00",
+  "updated": "2026-09-11T04:00:57.226317+00:00",
   "full_goal_complete": false,
   "release_status": "research_not_signoff",
   "historical_artifacts_retained": false,
@@ -1487,7 +1487,7 @@
   },
   "last_verified_remote_branch": {
     "branch": "work/tl-receive-credit",
-    "commit": "ec569982fa7229efce66ad573ac0d474d0245ee0"
+    "commit": "cc46176d5448feae321da2f255413af83703b76c"
   },
   "production_transmit_mapped_correspondence": {
     "complete": true,
@@ -1830,5 +1830,47 @@
     "evidence": "docs/tl_credit_slot_selection_evidence.json",
     "source_checkpoint": "c84c113402d4fea8443c05687ccd3b056193dd84",
     "applies_to_current_rtl": true
+  },
+  "delivery_gap_review": "docs/delivery_gap_review.md",
+  "fifo_payload_contract_proof": {
+    "complete": true,
+    "scope": "actual FIFO with authorized parameterized synchronous SRAM behavior",
+    "configurations": 24,
+    "widths": [
+      8,
+      32,
+      512
+    ],
+    "depths": [
+      1,
+      2,
+      3,
+      5
+    ],
+    "invalid_output_profiles": [
+      "zero",
+      "raw"
+    ],
+    "whole_word_inductions": 20,
+    "whole_word_timeouts_retained": 4,
+    "fully_sliced_configurations": 4,
+    "complete_payload_slice_inductions": 32,
+    "properties_per_configuration": [
+      20,
+      22,
+      23,
+      25
+    ],
+    "fault_counterexamples_replayed": 2,
+    "auditor_tests": 12,
+    "normal_optimized_evidence_identical": true,
+    "initial_reset_only_assumption": true,
+    "actual_fifo_sha256": "e0bf4e74e5150e008ed0cc4a5aa58fccb0e3d2b6c7ffa3b4a6270dfaafc3b1c3",
+    "physical_bank_mapping": false,
+    "full_tl_payload": false,
+    "macro_signoff": false,
+    "full_goal_complete": false,
+    "review": "docs/upli_fifo_payload_proof_review.md",
+    "evidence": "docs/upli_fifo_payload_proof_evidence.json"
   }
 }

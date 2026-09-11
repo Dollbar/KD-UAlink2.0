@@ -46,6 +46,8 @@ make clean
 
 [当前发送顶层优化](docs/tl_credit_slot_selection_review.md)已完成两位宽、五个标准单元角、三种 synthetic SRAM 视图和两周期共 60 组测量及证据审计。640 ps 主周期 0/30 收敛，6.4 ns 参考周期 26/30 收敛；WIDTH 8/16 最差 setup 为 −1.816202/−1.799045 ns，最差 hold 均为 −0.008036 ns，标准单元面积为 43,569.792/45,162.054 µm²，不含 SRAM 面积。当前源码与实际映射网表的复位后二值对应证明通过，包括 12 个完整输出/下一状态分区和独立复位、游标、空闲载荷关系证明。普通/优化 Python 审计一致。640 ps 收敛、真实宏与布局后签核、活动率功耗评估及最终双 IP 交付仍未完成。
 
+[实际 FIFO 载荷证明](docs/upli_fifo_payload_proof_review.md)现覆盖 8/32/512 位、深度 1/2/3/5 和两种无效输出模式共 24 配置，使用实际同步 SRAM 行为模型、独立队列及完整位覆盖归纳。固定 SRAM bank 映射和完整 TL 载荷组合仍是后续工作。
+
 详细范围见[工程状态](docs/status.md)。模块结果及复跑入口分别见[信用准入](docs/tl_credit_admission_review.md)、[半Flit打包](docs/tl_tx_packer_review.md)、[类别选择](docs/tl_tx_channels_review.md)、[发送SRAM](docs/tl_tx_buffered_review.md)、[字段分组](docs/tl_control_partition_review.md)和[工艺时序基线](docs/tl_control_partition_timing_review.md)。发送数据源必须按 `o_data_accepted` 的实际接纳数量推进，最小容量支持部分入队。
 
 波形和终止任务的编译产物按工作区要求清理；保留的阶段日志、输入快照及校验清单位于本地忽略目录。早期已删除证据的历史数字仅作状态摘要。
