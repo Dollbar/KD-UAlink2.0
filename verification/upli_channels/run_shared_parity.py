@@ -9,7 +9,7 @@ This is full combinational two-state equivalence, not the stateful UPLI sender t
 import argparse,hashlib,json,re,subprocess
 from pathlib import Path
 HERE=Path(__file__).resolve().parent
-ROOT=HERE.parents[1]
+ROOT=Path(__file__).resolve().parents[2]
 MODULES={'request':'upli_request_channel','orig':'upli_orig_data_channel'}
 def call(command,folder,name):
     with (folder/(name+'.log')).open('w') as log:

@@ -11,7 +11,7 @@
   "final_source_sha256": {
     "verification/upli_channels/run_request_data_sender.py": "2d745eee8d04b6a409e42696d91fd839ea8766831de61f0ed10ba8fc8c745cb0",
     "verification/upli_channels/sender_orig_data_tb.sv": "72fd440ee446d8aac993a309fd08a293ff749f066f3a82aa744c2d415dd8e284",
-    "verification/upli_channels/run_shared_parity.py": "b0d770b24796545cd3654fa28d30db57d97fa7f2a2f97b3f06690772197f51e7",
+    "verification/upli_channels/run_shared_parity.py": "2d8ffcb63517d8c5b5e48b164a9b946c9f2fa7726d52b41a5ad39e82e90b21f3",
     "verification/upli_channels/run_orig_data.py": "c96a6db4a2c6521747c8a93fea877eb1054d8cc5003026d72b62be732b1071bd",
     "verification/upli_channels/request_channel_tb.sv": "4e2444932244cb7248f12848604c2c1e85a35b9676094661efb5c5c23255e9c7",
     "verification/upli_channels/run_request_channel.py": "465051c20a2d3dd000beb0662fd9e4262b316ef514c88f1ea9348bf6cfc42444",
@@ -109,5 +109,6 @@
     "exit": 0,
     "log": "build/development/native_sender_make_test.log",
     "sha256": "a6e464343cf0e789df19cf7d4f2288d1e165301499800a860ebf310ceb35b198"
-  }
+  },
+  "publication_path_fix": "CEC runner uses direct __file__ root expression recognized by relocation; published-layout first failure retained under build."
 }
