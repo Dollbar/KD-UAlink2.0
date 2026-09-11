@@ -7,12 +7,12 @@
   "evidence": "docs/switch_egress_repack_typed_review.md",
   "full_goal_complete": false,
   "next_actions": [
-    "Implement production response formatter with original command metadata ownership.",
-    "Reconstruct field/Data/Auth groups before Switch prepared and per-hop TL/DL transmission.",
-    "Connect local dummy completion to Tag owners and native response arbitration.",
+    "Implement production response formatter preserving original command metadata and response ownership.",
+    "Implement a bounded field/Data/Auth assembler for Switch prepared sources, explicitly reject unsupported layouts.",
+    "Implement local normal/dummy completion arbitration and late-completion filtering before native top integration.",
     "Complete PHY, INC, security, management, CDC/RDC and process STA."
   ],
-  "remote_main": "71cc3df1b4f5edd24c04b16844729eaeab18d96f",
+  "remote_main": "779a2e8b72bfcbd644e246288914387c75eac9df",
   "live_jobs": [],
   "last_authorized_push": {
     "repository": "https://github.com/Dollbar/Overflow",
@@ -22,8 +22,8 @@
       "verification/UAlink2.0",
       "simulator/UAlink2.0"
     ],
-    "verified_commit": "71cc3df1b4f5edd24c04b16844729eaeab18d96f",
-    "source_commit": "8ce73aa87e41a9104282eda1f3b9518fa47910dd"
+    "verified_commit": "779a2e8b72bfcbd644e246288914387c75eac9df",
+    "source_commit": "4bd9d6643b69808dbc50ce0c397e67488062ab71"
   },
   "prior_functional_stage_evidence": {
     "functional_stage_complete": true,
@@ -644,5 +644,22 @@
     "uniform_reset_stage": 3,
     "passed": true
   },
-  "publication_tracking": "The exported verification/UAlink2.0/.ualink-export.json and PUBLICATION.md identify the immutable published source snapshot; this source checkpoint records the pre-publication state and cannot self-certify a later push."
+  "publication_tracking": "The exported verification/UAlink2.0/.ualink-export.json and PUBLICATION.md identify the immutable published source snapshot; this source checkpoint records the pre-publication state and cannot self-certify a later push.",
+  "work_packages": [
+    {
+      "task": "endpoint_response_formatter",
+      "status": "candidate_in_progress",
+      "directory": "build/development/endpoint_response_formatter"
+    },
+    {
+      "task": "switch_prepared_assembler",
+      "status": "candidate_in_progress",
+      "directory": "build/development/switch_prepared_assembler"
+    },
+    {
+      "task": "ras_completion_arbiter",
+      "status": "candidate_in_progress",
+      "directory": "build/development/ras_completion_arbiter"
+    }
+  ]
 }

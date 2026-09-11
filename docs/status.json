@@ -2308,11 +2308,19 @@
   "publication": {
     "repository": "https://github.com/Dollbar/Overflow",
     "branch": "main",
-    "path": "RTL/UAlink2.0",
-    "verified_commit": "1ca37fcaab33553325586d5c700df6b178ee1766",
-    "imported_source_commit": "68a3b7961abe0d592d955cbf9ee39bbe40642010",
-    "portable_model_tests": 19,
-    "portable_top_smoke_passed": true
+    "directories": [
+      "rtl/UAlink2.0",
+      "verification/UAlink2.0",
+      "simulator/UAlink2.0"
+    ],
+    "verified_commit": "779a2e8b72bfcbd644e246288914387c75eac9df",
+    "imported_source_commit": "4bd9d6643b69808dbc50ce0c397e67488062ab71",
+    "snapshot_scope": "Latest verified publication before the current development batch",
+    "portable_checks": [
+      "Endpoint memory lifecycle ports1/2/4 static",
+      "Switch TL context 9 configurations and 6 faults",
+      "RAS dummy 25 configurations and 11 faults"
+    ]
   },
   "latest_typed_modules": {
     "scope": "Typed subset replacements and actual top integration, not complete IP",
@@ -2601,5 +2609,14 @@
     ],
     "endpoint_wiring_faults_detected": 5,
     "full_repository_tests_passed": true
+  },
+  "historical_publication_snapshot": {
+    "repository": "https://github.com/Dollbar/Overflow",
+    "branch": "main",
+    "path": "RTL/UAlink2.0",
+    "verified_commit": "1ca37fcaab33553325586d5c700df6b178ee1766",
+    "imported_source_commit": "68a3b7961abe0d592d955cbf9ee39bbe40642010",
+    "portable_model_tests": 19,
+    "portable_top_smoke_passed": true
   }
 }
