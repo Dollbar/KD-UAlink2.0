@@ -38,6 +38,10 @@ make clean
 
 ## 当前状态
 
+实际固定 SRAM 映射新增 95/96 配置的宏引脚与整字 bank 选择归纳，另有 96/96 生产参数行为回归、2,362,336 次整字比较及 24 组实际 FIFO/mapper/功能宏包装器接线检查。600-bit、深度 65,535 的形式查询仍因资源时限未完成；不计通过，也不阻塞真实端点事务实施。宏 Q 在引脚证明中为任意输入，行为仿真和接线检查分开成立；尚无完整 TL 联合载荷归纳及真实宏签核。详见[映射证据](docs/sram_storage_mapping_evidence.json)。
+
+最新[实际 TL/DL 两端集成](docs/endpoint_link_integration_review.md)通过 7 组配置与 4 项接线故障检查，交付 2,686 个唯一 TL 记录，完成 66 次重放与双向序号环回。发送信用扣费、DL 去重、600-bit 接收 SRAM 退休与 FC 返回已连通。Request/Response 仍为独立测试源，尚未实现真实 completer 与 Tag 完成关联；520-bit 本地适配记录不代表标准 DL framing。复跑：`make endpoint-link-regression KD28_ROOT=/authorized/path RUN_LABEL=fresh`。
+
 [FIFO 预取资格选择实验](docs/tl_fifo_issue_selection_review.md)因实测退化被拒绝。随后[信用槽直接匹配](docs/tl_credit_slot_selection_review.md)完成实际顶层语义、物理及映射审计，`c84c113` 已采用为研发基线。两位宽面积均下降，WIDTH8 setup 退化 9.817 ps、WIDTH16 改善 35.620 ps，时序收敛配置数不变。
 
 实际 TL 链路已接入接收 SRAM 退休、信用发布与准入、半 Flit 打包、Request/Response 选择、发送 SRAM 队列和完整 Control 源组捕获。生产顶层 `tl_tx_prepared` 的 32 组双端配置通过，1,536 源组、5,248 分组和 6,912 字段完整到达；36 组单位配置、22 项接线故障与 8 项带负载复位故障检查通过。
@@ -46,7 +50,7 @@ make clean
 
 [当前发送顶层优化](docs/tl_credit_slot_selection_review.md)已完成两位宽、五个标准单元角、三种 synthetic SRAM 视图和两周期共 60 组测量及证据审计。640 ps 主周期 0/30 收敛，6.4 ns 参考周期 26/30 收敛；WIDTH 8/16 最差 setup 为 −1.816202/−1.799045 ns，最差 hold 均为 −0.008036 ns，标准单元面积为 43,569.792/45,162.054 µm²，不含 SRAM 面积。当前源码与实际映射网表的复位后二值对应证明通过，包括 12 个完整输出/下一状态分区和独立复位、游标、空闲载荷关系证明。普通/优化 Python 审计一致。640 ps 收敛、真实宏与布局后签核、活动率功耗评估及最终双 IP 交付仍未完成。
 
-[实际 FIFO 载荷证明](docs/upli_fifo_payload_proof_review.md)现覆盖 8/32/512 位、深度 1/2/3/5 和两种无效输出模式共 24 配置，使用实际同步 SRAM 行为模型、独立队列及完整位覆盖归纳。固定 SRAM bank 映射和完整 TL 载荷组合仍是后续工作。
+[实际 FIFO 载荷证明](docs/upli_fifo_payload_proof_review.md)现覆盖 8/32/512 位、深度 1/2/3/5 和两种无效输出模式共 24 配置，使用实际同步 SRAM 行为模型、独立队列及完整位覆盖归纳。完整 TL 载荷组合仍是后续工作；固定 SRAM 映射进展见[映射审查](docs/sram_storage_mapping_formal_review.md)。
 
 详细范围见[工程状态](docs/status.md)。模块结果及复跑入口分别见[信用准入](docs/tl_credit_admission_review.md)、[半Flit打包](docs/tl_tx_packer_review.md)、[类别选择](docs/tl_tx_channels_review.md)、[发送SRAM](docs/tl_tx_buffered_review.md)、[字段分组](docs/tl_control_partition_review.md)和[工艺时序基线](docs/tl_control_partition_timing_review.md)。发送数据源必须按 `o_data_accepted` 的实际接纳数量推进，最小容量支持部分入队。
 

@@ -115,3 +115,13 @@ prepared-tx-smoke:
 	$(PYTHON) "$(ROOT_DIR)/verification/tl_tx_prepared/run_unit.py" --kd28-root "$(KD28_ROOT)" --label smoke
 	$(PYTHON) "$(ROOT_DIR)/verification/tl_control_partition/run_peers.py" --integrated --kd28-root "$(KD28_ROOT)" --single --label prepared_top_smoke
 	$(PYTHON) "$(ROOT_DIR)/verification/tl_tx_prepared/check_capture.py" --labels prepared_top_smoke
+
+# Two actual TL/DL peers with replay, receive SRAM and returned credit.
+# Run: make endpoint-link-regression KD28_ROOT=/authorized/path RUN_LABEL=fresh
+# Output: build/verification/endpoint_link/$(RUN_LABEL)/summary.json and cases.
+# Next: review docs/endpoint_link_integration_review.md for transaction boundaries.
+RUN_LABEL ?= endpoint_link
+.PHONY: endpoint-link-regression
+endpoint-link-regression:
+	@test -n "$(KD28_ROOT)" || { echo "Set KD28_ROOT to the authorized external SRAM repository"; exit 1; }
+	$(PYTHON) "$(ROOT_DIR)/verification/endpoint_link/run_matrix.py" --kd28-root "$(KD28_ROOT)" --label "$(RUN_LABEL)"

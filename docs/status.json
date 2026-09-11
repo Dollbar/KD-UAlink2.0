@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-11T04:00:57.226317+00:00",
+  "updated": "2026-09-11T04:29:46.529459+00:00",
   "full_goal_complete": false,
   "release_status": "research_not_signoff",
   "historical_artifacts_retained": false,
@@ -1487,7 +1487,7 @@
   },
   "last_verified_remote_branch": {
     "branch": "work/tl-receive-credit",
-    "commit": "cc46176d5448feae321da2f255413af83703b76c"
+    "commit": "160a53b8992e0f09f05aef9f79b40dc96ccdd1fa"
   },
   "production_transmit_mapped_correspondence": {
     "complete": true,
@@ -1872,5 +1872,117 @@
     "full_goal_complete": false,
     "review": "docs/upli_fifo_payload_proof_review.md",
     "evidence": "docs/upli_fifo_payload_proof_evidence.json"
+  },
+  "latest_endpoint_link_integration": {
+    "date": "2026-09-11",
+    "passed": true,
+    "positive_cases": 7,
+    "connection_fault_cases": 4,
+    "counts": {
+      "tx": 2686,
+      "delivered": 2686,
+      "retired": 2313,
+      "replay": 66,
+      "crc_bad": 12,
+      "dropped": 12,
+      "fc": 1159,
+      "sequence_wraps": 2
+    },
+    "review": "docs/endpoint_link_integration_review.md",
+    "evidence": "build/verification/endpoint_link/retained/summary.json",
+    "evidence_sha256": "cff351dd84d1596e7d3abbcd0b32e73015f0c4957a9fdb104fdee832846e3b66",
+    "optimized_audit_sha256": "3e30f1cce899df7a70a088c2be040c8eb2ddcbfa3f55eecf73af6072da5c6117",
+    "production_rtl_changed": false,
+    "full_endpoint_transaction_loop": false,
+    "standard_dl_framing": false,
+    "crc_computation": false,
+    "process_sta": false,
+    "full_goal_complete": false,
+    "source_hashes": {
+      "verification/endpoint_link/check.py": "39dc0fc6055a68f02a04eb0d097261cfd175b615a3db94290667f15154468991",
+      "verification/endpoint_link/run.py": "6b20fef5cd668cccd8a1ca51e3571aad59b6f65e1c859125e43a93d3cf6e60de",
+      "verification/endpoint_link/run_matrix.py": "e85d8177b165ff6adb1daf4daa94f7068fa5a8755663dc4db10f652403e05ee4"
+    }
+  },
+  "execution_mode": {
+    "parallel_agents_authorized": true,
+    "root": "formal generation, production binding, evidence review and Git checkpoint",
+    "workers": [
+      "actual TL/DL peer integration and next transaction contract",
+      "independent SRAM behavioral simulation",
+      "independent formal audit"
+    ],
+    "next_priority": "real Read/completer/Response/Tag completion loop; then broader endpoint/switch integration"
+  },
+  "latest_sram_storage_mapping": {
+    "date": "2026-09-11",
+    "planned_configurations": 96,
+    "formal_proven_configurations": 95,
+    "formal_complete": false,
+    "unproven": [
+      {
+        "width": 600,
+        "depth": 65535,
+        "reason": "resource timeout; final bit-lowering attempt timed out before SAT"
+      }
+    ],
+    "widths": [
+      8,
+      32,
+      40,
+      256,
+      512,
+      600
+    ],
+    "depths": [
+      1,
+      2,
+      3,
+      5,
+      255,
+      256,
+      257,
+      511,
+      512,
+      513,
+      1024,
+      1025,
+      2048,
+      2049,
+      4097,
+      65535
+    ],
+    "formal_pin_boundary": true,
+    "formal_memory_behavior": false,
+    "formal_input_assumptions": 0,
+    "formal_source_fault_types": 3,
+    "formal_fault_queries": 7,
+    "behavioral_passed_configurations": 96,
+    "behavioral_fault_types": 2,
+    "whole_word_comparisons": 2362336,
+    "behavioral_operations": 1649774,
+    "production_binding_configurations": 24,
+    "production_binding_widths": [
+      256,
+      512,
+      600
+    ],
+    "production_binding_depths": [
+      1,
+      2,
+      3,
+      5
+    ],
+    "full_tl_payload_induction": false,
+    "full_fifo_payload_widths_256_600": false,
+    "macro_signoff": false,
+    "production_rtl_changed": false,
+    "full_goal_complete": false,
+    "reviews": [
+      "docs/sram_storage_mapping_formal_review.md",
+      "docs/sram_storage_mapping_sim_review.md",
+      "docs/sram_storage_mapping_binding_review.md"
+    ],
+    "evidence": "docs/sram_storage_mapping_evidence.json"
   }
 }
