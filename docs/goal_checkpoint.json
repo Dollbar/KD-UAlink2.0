@@ -8,12 +8,14 @@
   "full_goal_complete": false,
   "next_actions": [
     "Publish frozen native response senders, credit adapters and TX aggregate with portable SRAM regression.",
-    "Implement complete native RX parity/TDM/ownership and error policy; preserve full Endpoint transaction context and build causal native response adapters.",
+    "Implement native RX ordering and parity/TDM/burst checks with section 3.1.4 required poison/Drop processing; preserve complete Endpoint context and prove backend-derived native response causality.",
     "Continue independent LinkDown/epoch, standard per-hop TL/DL, per-VC resources, PHY, INC, security, management, CDC/RDC and process STA."
   ],
   "remote_main": "a4deff3e88b4482dc1bd1f036e0df215f7376d65",
   "live_jobs": [
-    "final release audit and relocated verification"
+    "native RX ordering/error-policy contract",
+    "actual receive-side TDM monitor candidate",
+    "Endpoint full-context causal adapter contract"
   ],
   "last_authorized_push": {
     "repository": "https://github.com/Dollbar/Overflow",
