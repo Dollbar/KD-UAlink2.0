@@ -1,4 +1,5 @@
-"""Run: python3 verification/tl_credit_reduction/run_equivalence.py [--label NAME].
+"""Run: python3 verification/tl_credit_reduction/run_equivalence.py [--label NAME]
+[--reference-commit COMMIT] [--replace FILE] [--widths 8 ... 16].
 
 Outputs: original/candidate snapshots, complete-input SAT miters and real proof logs
 under build/verification/tl_credit_reduction/<label>. Next audit all nine widths and
@@ -15,12 +16,27 @@ import re
 import subprocess
 
 ROOT = Path(__file__).resolve().parents[2]
+LEGACY_REFERENCE = "4376b8bbbea936be528039eaa71983afc7fc865f"
+
+
+def cache_legacy_reference(folder, reference, original):
+    """Preserve the historical auditor's cache without mixing explicit references."""
+    if reference != LEGACY_REFERENCE:
+        return
+    baseline, metadata = folder / "original.v", folder / "original.json"
+    expected = {"commit": reference, "sha256": hashlib.sha256(original).hexdigest()}
+    if baseline.exists() or metadata.exists():
+        if not baseline.is_file() or not metadata.is_file() or baseline.read_bytes() != original or json.loads(metadata.read_text()) != expected:
+            raise ValueError("stage reference differs from the requested immutable original")
+    else:
+        baseline.write_bytes(original)
+        metadata.write_text(json.dumps(expected, indent=2) + "\n")
 
 
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--label", default="cone_equivalence")
-    p.add_argument("--reference-commit", default="4376b8b")
+    p.add_argument("--reference-commit", default=LEGACY_REFERENCE)
     p.add_argument("--replace", type=Path)
     p.add_argument("--widths", type=int, nargs="+", default=list(range(8, 17)))
     a = p.parse_args()
@@ -32,14 +48,9 @@ def main():
     original = subprocess.check_output(["git", "show", a.reference_commit + ":rtl/tl/tl_credit_admission.v"], cwd=ROOT)
     reference = subprocess.check_output(["git", "rev-parse", a.reference_commit + "^{commit}"], cwd=ROOT, text=True).strip()
     original_meta = {"commit": reference, "sha256": hashlib.sha256(original).hexdigest()}
-    baseline = out.parent / "original.v"
-    metadata = out.parent / "original.json"
-    if baseline.exists() or metadata.exists():
-        if not baseline.is_file() or not metadata.is_file() or baseline.read_bytes() != original or json.loads(metadata.read_text()) != original_meta:
-            raise ValueError("stage reference differs from the requested immutable original")
-    else:
-        baseline.write_bytes(original)
-        metadata.write_text(json.dumps(original_meta, indent=2) + "\n")
+    cache_legacy_reference(out.parent, reference, original)
+    (out / "original.json").write_text(json.dumps(original_meta, indent=2) + "\n")
+    (out / "runner.py").write_bytes(Path(__file__).read_bytes())
     gold = out / "original.v"
     gate = out / "candidate.v"
     gold.write_bytes(original)

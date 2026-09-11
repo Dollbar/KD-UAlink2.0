@@ -1,5 +1,5 @@
 {
-  "updated": "2026-09-11T02:58:06.221293+00:00",
+  "updated": "2026-09-11T03:16:00.525113+00:00",
   "full_goal_complete": false,
   "release_status": "research_not_signoff",
   "historical_artifacts_retained": false,
@@ -1721,7 +1721,7 @@
     "power_evaluated": false,
     "evidence": "docs/tl_tx_header_visibility_evidence.json",
     "full_top_cdc_rdc_complete": false,
-    "applies_to_current_rtl": false
+    "applies_to_current_rtl": true
   },
   "fifo_issue_selection": {
     "adopted": false,
@@ -1736,7 +1736,7 @@
     "identical_peer_trace_files": 128,
     "prechange_fault_detections": 6,
     "candidate_fault_detections": 12,
-    "physical_complete": false,
+    "physical_complete": true,
     "current_mapped_equivalence": false,
     "full_goal_complete": false,
     "source_checkpoint": "161ed37248c08d3f7f5e12c63515d9b365adafb0",
@@ -1749,6 +1749,29 @@
     "partial_width8_measurements": 30,
     "partial_width8_area_um2": 45184.86,
     "partial_width8_worst_setup_ns": -1.80945,
-    "width16_sta_pending": true
+    "width16_sta_pending": false,
+    "decision": "reject",
+    "physical_measurements": 60,
+    "measurements": [
+      {
+        "width": 8,
+        "area_um2": 45184.86,
+        "worst_setup_ns": -1.80945,
+        "worst_hold_ns": -0.008036,
+        "flops": 6254,
+        "macros": 64
+      },
+      {
+        "width": 16,
+        "area_um2": 47284.65,
+        "worst_setup_ns": -1.82345,
+        "worst_hold_ns": -0.008036,
+        "flops": 6574,
+        "macros": 64
+      }
+    ],
+    "normal_optimized_physical_audits_identical": true,
+    "restored_from": "6f10b33539624664cc4231bbb681e7b1d62dc401",
+    "candidate_applies_to_current_rtl": false
   }
 }
