@@ -55,14 +55,14 @@ Read/Write Response 当前候选是纯组合 typed TX leaf，接口由各自 exe
 
 RX 对应 `C_PAYLOAD_WIDTH` 可取 184/580/619/101；receive_channel 另保存原 VC2/Pool1，port 由实际账户选择确定。RX 的 payload 原子接纳、原账户元数据与实际消费必须同一事件，不能只保存数据而从后续候选重取 Tag/VC。
 
-Req/OrigData 沿用已存在 wrapper 全部端口。候选 `request184/data2048/byte_enable256/error4`，最低片段为相对 Beat0；`has_data`、`num_beats` 和原生 Cmd/NumBeats 必须在发前一致。ByteEn256 为四组自然 Beat 的 lane mask；Endpoint 的区域 BE256 必须根据地址对齐转换，不能直接逐位硬接。当前 wrapper 没有 `authorization_active` 输入，AuthTag 只是透明透传；未授权 AuthTag=0 由候选资格层保证。早期 Request execution 中“wrapper 根据 authorization_active 清零”的描述尚未落入实际接口，不算已实现功能。
+Req/OrigData 沿用已存在 wrapper 全部端口。候选 `request184/data2048/byte_enable256/error4`，最低片段为相对 Beat0；`has_data`、`num_beats` 和原生 Cmd/NumBeats 必须在发前一致。ByteEn256 为四组自然 Beat 的 lane mask；Endpoint 的区域 BE256 必须根据地址对齐转换，不能直接逐位硬接。当前 wrapper 没有 `authorization_active` 输入，AuthTag 只是透明透传；未授权 AuthTag=0 由候选资格层保证。早期 Request execution 的授权清零描述已修正：当前 wrapper 仍不承担该功能。
 
 建议直接冻结下一批 sender 接口如下，局部所有权事件统一叫 `o_candidate_accepted`，语义是本沿实际首 Beat 发出，不是先行 buffer capture：
 
 - `upli_write_response_sender`：`i_clk/i_rstn/i_credit_connected/i_beats_connected`；`i_candidate_valid/port[1:0]/vc[1:0]/pool/payload[100:0]`；一个完整原生信用返回组；输出 accepted、完整 WrRsp typed 字段/parity、真实 balances/init/error/tdm_known/tdm_port。上游候选保持到 accepted，发送器无需新增 payload 队列；无信用和非本 port 时隙时不接受。
 - `upli_read_response_sender`：同样域/连接；`i_candidate_valid/port[1:0]/vc[1:0]/pools[3:0]/payload[2475:0]`，低 619bit 为 Beat0，其后为三个可能尾部；一个完整 RdRsp 信用返回组。输出 accepted、完整 RdRsp typed 字段/parity、balances/init/error/busy[3:0]/tdm_known/tdm_port。首 payload 的 NumBeats 位 `[523:522]` 唯一决定此候选 N，不另造重复的线上长度字段。
 
-Read 首 NumBeats=0 时仅接纳一个 single Beat，保留该 Beat 任意 Offset/Last；不得把 Last=0 的 single Beat 当成缺尾部、或把 Last=1 当作最大 Offset。可在后续同 port 时隙选择其他 Tag，再回来继续原 Tag。首 NumBeats=1..3 时以完整 staged multi 候选接纳 N=NumBeats+1 拍：所有有效 payload 的 NumBeats、Tag、Dst、TypeInfo、Status 与 VC 上下文一致，Offset=0..N-1、只有末 Last=1，Src 固定是本地 profile，AuthTag/DataError/Data 各拍完整保存。发前检查这些局部几何前提，非法候选不接受、不扣账并产生本地诊断；保留编码的合法性判断归事务资格层。未声明尾部不参与有效几何判断或信用预约。
+Read 首 NumBeats=0 时仅接纳一个 single Beat，保留该 Beat 任意 Offset/Last；不得把 Last=0 的 single Beat 当成缺尾部、或把 Last=1 当作最大 Offset。可在后续同 port 时隙选择其他 Tag，再回来继续原 Tag。首 NumBeats=1..3 时以完整 staged multi 候选接纳 N=NumBeats+1 拍：所有有效 payload 的 NumBeats、Tag、Dst、TypeInfo、Status 与 VC 上下文一致，Offset=0..N-1、只有末 Last=1，Src 仅供调试，不参与功能准入或跨 Beat 一致性检查；Src/AuthTag/DataError/Data 各拍完整保存。发前检查这些局部几何前提，非法候选不接受、不扣账并产生本地诊断；保留编码的合法性判断归事务资格层。未声明尾部不参与有效几何判断或信用预约。
 
 Read multi 在开始前按 pools[0..N-1] 对 VC 与 pool 分别计数、检查全部沿前容量并锁定本 port 尾部；真实发送时逐拍取所保存 payload/pool。相同 port 有 multi 尾部时不接受新的响应候选，最后尾部沿也可保守不覆盖；其它 port 可并发交错。空周期不停止已建立的 RdRsp 相位。Single 候选只扣一信用；multi 完整 staged 是为履行连续时隙的本地微架构，不是要求所有 UPLI 产品必须整笔缓存。
 

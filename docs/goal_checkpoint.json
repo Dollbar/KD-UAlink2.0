@@ -13,7 +13,9 @@
   ],
   "remote_main": "be5af08bb474af13659615235daac39f34989ef0",
   "live_jobs": [
-    "station integration contract and response sender task decomposition"
+    "Read Response credit/TDM sender candidate",
+    "Write Response credit/TDM sender candidate",
+    "Credit parity guard and direct return adapter candidates"
   ],
   "last_authorized_push": {
     "repository": "https://github.com/Dollbar/Overflow",
