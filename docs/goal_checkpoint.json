@@ -7,7 +7,7 @@
   "evidence": "docs/endpoint_causal_read_evidence.json",
   "full_goal_complete": false,
   "next_actions": [
-    "Publish into the existing lowercase Overflow/rtl/UAlink2.0 path; preserve unrelated RTL.",
+    "Publish partitioned sources into existing lowercase Overflow rtl, verification and simulator/UAlink2.0 namespaces; rerun from exported paths and preserve unrelated contents.",
     "Expand real transaction coverage: full Read sizes/masks and response modes, in-flight network reset/recovery and supported parameter matrix; preserve independent event/data checking.",
     "Continue replacing 136 unimplemented RTL shells for full Endpoint/Switch, native UPLI, standard per-hop TL/DL, digital PHY, INC, security, management and CDC/RDC/process STA."
   ],
@@ -18,7 +18,7 @@
     "repository": "https://github.com/Dollbar/Overflow",
     "branch": "main",
     "path": "RTL/UAlink2.0",
-    "verified_commit": "ebbf0db9ecf1ece097d1b3aa211618a19730978f"
+    "verified_commit": "7123ec7ba3c57dd0d43d2f73c4a7e2bf70082c73"
   },
   "prior_functional_stage_evidence": {
     "functional_stage_complete": true,

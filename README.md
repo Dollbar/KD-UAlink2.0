@@ -11,13 +11,16 @@ UALink Endpoint / Controller 与 Switch 数字 RTL 研发工程，目标为 Comm
 | `rtl/{inc,security,management,ras,common,scaffold}` | 完整规划服务模块与显式未实现接口壳 |
 | `model/ualink` | UPLI、DL 与配置参考模型 |
 | `model/{tl,phy}` | TL 信用/字段/存储与 RS 参考模型 |
-| `verification/` | 模型、真实 RTL、双端通信、形式验证与工具测试 |
+| `verification/` | 模型、真实 RTL、双端通信、形式验证与工具测试；公共 package 在 `verification/pkg/` |
+| `simulator/vip/` | 可复用仿真 VIP；由测试平台实际实例化 |
 | `scripts/` | 综合、时序、等价检查、Make 片段和清理入口 |
 | `config/` | 接口契约、参数矩阵、工具配置、源码来源 |
 | `docs/` | 当前进度、架构、规范待确认项与后续计划 |
 | `variants/rs_qualified` | 显式选择的 RS 资格判定候选；不与默认 RTL 混合编译 |
 | `specs/`, `third_party/` | 需求映射和外部依赖登记 |
 | `build/`, `reports/` | 可删除、可再生成的输出，不入库 |
+
+发布到 Overflow 时按其既有小写目录拆分为 `rtl/UAlink2.0/`、`verification/UAlink2.0/`、`simulator/UAlink2.0/`；映射和运行入口见[布局说明](docs/overflow_layout.md)。
 
 ## 使用
 

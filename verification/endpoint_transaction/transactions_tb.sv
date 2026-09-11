@@ -1,5 +1,6 @@
 `timescale 1ns/1ps
 module tb;
+import ualink_test_pkg::*;
 parameter INJECT=0, BANK_DEPTH=3;
 reg clk=0; always #5 clk=~clk;
 reg rstn=0,start=0; integer cycle=0,quiet=0,e,j,k,index_value;
@@ -13,47 +14,25 @@ wire [1:0] complete_port[0:1];wire [10:0] complete_tag[0:1];wire [3:0] complete_
 wire [7:0] origin_count[0:1],completer_count[0:1],unacked[0:1],scheduled[0:1];
 wire mem_valid[0:1],mem_ready[0:1],result_ready[0:1];wire [1:0] mem_slot[0:1];wire [56:0] mem_address[0:1];
 wire [5:0] mem_length[0:1];wire [7:0] mem_attr[0:1],mem_metadata[0:1];wire [1:0] mem_asi[0:1];
-reg mem_pending[0:1][0:3];reg [56:0] saved_address[0:1][0:3];integer due[0:1][0:3];
-integer choice[0:1],m,n;reg result_valid[0:1];reg [1:0] result_slot[0:1];reg [3:0] result_status[0:1];reg [511:0] result_data[0:1];
+// Independent observer state is updated only by public memory handshakes.
+reg score_mem_active[0:1][0:3];reg [56:0] score_mem_address[0:1][0:3];integer score_mem_at[0:1][0:3];
+wire result_valid[0:1];wire [1:0] result_slot[0:1];wire [3:0] result_status[0:1];wire [511:0] result_data[0:1];
 wire link_valid[0:1],link_ready[0:1],link_payload[0:1],link_replay[0:1];wire [543:0] link_data[0:1];
 wire [1:0] sv,sr,ov,orr,sl,se;wire [1089:0] sd,od;wire drop_now[0:1],bad_now[0:1];
 reg rv[0:1],rc[0:1];reg [543:0] rd[0:1];
 wire [511:0] observed_tx[0:1];wire [1:0] observed_ht[0:1];wire [7:0] request_starts[0:1];
-function [10:0] tag_at;
- input integer number;
- begin case(number) 0:tag_at=0;1:tag_at=4;2:tag_at=1024;3:tag_at=2044;4:tag_at=1;5:tag_at=5;6:tag_at=1025;default:tag_at=2045;endcase end
-endfunction
-function [56:0] address_at;
- input integer number;
- begin address_at=number==7?57'h100000000000000:number*64;end
-endfunction
-function integer tag_index;
- input [10:0] value;integer q;
- begin tag_index=-1;for(q=0;q<8;q=q+1)if(value==tag_at(q))tag_index=q;end
-endfunction
-function integer address_index;
- input [56:0] value;integer q;
- begin address_index=-1;for(q=0;q<8;q=q+1)if(value==address_at(q))address_index=q;end
-endfunction
-function [511:0] memory_word;
- input integer side;input [56:0] address;integer q;
- begin memory_word=0; if(address<4096)for(q=0;q<64;q=q+1)memory_word[q*8+:8]=(side*61+(address>>6)*29+q*17+(q^(address>>6)))&255;end
-endfunction
-always @* begin
- for(m=0;m<2;m=m+1)begin
-  choice[m]=-1;
-  for(n=0;n<4;n=n+1)if(mem_pending[m][n]&&due[m][n]<=cycle)choice[m]=n;
-  result_valid[m]=(choice[m]>=0);result_slot[m]=0;result_data[m]=0;result_status[m]=0;
-  if(choice[m]>=0)begin result_slot[m]=choice[m];result_data[m]=memory_word(m,saved_address[m][choice[m]]);result_status[m]=(saved_address[m][choice[m]]>=4096)?4'd3:4'd0;end
- end
-end
 ualink_switch_top #(.PORTS(2),.DATA_WIDTH(545)) sw(.clk(clk),.rstn(rstn),.i_route_ids({10'd513,10'd17}),.i_port_enable(2'b11),
 .i_valid(sv),.o_ready(sr),.i_data(sd),.i_dst({10'd17,10'd513}),.i_last(2'b11),.o_valid(ov),.i_ready(orr),.o_data(od),.o_last(sl),.o_route_error(se));
 genvar s;generate for(s=0;s<2;s=s+1)begin:ends
  assign request_valid[s]=rstn&&done[s]&&peer_done[s]&&requested[s]<8;
  assign request_tag[s]=tag_at(requested[s]);assign request_address[s]=address_at(requested[s]);
  assign complete_ready[s]=cycle>350&&(cycle%7!=s+1);
- assign mem_ready[s]=rstn&&(cycle%5!=s+1);
+ ualink_memory_vip #(.SIDE(s)) memory_vip(
+ .i_clk(clk),.i_rstn(rstn),.i_read_valid(mem_valid[s]),.o_read_ready(mem_ready[s]),
+ .i_read_slot(mem_slot[s]),.i_read_address(mem_address[s]),.i_read_length(mem_length[s]),
+ .i_read_attr(mem_attr[s]),.i_read_asi(mem_asi[s]),.i_read_metadata(mem_metadata[s]),
+ .o_result_valid(result_valid[s]),.i_result_ready(result_ready[s]),.o_result_slot(result_slot[s]),
+ .o_result_data(result_data[s]),.o_result_status(result_status[s]));
  assign drop_now[s]=INJECT&&link_payload[s]&&!link_replay[s]&&originals[s]==5&&!dropped[s];
  assign bad_now[s]=INJECT&&link_payload[s]&&!link_replay[s]&&originals[s]==2&&!corrupted[s];
  assign sv[s]=link_valid[s]&&!drop_now[s];assign sd[s*545+:545]={!bad_now[s],link_data[s]};
@@ -95,7 +74,7 @@ initial begin
  for(e=0;e<2;e=e+1)begin
   requested[e]=0;completed[e]=0;originals[e]=0;replays[e]=0;dropped[e]=0;corrupted[e]=0;max_count[e]=0;rv[e]=0;rc[e]=1;rd[e]=0;
   for(j=0;j<8;j=j+1)begin sent[e][j]=0;reads[e][j]=0;returns[e][j]=0;seen[e][j]=0;result_at[e][j]=-1;end
-  for(j=0;j<4;j=j+1)begin mem_pending[e][j]=0;saved_address[e][j]=0;due[e][j]=0;end
+  for(j=0;j<4;j=j+1)begin score_mem_active[e][j]=0;score_mem_address[e][j]=0;score_mem_at[e][j]=-1;end
  end
  repeat(3)@(negedge clk);rstn=1;start=1;@(negedge clk);start=0;
 end
@@ -116,15 +95,16 @@ always @(posedge clk)begin
    end
    if(mem_valid[e]&&mem_ready[e])begin
     index_value=address_index(mem_address[e]);
-    if(index_value<0||mem_pending[e][mem_slot[e]]||sent[1-e][index_value]!=1||reads[e][index_value]!=0)$fatal(1,"CAUSAL_MEMORY_REQUEST side=%0d address=%h",e,mem_address[e]);
+    if(index_value<0||score_mem_active[e][mem_slot[e]]||sent[1-e][index_value]!=1||reads[e][index_value]!=0)$fatal(1,"CAUSAL_MEMORY_REQUEST side=%0d address=%h",e,mem_address[e]);
     if(mem_length[e]!==15||mem_attr[e]!==8'hff||mem_asi[e]!==0||mem_metadata[e]!==0)$fatal(1,"CAUSAL_MEMORY_FIELDS");
-    reads[e][index_value]=1;mem_pending[e][mem_slot[e]]=1;saved_address[e][mem_slot[e]]=mem_address[e];due[e][mem_slot[e]]=cycle+3+(3-mem_slot[e])*5;
+    reads[e][index_value]=1;score_mem_active[e][mem_slot[e]]=1;score_mem_address[e][mem_slot[e]]=mem_address[e];score_mem_at[e][mem_slot[e]]=cycle;
     $display("MEM_READ %0d %0d %0d %0d",cycle,e,index_value,mem_slot[e]);
    end
    if(result_valid[e]&&result_ready[e])begin
-    index_value=address_index(saved_address[e][result_slot[e]]);
-    if(index_value<0||!mem_pending[e][result_slot[e]]||returns[e][index_value]!=0)$fatal(1,"CAUSAL_MEMORY_RESULT");
-    returns[e][index_value]=1;result_at[e][index_value]=cycle;mem_pending[e][result_slot[e]]=0;$display("MEM_RESULT %0d %0d %0d",cycle,e,index_value);
+    index_value=address_index(score_mem_address[e][result_slot[e]]);
+    if(index_value<0||!score_mem_active[e][result_slot[e]]||returns[e][index_value]!=0||score_mem_at[e][result_slot[e]]>=cycle)$fatal(1,"CAUSAL_MEMORY_RESULT");
+    if(result_status[e]!==((index_value==7)?4'd3:4'd0)||result_data[e]!==expected_memory[e][index_value])$fatal(1,"CAUSAL_MEMORY_RESULT_DATA");
+    returns[e][index_value]=1;result_at[e][index_value]=cycle;score_mem_active[e][result_slot[e]]=0;$display("MEM_RESULT %0d %0d %0d",cycle,e,index_value);
    end
    if(complete_valid[e])begin
     index_value=tag_index(complete_tag[e]);

@@ -1,8 +1,14 @@
 {
   "repository": "https://github.com/Dollbar/Overflow",
   "branch": "main",
-  "subdirectory": "rtl/UAlink2.0",
-  "path_case": "Use the existing lowercase rtl directory; supersedes the initial uppercase RTL publication path",
+  "path_case": "Use the existing lowercase rtl, verification and simulator directories",
   "source_scope": "Tracked RTL, model, verification, scripts, configuration and source-delivery documentation",
-  "excluded": "Private specifications, external licensed libraries, waveforms, build outputs and runtime caches"
+  "excluded": "Private specifications, external licensed libraries, waveforms, build outputs and runtime caches",
+  "directories": {
+    "rtl": "rtl/UAlink2.0",
+    "verification": "verification/UAlink2.0",
+    "simulator": "simulator/UAlink2.0",
+    "project": "verification/UAlink2.0/project"
+  },
+  "layout_document": "docs/overflow_layout.md"
 }
