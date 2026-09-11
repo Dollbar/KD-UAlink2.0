@@ -19,6 +19,7 @@ def main():
  if not re.fullmatch('[A-Za-z0-9_-]+',a.label):p.error('safe fresh label required')
  stage=ROOT/'build/verification/ip_tops/endpoint_native_rx_path'/a.label;stage.mkdir(parents=True,exist_ok=False);src=stage/'source';src.mkdir()
  deps=json.loads((ROOT/'third_party/kd28_dependency.json').read_text())['functional_sources_sha256']
+ external_paths={(a.kd28_root.resolve()/name).resolve():name for name in deps}
  top_rtl=ROOT/'rtl/upli'/f'{TOP}.v'
  tb=HERE/'endpoint_native_rx_path_tb.sv'
  interface=HERE/'endpoint_native_rx_path_interface.json'
@@ -27,7 +28,8 @@ def main():
  hashes={};files=[]
  for f in paths+[tb,Path(__file__),interface,ROOT/'third_party/kd28_dependency.json']:
   b=f.read_bytes();h=hashlib.sha256(b).hexdigest()
-  if f.is_relative_to(a.kd28_root.resolve()) and h!=deps[str(f.relative_to(a.kd28_root.resolve()))]:raise ValueError('dependency changed '+str(f))
+  resolved=f.resolve()
+  if resolved in external_paths and h!=deps[external_paths[resolved]]:raise ValueError('dependency changed '+str(f))
   hashes[str(f)]=h;target=src/f.name
   if target.exists():raise ValueError('collision '+target.name)
   if a.fault and (f.stem==TOP and a.fault!='credit_pool' or f.stem=='upli_native_rx_channel' and a.fault=='credit_pool'):
