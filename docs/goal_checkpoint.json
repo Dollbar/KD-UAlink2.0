@@ -1,18 +1,17 @@
 {
   "active_goal": "完整Accelerator Endpoint/Controller与Switch数字RTL IP；未完成",
   "previous_goal_turn": "progress",
-  "latest_stage": "Configurable actual Endpoint Read ownership: 20 capacity pairs + default/invalid/fault cases passed; three uniform network reset windows verified; full dual IP remains incomplete",
-  "rtl": "rtl/tl/tl_tx_prepared.v",
-  "review": "docs/endpoint_capacity_review.md",
-  "evidence": "docs/endpoint_capacity_evidence.json",
+  "latest_stage": "Ordinary Write/WriteFull shared Read/Write ownership delivered: model/unit/receiver checks, four-capacity dual-core tests, and corrected real ESE 1172 requests/completions with 320 Write executions and 16 replays passed; full dual IP remains incomplete",
+  "rtl": "rtl/endpoint/ualink_endpoint_top.v",
+  "review": "docs/endpoint_write_integration_review.md",
+  "evidence": "docs/endpoint_write_evidence.json",
   "full_goal_complete": false,
   "next_actions": [
-    "Implement full ordinary Write/WriteFull lengths with shared Read/Write Tag ownership and ordered Data/BE reception, following docs/endpoint_write_contract_review.md.",
+    "Publish the reviewed ordinary Write increment to authorized Overflow namespaces; expand full Read lengths/masks and mixed Write in-flight reset/epoch behavior next.",
     "Expand Read sizes/masks, response kinds, independent reset epochs and complete supported parameter coverage.",
     "Close strict static coding/review debt and continue native UPLI, standard per-hop TL/DL, digital PHY, INC, security, management, CDC/RDC and process STA."
   ],
-  "remote_main": "c34f40f2dc00c2e12283897ea0f3de085abfbc7f",
-  "new_work_published": true,
+  "remote_main": "186769aea7d14adfa5add3e823a6c7e571702508",
   "live_jobs": [],
   "last_authorized_push": {
     "repository": "https://github.com/Dollbar/Overflow",
@@ -643,5 +642,6 @@
     "capacity_recovery": true,
     "uniform_reset_stage": 3,
     "passed": true
-  }
+  },
+  "publication_tracking": "The exported verification/UAlink2.0/.ualink-export.json and PUBLICATION.md identify the immutable published source snapshot; this source checkpoint records the pre-publication state and cannot self-certify a later push."
 }
