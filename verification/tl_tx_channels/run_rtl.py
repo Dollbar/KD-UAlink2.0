@@ -5,7 +5,7 @@ from pathlib import Path
 import argparse,hashlib,itertools,json,subprocess
 from test_model import Channels,inputs
 R=Path(__file__).resolve().parents[2];p=argparse.ArgumentParser(description=__doc__);p.add_argument('--label',default='unit');p.add_argument('--replace',type=Path);a=p.parse_args();S=R/'build/verification/tl_tx_channels'/a.label;S.mkdir(parents=True,exist_ok=False)
-src=[R/'rtl/tl'/n for n in ('tl_tx_channels.v','tl_tx_packer.v','tl_credit_admission.v','tl_control_decode.v','tl_control_tenure.v')]
+src=[R/'rtl/tl'/n for n in ('tl_tx_channels.v','tl_tx_packer.v','tl_tx_packer_core.v','tl_credit_admission.v','tl_control_decode.v','tl_control_tenure.v')]
 if a.replace:src=[a.replace if x.name==a.replace.name else x for x in src]
 def pack(v,b):return sum(int(x)<<(j*b) for j,x in enumerate(v))
 rows=[]

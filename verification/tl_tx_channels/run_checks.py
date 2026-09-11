@@ -4,8 +4,9 @@ Outputs checks/; next independent final trace audit and full-goal status update.
 """
 from pathlib import Path
 import argparse,hashlib,json,subprocess,sys
-R=Path(__file__).resolve().parents[2];p=argparse.ArgumentParser(description=__doc__);p.add_argument('--kd28-root',type=Path,required=True);a=p.parse_args();S=R/'build/verification/tl_tx_channels/checks';S.mkdir(parents=True,exist_ok=False)
-src=[R/'rtl/tl'/n for n in ('tl_tx_channels.v','tl_tx_packer.v','tl_credit_admission.v','tl_control_decode.v','tl_control_tenure.v')];rows=[]
+R=Path(__file__).resolve().parents[2];p=argparse.ArgumentParser(description=__doc__);p.add_argument('--kd28-root',type=Path,required=True);p.add_argument('--label',default='checks');a=p.parse_args();S=R/'build/verification/tl_tx_channels'/a.label;S.mkdir(parents=True,exist_ok=False)
+fault_prefix='' if a.label=='checks' else a.label+'_'
+src=[R/'rtl/tl'/n for n in ('tl_tx_channels.v','tl_tx_packer.v','tl_tx_packer_core.v','tl_credit_admission.v','tl_control_decode.v','tl_control_tenure.v')];rows=[]
 def run(name,cmd):
     c=subprocess.run(cmd,capture_output=True,text=True,timeout=240);(S/(name+'.log')).write_text(c.stdout+c.stderr);return c
 for w in (8,16):
@@ -23,8 +24,8 @@ source=src[0].read_text();mutations={
 }
 for name,(old,new) in mutations.items():
     if old not in source:raise ValueError('inactive mutation '+name)
-    d=S/name;d.mkdir();f=d/'tl_tx_channels.v';f.write_text(source.replace(old,new));c=run(name,[sys.executable,str(R/'verification/tl_tx_channels/run_rtl.py'),'--label','fault_'+name,'--replace',str(f)])
-    r=json.loads((R/'build/verification/tl_tx_channels'/('fault_'+name)/'results.json').read_text());caught=c.returncode==1 and all(x['compile_exit']==0 and x['run_exit']==1 for x in r['results']);rows.append(dict(kind='unit_fault',name=name,passed=caught));print(rows[-1],flush=True)
+    d=S/name;d.mkdir();f=d/'tl_tx_channels.v';f.write_text(source.replace(old,new));c=run(name,[sys.executable,str(R/'verification/tl_tx_channels/run_rtl.py'),'--label',fault_prefix+'fault_'+name,'--replace',str(f)])
+    r=json.loads((R/'build/verification/tl_tx_channels'/(fault_prefix+'fault_'+name)/'results.json').read_text());caught=c.returncode==1 and all(x['compile_exit']==0 and x['run_exit']==1 for x in r['results']);rows.append(dict(kind='unit_fault',name=name,passed=caught));print(rows[-1],flush=True)
 external=[a.kd28_root/'Library/models/kd28/sram/rtl'/n for n in ('kd28_sram_sp_model.v','kd28_sram_sdp_model.v','kd28_sram_tdp_model.v','kd28_sram_cells.v')]+[a.kd28_root/'Library/models/kd28/fifo/rtl/kd28_fifo_sdp_storage_map.v']
 for fault,mode in (('selected_data_owner','none'),('lost_owner_update','none'),('ignore_ready','request'),('ignore_ready','response')):
     f=S/fault/'tl_tx_channels.v';sources=[f if x.name==f.name else x for x in sorted((R/'rtl/tl').glob('*.v'))]+[R/'rtl/upli/upli_receive_fifo.v',R/'rtl/upli/upli_receive_storage.v']+external

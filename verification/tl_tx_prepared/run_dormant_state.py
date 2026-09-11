@@ -1,5 +1,5 @@
 """Run python3 verification/tl_tx_prepared/run_dormant_state.py --label NEW_LABEL
-[--widths 8 16]. For each actual mapped preparation lane with owner=0 and reset
+[--pair mapped_pair] [--widths 8 16]. For each actual mapped preparation lane with owner=0 and reset
 cursor, prove independent dormant payload cannot change any public/macro output
 or nonpayload next state; on capture its next payload must also agree. Outputs
 four actual D/Q miters and SAT logs. Next compose reset, cursor invariants and
@@ -61,18 +61,20 @@ def dormant_wrapper(graph, layout, lane):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--label', required=True)
+    parser.add_argument('--pair', default='mapped_pair')
     parser.add_argument('--widths', type=int, nargs='+', choices=(8, 16), default=[8, 16])
     args = parser.parse_args()
     need(args.label.replace('_', '').replace('-', '').isalnum(), 'invalid label')
+    need(args.pair.replace('_', '').replace('-', '').isalnum(), 'invalid pair label')
     need(len(args.widths) == len(set(args.widths)), 'duplicate widths')
     base = ROOT / 'build/verification/tl_tx_prepared'
     stage = base / args.label
     stage.mkdir(exist_ok=False)
     (stage / 'runner.py').write_bytes(Path(__file__).read_bytes())
     result = dict(complete=False, scope='actual mapped one-lane dormant-payload noninterference and capture relation',
-                  results=[], mapped_equivalence=False, actual_capture_fault_qualified=False, full_goal_complete=False)
+                  pair=args.pair, results=[], mapped_equivalence=False, actual_capture_fault_qualified=False, full_goal_complete=False)
     for width in args.widths:
-        source = base / f'mapped_pair/w{width}'
+        source = base / args.pair / f'w{width}'
         original = json.loads((source / 'gate_observed.json').read_text())['modules']['tl_tx_prepared']
         graph = json.loads((source / 'gate_cut.json').read_text())['modules']['step_gate']
         layout = json.loads((source / 'gate_state.json').read_text())

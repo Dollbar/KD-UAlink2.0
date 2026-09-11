@@ -17,7 +17,7 @@ foreach path [list $env(UALINK_LIBERTY) $macro_rtl $mapping_rtl] {
 file mkdir $result
 yosys read_verilog -lib $macro_rtl
 yosys read_verilog $mapping_rtl
-foreach name {tl_tx_prepared tl_prepared_partition tl_tx_buffered tl_tx_data_fifo tl_tx_channels tl_tx_packer tl_credit_admission tl_control_decode tl_control_tenure upli_receive_fifo upli_receive_storage} {
+foreach name {tl_tx_prepared tl_prepared_partition tl_tx_buffered tl_tx_data_fifo tl_tx_channels tl_tx_packer tl_tx_packer_core tl_credit_admission tl_control_decode tl_control_tenure upli_receive_fifo upli_receive_storage} {
     yosys read_verilog [file join $env(UALINK_SOURCE_DIR) $name.v]
 }
 yosys chparam -set WIDTH $env(UALINK_WIDTH) -set HEADER_DEPTH 2 -set BANK_DEPTH 3 tl_tx_prepared

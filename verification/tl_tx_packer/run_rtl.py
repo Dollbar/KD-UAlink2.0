@@ -5,7 +5,7 @@ from pathlib import Path
 import argparse,hashlib,itertools,json,random,subprocess,sys
 from test_model import Packer,inputs
 R=Path(__file__).resolve().parents[2];p=argparse.ArgumentParser(description=__doc__);p.add_argument('--label',default='unit');p.add_argument('--replace',type=Path);a=p.parse_args();S=R/'build/verification/tl_tx_packer'/a.label;S.mkdir(parents=True,exist_ok=False)
-src=[R/'rtl/tl'/n for n in ('tl_tx_packer.v','tl_credit_admission.v','tl_control_decode.v','tl_control_tenure.v')]
+src=[R/'rtl/tl'/n for n in ('tl_tx_packer.v','tl_tx_packer_core.v','tl_credit_admission.v','tl_control_decode.v','tl_control_tenure.v')]
 if a.replace:src=[a.replace if q.name==a.replace.name else q for q in src]
 keys=[('rstn',1),('transfer',1),('pending',7),('auth',1),('done',1),('shared',1),('available',None),('capacity',None),('request_budget',3),('response_budget',4),('header_valid',1),('header',256),('tags_valid',1),('tags',256),('data_valid',2),('data0',256),('data1',256),('fc_valid',1),('fc',512),('fc_msg',2)]
 def pack(v,b):return sum(x<<(j*b) for j,x in enumerate(v))

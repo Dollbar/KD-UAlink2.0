@@ -1,5 +1,5 @@
 """Run python3 verification/tl_tx_prepared/run_cursor_invariants.py --label NEW_LABEL
-[--widths 8 16]. Outputs four actual-RTL single-step SAT proofs for the cursor
+[--pair mapped_pair] [--widths 8 16]. Outputs four actual-RTL single-step SAT proofs for the cursor
 relation domain: cursor<=8 and unowned implies cursor=0. Initial establishment
 comes from independent_reset; next combine with complete mapped CEC/dormant SAT.
 """
@@ -13,18 +13,20 @@ from run_reset_state import ROOT, identifier, audit_cut, dump, execute, need, sh
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--label', required=True)
+    parser.add_argument('--pair', default='mapped_pair')
     parser.add_argument('--widths', type=int, nargs='+', choices=(8, 16), default=[8, 16])
     args = parser.parse_args()
     need(args.label.replace('_', '').replace('-', '').isalnum(), 'invalid label')
+    need(args.pair.replace('_', '').replace('-', '').isalnum(), 'invalid pair label')
     need(len(args.widths) == len(set(args.widths)), 'duplicate widths')
     base = ROOT / 'build/verification/tl_tx_prepared'
     stage = base / args.label
     stage.mkdir(exist_ok=False)
     (stage / 'runner.py').write_bytes(Path(__file__).read_bytes())
     result = dict(complete=False, scope='actual RTL one-step closure of cursor<=8 and unowned implies cursor=0',
-                  initial_reset_proof='independent_reset', results=[], mapped_equivalence=False, full_goal_complete=False)
+                  initial_reset_proof_required=True, pair=args.pair, results=[], mapped_equivalence=False, full_goal_complete=False)
     for width in args.widths:
-        source = base / f'mapped_pair/w{width}'
+        source = base / args.pair / f'w{width}'
         graph = json.loads((source / 'gold_cut.json').read_text())['modules']['step_gold']
         original = json.loads((source / 'gold_observed.json').read_text())['modules']['tl_tx_prepared']
         layout = json.loads((source / 'gold_state.json').read_text())

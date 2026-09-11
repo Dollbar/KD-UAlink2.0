@@ -18,7 +18,7 @@ from timing_report import measure
 
 CORNERS=('tt0p9v25c','ssg0p81v125c','ssg0p81vm40c','ffg0p99v125c','ffg0p99vm40c')
 VIEWS=('fast','typical','slow')
-NAMES=('tl_tx_prepared','tl_prepared_partition','tl_tx_buffered','tl_tx_data_fifo','tl_tx_channels','tl_tx_packer','tl_credit_admission','tl_control_decode','tl_control_tenure')
+NAMES=('tl_tx_prepared','tl_prepared_partition','tl_tx_buffered','tl_tx_data_fifo','tl_tx_channels','tl_tx_packer','tl_tx_packer_core','tl_credit_admission','tl_control_decode','tl_control_tenure')
 
 
 def main():
